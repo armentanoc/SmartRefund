@@ -1,4 +1,4 @@
-# ProjetoFinalDiverseDEV
+# SmartRefund
 
 ## ⚡ Desafio 1 - Inteligência Artificial
 - No cenário empresarial, uma das tarefas que mais causam contratempos é o processo de lançamento de notas fiscais e cupons para reembolso. Muitas pessoas encontram dificuldades em preencher de forma correta, resultando em uma série de problemas, tanto para os colaboradores quanto para a equipe financeira da empresa, consumindo um tempo valioso de todos.
