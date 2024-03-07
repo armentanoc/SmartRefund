@@ -1,0 +1,6 @@
+@SmartRefund.WebAPI_HostAddress = http://localhost:5029
+
+GET {{SmartRefund.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
