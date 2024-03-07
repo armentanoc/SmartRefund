@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Interfaces\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SmartRefund.CustomExceptions\SmartRefund.CustomExceptions.csproj" />
+    <ProjectReference Include="..\SmartRefund.Domain\SmartRefund.Domain.csproj" />
+    <ProjectReference Include="..\SmartRefund.Infra\SmartRefund.Infra.csproj" />
+    <ProjectReference Include="..\SmartRefund.ViewModels\SmartRefund.ViewModels.csproj" />
+  </ItemGroup>
+
+</Project>
