@@ -41,6 +41,7 @@ namespace SmartRefund.WebAPI
 
             builder.Services.AddScoped<IFileValidatorService, FileValidatorService>();
             builder.Services.AddScoped<IRepositoryTeste, RepositoryTeste>();
+            builder.Services.AddScoped<IFileValidatorService, FileValidatorService>();
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
