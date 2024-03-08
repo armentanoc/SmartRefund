@@ -6,6 +6,7 @@ using SmartRefund.Application.Services;
 using SmartRefund.Infra.Context;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.Infra.Repositories;
+using SmartRefund.WebAPI.Middlewares;
 
 namespace SmartRefund.WebAPI
 {
@@ -55,10 +56,12 @@ namespace SmartRefund.WebAPI
                 app.UseSwaggerUI();
             }
 
+            //Custom Logging Middleware
+            app.UseMiddleware<LoggingMiddleware>();
+
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 
