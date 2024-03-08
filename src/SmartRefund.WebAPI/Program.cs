@@ -21,7 +21,14 @@ namespace SmartRefund.WebAPI
             //Add Logging
             builder.Services.AddLogging();
 
-            builder.Services.AddControllers();
+            //Controllers
+            builder.Services.AddControllers(options =>
+            {
+                //Custom Exception Filter
+                options.Filters.Add<ExceptionFilter>();
+            }
+            );
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
 
