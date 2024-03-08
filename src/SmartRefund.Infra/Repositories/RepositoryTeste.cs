@@ -12,5 +12,10 @@ namespace SmartRefund.Infra.Repositories
         public RepositoryTeste(AppDbContext context) : base(context)
         {
         }
+
+        public Task<bool> QualquerCoisa()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
