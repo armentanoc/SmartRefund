@@ -1,5 +1,13 @@
 # SmartRefund
 
+## Para testar o EF Core "do zero" e/ou fazer modificações
+
+- Abrir o package manager console (ir em search e pesquisar)
+- Marcar o projeto de Infra como default
+- Apagar as pastas Migrations e o DB -- se quiser, não é necessário em muitos casos
+- Add-Migration NomeDaMigration (ex.: CreateDatabaseInitial, AddTableXXX)
+- Update-Database
+
 ## Git Co-Author command
 
 ```
