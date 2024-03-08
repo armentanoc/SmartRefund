@@ -4,6 +4,10 @@ namespace SmartRefund.Domain.Models
 {
     public class TranslatedVisionReceipt : BaseEntity
     {
+        public TranslatedVisionReceipt()
+        {
+        }
+
         public TranslatedVisionReceipt(RawVisionReceipt rawVisionReceipt, bool isReceipt, TranslatedVisionReceiptCategoryEnum category, TranslatedVisionReceiptStatusEnum status, decimal total, string description)
         {
             RawVisionReceipt = rawVisionReceipt;
