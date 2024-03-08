@@ -38,9 +38,9 @@ HTTP/1.1 400 Bad Request
 
 - Em seguida, poderíamos extrair as informações da despesa.
   
-  - Categoria da despesa `prompt: que categoria de despesa é essa, entre: hospedagem, transporte, viagem, alimentação ou Outros`.
-  - Valor total da despesa `prompt: qual o valor dessa despesa`
-  - Descricao da despesa `prompt: descreva sobre a despesa`
+  - Categoria da despesa `prompt: que categoria de despesa é essa, entre: hospedagem, transporte, viagem, alimentação ou Outros`. (especificar RESPONDA COM HOSPEDAGEM ou TRANSPORTE ou VIAGEM ou ALIMENTACAO ou OUTROS)
+  - Valor total da despesa `prompt: qual o valor dessa despesa` (apenas números, exemplo)
+  - Descricao da despesa `prompt: descreva sobre a despesa` (texto corrido especificamente, der um comando mais específico pra ter menos texto desnecessário) 
     
 - Após extrair todas as informações, devemos gravar em um banco de dados qualquer a despesa na seguinte estrutura de exemplo:
 
