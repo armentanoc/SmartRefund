@@ -52,8 +52,13 @@ namespace SmartRefund.WebAPI
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlite(builder.Configuration.GetConnectionString("SmartRefundDbContext"));
+                options.UseSqlite(builder.Configuration.GetConnectionString("SmartRefundSqlite"));
             });
+
+            builder.Services.AddScoped<IFileValidatorService, FileValidatorService>();
+            builder.Services.AddScoped<IRepositoryTeste, RepositoryTeste>();
+            builder.Services.AddScoped<ITranslatedVisionReceiptRepository, TranslatedVisionReceiptRepository>();
+            builder.Services.AddScoped<IRawVisionReceiptRepository, RawVisionReceiptRepository>();
 
             var app = builder.Build();
 
