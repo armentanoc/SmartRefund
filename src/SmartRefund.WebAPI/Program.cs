@@ -46,10 +46,6 @@ namespace SmartRefund.WebAPI
                 c.EnableAnnotations();
             });
 
-            builder.Services.AddScoped<IFileValidatorService, FileValidatorService>();
-            builder.Services.AddScoped<IRepositoryTeste, RepositoryTeste>();
-            builder.Services.AddScoped<IFileValidatorService, FileValidatorService>();
-
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlite(builder.Configuration.GetConnectionString("SmartRefundSqlite"));
