@@ -10,7 +10,7 @@ namespace SmartRefund.Application.Services
         private IRepositoryTeste _repository;
         private ILogger<FileValidatorService> _logger;
         private string? _errormessage;
-        public string ErrorMessage
+        public string? ErrorMessage
         {
             get
             {
@@ -46,7 +46,7 @@ namespace SmartRefund.Application.Services
         {
             if (lenght > 2 * 1024 * 1024)
             {
-                _errormessage = "Erro ao fazer upload. Arquivo é maior do que 20MB";
+                _errormessage = "Arquivo é maior do que 20MB";
                 return false;
             }
             return true;
@@ -57,7 +57,7 @@ namespace SmartRefund.Application.Services
             string[] extensoesPermitidas = [".png", ".jpg", ".jpeg"];
             if (!extensoesPermitidas.Contains(fileName))
             {
-                _errormessage = "Erro ao fazer upload. Arquivo é maior do que 20MB";
+                _errormessage = "Extensão não permitida";
                 return false;
             }
             return true;

@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using SmartRefund.Application.Interfaces;
@@ -29,6 +30,12 @@ namespace SmartRefund.WebAPI
                 options.Filters.Add<ExceptionFilter>();
             }
             );
+
+            //Remove os provedores de log padrão**
+            builder.Logging.ClearProviders();
+
+            //Adiciona os log no console**
+            builder.Logging.AddConsole();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
