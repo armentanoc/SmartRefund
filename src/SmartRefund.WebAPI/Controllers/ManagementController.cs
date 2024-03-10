@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SmartRefund.Application.Interfaces;
+using SmartRefund.Application.Services;
+using SmartRefund.Domain.Enums;
 using SmartRefund.Infra.Interfaces;
 
 namespace SmartRefund.WebAPI.Controllers
@@ -7,10 +10,24 @@ namespace SmartRefund.WebAPI.Controllers
     [Route("[controller]")]
     public class ManagementController : Controller
     {
+        private readonly IInternalAnalyzerService _analyzerService;
 
-        public IActionResult Index()
+        public ManagementController(IInternalAnalyzerService analyzerService)
         {
-            return View();
+            _analyzerService = analyzerService;
         }
+
+
+        [HttpGet("receipts/submitted")]
+        public async Task<IActionResult> GetAllByStatus()
+        {
+            var receipts = await _analyzerService.GetAllByStatus();
+            if (receipts != null && receipts.Count() != 0)
+                return Ok(receipts);
+            
+            return NotFound();
+        }
+
+
     }
 }
