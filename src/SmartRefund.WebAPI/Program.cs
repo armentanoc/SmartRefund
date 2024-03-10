@@ -55,6 +55,8 @@ namespace SmartRefund.WebAPI
             builder.Services.AddScoped<IRepositoryTeste, RepositoryTeste>();
             builder.Services.AddScoped<ITranslatedVisionReceiptRepository, TranslatedVisionReceiptRepository>();
             builder.Services.AddScoped<IRawVisionReceiptRepository, RawVisionReceiptRepository>();
+            builder.Services.AddScoped<IInternalReceiptRepository, InternalReceiptRepository>();
+
 
             var app = builder.Build();
 

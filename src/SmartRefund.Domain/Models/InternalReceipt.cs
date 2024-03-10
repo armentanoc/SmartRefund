@@ -11,7 +11,7 @@ namespace SmartRefund.Domain.Models
     {
         public uint EmployeeId { get; private set; }
         public DateTime CreationDate { get; private set; }
-        public InternalReceiptStatusEnum Status { get; set; }
+        public InternalReceiptStatusEnum Status { get; private set; }
 
         //Recebe a imagem
 
@@ -22,5 +22,10 @@ namespace SmartRefund.Domain.Models
             Status = InternalReceiptStatusEnum.Unprocessed;
         }
         public InternalReceipt() { }
+
+        public void SetStatus(InternalReceiptStatusEnum status)
+        {
+            Status = status;
+        }
     }
 }

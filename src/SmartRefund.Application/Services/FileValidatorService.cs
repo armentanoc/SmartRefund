@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SmartRefund.Application.Interfaces;
+using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
 
 
@@ -7,7 +8,7 @@ namespace SmartRefund.Application.Services
 {
     public class FileValidatorService : IFileValidatorService
     {
-        private IRepositoryTeste _repository;
+        private IInternalReceiptRepository _repository;
         private ILogger<FileValidatorService> _logger;
         private string? _errormessage;
         public string? ErrorMessage
@@ -23,7 +24,7 @@ namespace SmartRefund.Application.Services
         }
 
 
-        public FileValidatorService(IRepositoryTeste repository, ILogger<FileValidatorService> logger)
+        public FileValidatorService(IInternalReceiptRepository repository, ILogger<FileValidatorService> logger)
         {
             _repository = repository;
             _logger = logger;
@@ -34,32 +35,30 @@ namespace SmartRefund.Application.Services
             //var path = filePath;
             //var file = System.IO.File.ReadAllBytes(path);
 
-            if (!ValidateSize(lenght) && !ValidateType(name))
+            if (ValidateSize(lenght) && ValidateType(name))
             {
-                return false;
+                return true;
             }
 
-            return true;
+            return false;
         }
 
         public bool ValidateSize(long lenght)
         {
-            if (lenght > 2 * 1024 * 1024)
+            if (lenght > 5 * 1024 * 1024) //mudar para 20MB?
             {
-                _errormessage = "Arquivo é maior do que 20MB";
-                return false;
+                throw new ArgumentException("Arquivo é maior do que 20MB");
             }
             return true;
         }
 
-        public bool ValidateType(string fileName)
+        public bool ValidateType(string extension)
         {
-            string[] extensoesPermitidas = [".png", ".jpg", ".jpeg"];
-            if (!extensoesPermitidas.Contains(fileName))
-            {
-                _errormessage = "Extensão não permitida";
-                return false;
-            }
+            string[] possibleExtensions = [".png", ".jpg", ".jpeg"];
+
+            if (!possibleExtensions.Contains(extension))
+                throw new ArgumentException("Extensão não permitida");
+
             return true;
         }
 

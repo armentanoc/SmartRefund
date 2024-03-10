@@ -5,6 +5,7 @@ using SmartRefund.Application.Interfaces;
 using SmartRefund.Domain.Models;
 using SmartRefund.Application.Services;
 using System.ComponentModel.DataAnnotations;
+using SmartRefund.ViewModels;
 
 namespace SmartRefund.WebAPI.Controllers
 {
@@ -28,18 +29,26 @@ namespace SmartRefund.WebAPI.Controllers
             {
                 await file.CopyToAsync(fileStream);
             };
+            var extension = Path.GetExtension(file.FileName);
 
-            if(_fileValidator.Validate(file.Length, file.FileName))
-            {
-                //criar InternalReceipt
-                InternalReceipt receipt = new InternalReceipt(employeeId);
-                return Ok();
-            }
+            _fileValidator.Validate(file.Length, extension);
+           
+            InternalReceipt receipt = new InternalReceipt(employeeId);
+            return Ok();
 
-            //Titulo = "Erro ao fazer upload",
-            //Mensagem = _fileValidator.ErrorMessage,
-            //StatusCode = 400
-            return BadRequest(400);
+
+                //Para tentarmos fazer a imagem ir para o banco
+                /*byte[] barray;
+                using (var memoryStream = new MemoryStream())
+                {
+                await file.CopyToAsync(memoryStream);
+
+                barray = memoryStream.ToArray();
+                }*/
+                //Colocar barray como parâmetro do construtor
+
+                //CLASSE INTERNALRECEIPT
+                // public byte[] Image { get; set; }
         }
     }
 }
