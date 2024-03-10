@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.Application.Services;
+using SmartRefund.Domain.Enums;
+using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Context;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.Infra.Repositories;
@@ -50,14 +52,23 @@ namespace SmartRefund.WebAPI
             builder.Services.AddScoped<IRawVisionReceiptRepository, RawVisionReceiptRepository>();
 
             var app = builder.Build();
+           /* 
+            * Teste Manual limpar posteriormente
+            * using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var dbContext = services.GetRequiredService<AppDbContext>();
 
+
+                SeedInitialData(dbContext);
+            }*/
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            
             //Custom Logging Middleware
             app.UseMiddleware<LoggingMiddleware>();
 
@@ -69,5 +80,23 @@ namespace SmartRefund.WebAPI
 
             app.Run();
         }
+
+       /*
+        * Adicionar dados iniciais para teste manual limpar posteriormente
+        *private static void SeedInitialData(AppDbContext dbContext)
+        {
+            // Check if there is any existing data
+            if (!dbContext.TranslatedVisionReceipt.Any())
+            {
+                // Seed initial TranslatedVisionReceipt data
+                var receipt1 = new TranslatedVisionReceipt(new RawVisionReceipt(), true, TranslatedVisionReceiptCategoryEnum.ALIMENTACAO, TranslatedVisionReceiptStatusEnum.SUBMETIDO, 100, "Receipt description 1");
+                var receipt2 = new TranslatedVisionReceipt(new RawVisionReceipt(), true, TranslatedVisionReceiptCategoryEnum.HOSPEDAGEM, TranslatedVisionReceiptStatusEnum.PAGA, 200, "Receipt description 2");
+                var receipt3 = new TranslatedVisionReceipt(new RawVisionReceipt(), true, TranslatedVisionReceiptCategoryEnum.TRANSPORTE, TranslatedVisionReceiptStatusEnum.SUBMETIDO, 150, "Receipt description 3");
+
+                dbContext.TranslatedVisionReceipt.AddRange(receipt1, receipt2, receipt3);
+                dbContext.SaveChanges();
+            }
+        */
+
     }
 }
