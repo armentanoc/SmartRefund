@@ -25,28 +25,6 @@ namespace SmartRefund.Application.Services
             _logger = logger;
         }
 
-        public async Task<TranslatedVisionReceipt> UpdateStatus(uint id, string newStatus)
-        {
-            var translatedVisionReceipt = await GetById(id);
-
-            if (Enum.TryParse<TranslatedVisionReceiptStatusEnum>(newStatus, true, out var result))
-            {
-                translatedVisionReceipt.SetStatus(result);
-                return await _receiptRepository.UpdateAsync(translatedVisionReceipt);
-            }
-
-            throw new InvalidOperationException();
-
-        }
-
-        private async Task<TranslatedVisionReceipt> GetById(uint id)
-        {
-            var translatedVisionReceipt = await _receiptRepository.GetAsync(id);
-
-            return translatedVisionReceipt;
-        }
-
-
         public async Task<IEnumerable<TranslatedVisionReceipt>> GetAllByStatus()
         {
             try
@@ -59,6 +37,34 @@ namespace SmartRefund.Application.Services
             }
         }
 
+        public async Task<TranslatedVisionReceipt> UpdateStatus(uint id, string newStatus)
+        {
+            var translatedVisionReceipt = await GetById(id);
+
+            if (TryParseStatus(newStatus, out var result))
+            {
+                translatedVisionReceipt.SetStatus(result);
+                var updatedObject = await _receiptRepository.UpdateAsync(translatedVisionReceipt);
+                
+                return updatedObject;
+            }
+
+            throw new InvalidOperationException("Status enviado inválido!");
+        }
+
+        public bool TryParseStatus(string newStatus, out TranslatedVisionReceiptStatusEnum result)
+        {
+            return Enum.TryParse<TranslatedVisionReceiptStatusEnum>(newStatus, true, out result);
+        }
+
+
+
+        private async Task<TranslatedVisionReceipt> GetById(uint id)
+        {
+            var translatedVisionReceipt = await _receiptRepository.GetAsync(id);
+
+            return translatedVisionReceipt;
+        }
 
     }
 }
