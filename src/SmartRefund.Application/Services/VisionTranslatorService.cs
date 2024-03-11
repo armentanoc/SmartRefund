@@ -66,91 +66,85 @@ namespace SmartRefund.Application.Services
             throw new UnnableToTranslateException("Category", category);
         }
 
-        private string RemoveDiacritics(string text)
+
+        public string RemoveDiacritics(string text)
         {
 
-            string textOutsideDatabase = "Essa despesa se enquadra na categoria de alimentação. 🍽️";
-
-            string normalizedText = textOutsideDatabase.Normalize(NormalizationForm.FormD);
-            _logger.LogInformation($"NormalizedText: {normalizedText}");
-            _logger.LogInformation($"RawTextOutsideDatabase: {textOutsideDatabase} {textOutsideDatabase.GetType()}");
-            _logger.LogInformation($"Tipo do texto: {text.GetType()}");
-
-            
+            string normalizedText = text.Normalize(NormalizationForm.FormD);
             StringBuilder result = new StringBuilder();
 
-            //foreach (char c in normalizedText)
-            //{
-            //    _logger.LogInformation($"Char: {c} {CharUnicodeInfo.GetUnicodeCategory(c)}");
-            //    if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-            //        result.Append(c);
-            //}
+            foreach (char c in normalizedText)
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                    result.Append(c);
+            }
 
             return result.ToString();
         }
 
         public string GetDescription(string description)
-    {
-        if (string.IsNullOrWhiteSpace(description))
-            throw new FieldIsNullOrWhitespaceException("Description", description);
-
-        string cleanDescription = description.Replace("\n", "").Trim();
-        LogInformation("Description", description, cleanDescription);
-        return cleanDescription;
-    }
-
-    public bool GetIsReceipt(string isReceipt)
-    {
-        if (string.IsNullOrWhiteSpace(isReceipt))
-            throw new FieldIsNullOrWhitespaceException("IsRecept", isReceipt);
-
-        bool isYes = Regex.IsMatch(isReceipt, @"^sim$", RegexOptions.IgnoreCase);
-        bool isNo = Regex.IsMatch(isReceipt, @"^n(ã|a)o$", RegexOptions.IgnoreCase);
-        bool isReceiptBool;
-
-        if (isYes && !isNo)
-            isReceiptBool = true;
-        else if (isNo)
-            isReceiptBool = false;
-        else
-            throw new UnnableToTranslateException("IsReceipt", isReceipt);
-
-        LogInformation("IsReceipt", isReceipt, isReceiptBool.ToString());
-        return isReceiptBool;
-    }
-
-    private void LogInformation(string type, string raw, string clean)
-    {
-        _logger.LogInformation($"Raw{type}: {raw}");
-        _logger.LogInformation($"Clean{type}: {clean}");
-    }
-
-    public decimal GetTotal(string total)
-    {
-        if (string.IsNullOrWhiteSpace(total))
-            throw new FieldIsNullOrWhitespaceException("Total", total);
-
-        string numberPattern = @"[\d]+([.,][\d]+)?";
-        Match match = Regex.Match(total, numberPattern);
-
-        _logger.LogInformation($"RawTotal: {total}");
-
-        if (match.Success)
         {
-            string decimalString = match.Value;
+            if (string.IsNullOrWhiteSpace(description))
+                throw new FieldIsNullOrWhitespaceException("Description", description);
 
-            if (decimal.TryParse(decimalString, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal decimalValue))
+            string cleanDescription = description.Replace("\n", "").Trim();
+            LogInformation("Description", description, cleanDescription);
+            return cleanDescription;
+        }
+
+
+        public bool GetIsReceipt(string isReceipt)
+        {
+            if (string.IsNullOrWhiteSpace(isReceipt))
+                throw new FieldIsNullOrWhitespaceException("IsRecept", isReceipt);
+
+            bool isYes = Regex.IsMatch(isReceipt, @"^sim$", RegexOptions.IgnoreCase);
+            bool isNo = Regex.IsMatch(isReceipt, @"^n(ã|a)o$", RegexOptions.IgnoreCase);
+            bool isReceiptBool;
+
+            if (isYes && !isNo)
+                isReceiptBool = true;
+            else if (isNo)
+                isReceiptBool = false;
+            else
+                throw new UnnableToTranslateException("IsReceipt", isReceipt);
+
+            LogInformation("IsReceipt", isReceipt, isReceiptBool.ToString());
+            return isReceiptBool;
+        }
+
+        private void LogInformation(string type, string raw, string clean)
+        {
+            _logger.LogInformation($"Raw{type}: {raw}");
+            _logger.LogInformation($"Clean{type}: {clean}");
+        }
+
+        public decimal GetTotal(string total)
+        {
+            if (string.IsNullOrWhiteSpace(total))
+                throw new FieldIsNullOrWhitespaceException("Total", total);
+
+            string numberPattern = @"[\d]+([.,][\d]+)?";
+            Match match = Regex.Match(total, numberPattern);
+
+            _logger.LogInformation($"RawTotal: {total}");
+
+            if (match.Success)
             {
-                LogInformation("Total", total, decimalValue.ToString());
-                return decimalValue;
+                string decimalString = match.Value;
+
+                if (decimal.TryParse(decimalString, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal decimalValue))
+                {
+                    LogInformation("Total", total, decimalValue.ToString());
+                    return decimalValue;
+                }
+                else
+                    throw new UnnableToTranslateException("Total", $"couldn't parse to decimal - {total}");
             }
             else
-                throw new UnnableToTranslateException("Total", $"couldn't parse to decimal - {total}");
-        }
-        else
-        {
-            throw new UnnableToTranslateException("Total", $"no number found at string - {total}");
+            {
+                throw new UnnableToTranslateException("Total", $"no number found at string - {total}");
+            }
         }
     }
-}
 }
