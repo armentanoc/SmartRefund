@@ -22,10 +22,10 @@ namespace SmartRefund.WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(RawVisionReceiptViewModelTeste rawVisionReceiptTeste)
+        public async Task<IActionResult> Add(RawVisionReceiptRequest rawVisionReceiptRequest)
         {
-            var internalReceipt = new InternalReceipt(rawVisionReceiptTeste.InternalReceiptId);
-            var rawVisionReceipt = new RawVisionReceipt(internalReceipt, rawVisionReceiptTeste.IsReceipt, rawVisionReceiptTeste.Category, rawVisionReceiptTeste.Total, rawVisionReceiptTeste.Description, rawVisionReceiptTeste.IsTranslated);
+            var internalReceipt = new InternalReceipt(1);
+            var rawVisionReceipt = new RawVisionReceipt(internalReceipt, rawVisionReceiptRequest.IsReceipt, rawVisionReceiptRequest.Category, rawVisionReceiptRequest.Total, rawVisionReceiptRequest.Description, false);
             var createdRawVisionReceipt = await _repository.AddAsync(rawVisionReceipt);
             return CreatedAtAction("GetItemById", new { id = createdRawVisionReceipt.Id }, new { message = "Resource created successfully.", data = createdRawVisionReceipt });
         }

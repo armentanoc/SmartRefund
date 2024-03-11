@@ -44,6 +44,7 @@ namespace SmartRefund.WebAPI
             });
 
             builder.Services.AddScoped<IFileValidatorService, FileValidatorService>();
+            builder.Services.AddScoped<IVisionTranslatorService, VisionTranslatorService>();
             builder.Services.AddScoped<IRepositoryTeste, RepositoryTeste>();
             builder.Services.AddScoped<ITranslatedVisionReceiptRepository, TranslatedVisionReceiptRepository>();
             builder.Services.AddScoped<IRawVisionReceiptRepository, RawVisionReceiptRepository>();
