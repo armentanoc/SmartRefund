@@ -34,7 +34,7 @@ namespace SmartRefund.Application.Services
         public async Task<InternalReceipt?> Validate(IFormFile file, uint employeeId)
         {
             
-            if (ValidateSize(file.Length) && ValidateType(file.FileName) && ValidateExtension(file)) //await
+            if (ValidateSize(file.Length) && ValidateType(file) && ValidateExtension(file.FileName)) //await
             {
                 byte[] imageBytes;
                 using (var memoryStream = new MemoryStream())
@@ -63,11 +63,13 @@ namespace SmartRefund.Application.Services
             return true;
         }
 
-        public bool ValidateType(string fileName)
+        public bool ValidateExtension(string fileName)
         {
+            var extension = Path.GetExtension(fileName);
+
             string[] possibleExtensions = [".png", ".jpg", ".jpeg"];
 
-            if(possibleExtensions.Contains(fileName))
+            if(possibleExtensions.Contains(extension))
             {
                 return true;
             }
@@ -76,10 +78,9 @@ namespace SmartRefund.Application.Services
                 throw new ArgumentException("Extensão não permitida");
             }
 
-            return false;
         }
 
-        public bool ValidateExtension(IFormFile file)  //async Task<bool>
+        public bool ValidateType(IFormFile file)  //async Task<bool>
         {
             //byte[] header = new byte[4];
             //using (var memoryStream = new MemoryStream())

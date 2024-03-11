@@ -1,9 +1,11 @@
 ﻿using Castle.Core.Logging;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.Application.Services;
+using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -25,21 +27,22 @@ namespace SmartRefund.Tests.ApplicationTests
             _fileValidatorService = new FileValidatorService(_mockReceiptRepository, loggerMock);
         }
 
-        [Fact]
-        public void Tamanho_da_imagem_não_pode_ser_igual_ou_maior_que_vinte_mb()
+        [Theory]
+        [InlineData(20 * 1024 * 1024)]
+        [InlineData(23 * 1024 * 1024)]
+        public void Image_size_cannot_be_equal_to_or_bigger_than_twenty_mb(long size)
         {
-            
-
+            Assert.Throws<ArgumentException>(() => _fileValidatorService.ValidateSize(size));
         }
 
         [Fact]
-        public void Imagens_menores_que_20_mb_sao_aceitas()
+        public void Images_smaller_than_twenty_mb_are_accepted()
         {
             //Arrange
-            long tamanho = 19 * 1024 * 1024;
+            long size = 19 * 1024 * 1024;
 
             //Act
-            bool result = _fileValidatorService.ValidateSize(tamanho);
+            bool result = _fileValidatorService.ValidateSize(size);
 
             //Assert
             Assert.True(result);
@@ -50,7 +53,7 @@ namespace SmartRefund.Tests.ApplicationTests
         [InlineData("ImageTest02.jpg")]
         public void Jpg_files_are_accepted(string fileName)
         {
-            Assert.True(_fileValidatorService.ValidateType(fileName));
+            Assert.True(_fileValidatorService.ValidateExtension(fileName));
         }
 
         [Theory]
@@ -58,7 +61,7 @@ namespace SmartRefund.Tests.ApplicationTests
         [InlineData("ImageTest02.jpeg")]
         public void Jpeg_files_are_accepted(string fileName)
         {
-            Assert.True(_fileValidatorService.ValidateType(fileName));
+            Assert.True(_fileValidatorService.ValidateExtension(fileName));
         }
 
         [Theory]
@@ -66,7 +69,7 @@ namespace SmartRefund.Tests.ApplicationTests
         [InlineData("ImageTest02.png")]
         public void Png_files_are_accepted(string fileName)
         {
-            Assert.True(_fileValidatorService.ValidateType(fileName));
+            Assert.True(_fileValidatorService.ValidateExtension(fileName));
         }
 
         [Theory]
@@ -75,13 +78,25 @@ namespace SmartRefund.Tests.ApplicationTests
         [InlineData("ImageTestZip.zip")]
         public void Other_file_types_are_not_accepted(string fileName)
         {
-            Assert.Throws<ArgumentException> (() => _fileValidatorService.ValidateType(fileName));
+            Assert.Throws<ArgumentException> (() => _fileValidatorService.ValidateExtension(fileName));
         }
 
-        //public void Se_houver_validacao_internalReceipt_eh_criado()
-        //{
+        [Fact]
+        public async void If_is_validated_an_internal_receipt_is_created()
+        {
+            //Arrange
+            var fileMock = Substitute.For<IFormFile>();
+            fileMock.Length.Returns(2 * 1024 * 1024);
+            fileMock.FileName.Returns("example.jpg");
+            uint employeeId = 123;
 
-        //}
+            // Act
+            var result = await _fileValidatorService.Validate(fileMock, employeeId);
+
+            // Assert
+            result.Should().BeOfType<InternalReceipt>();
+
+        }
 
     }
 }
