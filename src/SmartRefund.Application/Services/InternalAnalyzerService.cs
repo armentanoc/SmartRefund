@@ -1,12 +1,13 @@
-﻿
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.CustomExceptions;
 
 using SmartRefund.Domain.Enums;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
+using SmartRefund.ViewModels.Responses;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,11 +26,13 @@ namespace SmartRefund.Application.Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<TranslatedVisionReceipt>> GetAllByStatus()
+
+        public async Task<IEnumerable<TranslatedReceiptResponse>> GetAllByStatus()
         {
             try
             {
-                return await _receiptRepository.GetAllByStatusAsync(TranslatedVisionReceiptStatusEnum.SUBMETIDO);
+               var receipts = await _receiptRepository.GetAllByStatusAsync(TranslatedVisionReceiptStatusEnum.SUBMETIDO);
+               return this.ConvertToResponse(receipts);
             }
             catch
             {
@@ -37,6 +40,20 @@ namespace SmartRefund.Application.Services
             }
         }
 
+       private IEnumerable<TranslatedReceiptResponse> ConvertToResponse(IEnumerable<TranslatedVisionReceipt> receipts)
+        {
+            return receipts.Select(receipt =>
+                new TranslatedReceiptResponse(
+                    total: receipt.Total,
+                    category: receipt.Category.ToString(),
+                    status: receipt.Status.ToString(),
+                    description: receipt.Description
+                )
+            );
+        }
+
+    }
+}
         public async Task<TranslatedVisionReceipt> UpdateStatus(uint id, string newStatus)
         {
             var translatedVisionReceipt = await GetById(id);
