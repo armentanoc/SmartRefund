@@ -31,8 +31,8 @@ namespace SmartRefund.Application.Services
         {
             try
             {
-               var receipts = await _receiptRepository.GetAllByStatusAsync(TranslatedVisionReceiptStatusEnum.SUBMETIDO);
-               return this.ConvertToResponse(receipts);
+                var receipts = await _receiptRepository.GetAllByStatusAsync(TranslatedVisionReceiptStatusEnum.SUBMETIDO);
+                return this.ConvertToResponse(receipts);
             }
             catch
             {
@@ -40,7 +40,7 @@ namespace SmartRefund.Application.Services
             }
         }
 
-       private IEnumerable<TranslatedReceiptResponse> ConvertToResponse(IEnumerable<TranslatedVisionReceipt> receipts)
+        private IEnumerable<TranslatedReceiptResponse> ConvertToResponse(IEnumerable<TranslatedVisionReceipt> receipts)
         {
             return receipts.Select(receipt =>
                 new TranslatedReceiptResponse(
@@ -52,8 +52,8 @@ namespace SmartRefund.Application.Services
             );
         }
 
-    }
-}
+
+
         public async Task<TranslatedVisionReceipt> UpdateStatus(uint id, string newStatus)
         {
             var translatedVisionReceipt = await GetById(id);
@@ -62,7 +62,7 @@ namespace SmartRefund.Application.Services
             {
                 translatedVisionReceipt.SetStatus(result);
                 var updatedObject = await _receiptRepository.UpdateAsync(translatedVisionReceipt);
-                
+
                 return updatedObject;
             }
 
@@ -82,7 +82,8 @@ namespace SmartRefund.Application.Services
 
             return translatedVisionReceipt;
         }
-
     }
-}
+
+ }
+
 
