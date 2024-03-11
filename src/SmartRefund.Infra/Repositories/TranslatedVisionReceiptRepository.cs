@@ -1,4 +1,6 @@
-﻿using SmartRefund.Domain.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using SmartRefund.Domain.Enums;
+using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Context;
 using SmartRefund.Infra.Interfaces;
 
@@ -8,6 +10,13 @@ namespace SmartRefund.Infra.Repositories
     {
         public TranslatedVisionReceiptRepository(AppDbContext context) : base(context)
         {
+
+        }
+        public async Task<IEnumerable<TranslatedVisionReceipt>> GetAllByStatusAsync(TranslatedVisionReceiptStatusEnum status)
+        {
+            return await _context.Set<TranslatedVisionReceipt>()
+                .Where(receipt => receipt.Status == status)
+                .ToListAsync();
         }
     }
 }
