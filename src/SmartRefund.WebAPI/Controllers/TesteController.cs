@@ -22,7 +22,7 @@ namespace SmartRefund.WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(RawVisionReceiptRequest rawVisionReceiptRequest)
+        public async Task<IActionResult> Add([FromBody]RawVisionReceiptRequest rawVisionReceiptRequest)
         {
             var internalReceipt = new InternalReceipt(1);
             var rawVisionReceipt = new RawVisionReceipt(internalReceipt, rawVisionReceiptRequest.IsReceipt, rawVisionReceiptRequest.Category, rawVisionReceiptRequest.Total, rawVisionReceiptRequest.Description, false);

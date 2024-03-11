@@ -2,14 +2,11 @@
 {
     public class RawVisionReceiptRequest
     {
+        [R]
         public string IsReceipt { get; private set; }
         public string Category { get; private set; }
         public string Total { get; private set; }
         public string Description { get; private set; }
-
-        public RawVisionReceiptRequest()
-        {
-        }
 
         public RawVisionReceiptRequest(string isReceipt, string category, string total, string description)
         {
