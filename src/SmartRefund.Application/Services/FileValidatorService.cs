@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
@@ -23,20 +24,20 @@ namespace SmartRefund.Application.Services
             }
         }
 
-
         public FileValidatorService(IInternalReceiptRepository repository, ILogger<FileValidatorService> logger)
         {
             _repository = repository;
             _logger = logger;
         }
 
-        public bool Validate(long lenght, string name)
+        public async bool Validate(IFormFile file)
         {
             //var path = filePath;
             //var file = System.IO.File.ReadAllBytes(path);
 
             if (ValidateSize(lenght) && ValidateType(name))
             {
+                await _repository.AddAsync(); //fazer o objeto e passar aqui!
                 return true;
             }
 
