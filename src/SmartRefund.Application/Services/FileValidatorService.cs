@@ -58,7 +58,7 @@ namespace SmartRefund.Application.Services
         {
             if (lenght >= 20 * 1024 * 1024)
             {
-                throw new ArgumentException("Arquivo é maior do que 5MB");
+                throw new ArgumentException("Arquivo é maior do que 20MB");
             }
             return true;
         }

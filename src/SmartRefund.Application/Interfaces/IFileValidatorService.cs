@@ -7,5 +7,7 @@ namespace SmartRefund.Application.Interfaces
     public interface IFileValidatorService
     {
         public Task<InternalReceipt?> Validate(IFormFile file, uint employeeId);
+
+        public bool ValidateSize(long lenght);
     }
 }

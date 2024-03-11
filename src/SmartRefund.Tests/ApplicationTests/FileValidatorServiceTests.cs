@@ -1,4 +1,10 @@
-﻿using SmartRefund.Application.Interfaces;
+﻿using Castle.Core.Logging;
+using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
+using SmartRefund.Application.Interfaces;
+using SmartRefund.Application.Services;
+using SmartRefund.Infra.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +15,14 @@ namespace SmartRefund.Tests.ApplicationTests
 {
     public class FileValidatorServiceTests
     {
-        private IFileValidatorService _fileValidatorService;
+        private FileValidatorService _fileValidatorService;
+        private IInternalReceiptRepository _mockReceiptRepository;
 
-        public FileValidatorServiceTests(IFileValidatorService fileValidatorService)
+        public FileValidatorServiceTests()
         {
-            _fileValidatorService = fileValidatorService;
+            _mockReceiptRepository = Substitute.For<IInternalReceiptRepository>();
+            ILogger<FileValidatorService> loggerMock = Substitute.For<ILogger<FileValidatorService>>();
+            _fileValidatorService = new FileValidatorService(_mockReceiptRepository, loggerMock);
         }
 
         [Fact]
@@ -24,13 +33,16 @@ namespace SmartRefund.Tests.ApplicationTests
         }
 
         [Fact]
-        public void Imagens_menores_ou_igual_20_mb_sao_aceitas()
+        public void Imagens_menores_que_20_mb_sao_aceitas()
         {
             //Arrange
-            int tamanho = 21 * 1024 * 1024;
+            long tamanho = 19 * 1024 * 1024;
 
             //Act
-            _fileValidatorService
+            bool result = _fileValidatorService.ValidateSize(tamanho);
+
+            //Assert
+            Assert.True(result);
         }
 
         //public void Arquivos_jpg_sao_aceitos()
