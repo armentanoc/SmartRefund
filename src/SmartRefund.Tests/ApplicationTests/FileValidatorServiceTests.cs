@@ -45,25 +45,38 @@ namespace SmartRefund.Tests.ApplicationTests
             Assert.True(result);
         }
 
-        //public void Arquivos_jpg_sao_aceitos()
-        //{
+        [Theory]
+        [InlineData("ImageTest.jpg")]
+        [InlineData("ImageTest02.jpg")]
+        public void Jpg_files_are_accepted(string fileName)
+        {
+            Assert.True(_fileValidatorService.ValidateType(fileName));
+        }
 
-        //}
+        [Theory]
+        [InlineData("ImageTest.jpeg")]
+        [InlineData("ImageTest02.jpeg")]
+        public void Jpeg_files_are_accepted(string fileName)
+        {
+            Assert.True(_fileValidatorService.ValidateType(fileName));
+        }
 
-        //public void Arquivos_jpeg_sao_aceitos()
-        //{
+        [Theory]
+        [InlineData("ImageTest.png")]
+        [InlineData("ImageTest02.png")]
+        public void Png_files_are_accepted(string fileName)
+        {
+            Assert.True(_fileValidatorService.ValidateType(fileName));
+        }
 
-        //}
-
-        //public void Arquivos_png_sao_aceitos()
-        //{
-
-        //}
-
-        //public void Outros_tipos_de_arquivos_nao_sao_aceitos()
-        //{
-
-        //}
+        [Theory]
+        [InlineData("TextBookTest.pdf")]
+        [InlineData("GifTest.gif")]
+        [InlineData("ImageTestZip.zip")]
+        public void Other_file_types_are_not_accepted(string fileName)
+        {
+            Assert.Throws<ArgumentException> (() => _fileValidatorService.ValidateType(fileName));
+        }
 
         //public void Se_houver_validacao_internalReceipt_eh_criado()
         //{

@@ -8,6 +8,8 @@ namespace SmartRefund.Application.Interfaces
     {
         public Task<InternalReceipt?> Validate(IFormFile file, uint employeeId);
 
+        public bool ValidateType(string fileName);
+
         public bool ValidateSize(long lenght);
     }
 }
