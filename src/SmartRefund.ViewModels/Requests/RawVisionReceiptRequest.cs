@@ -2,7 +2,6 @@
 {
     public class RawVisionReceiptRequest
     {
-        [R]
         public string IsReceipt { get; private set; }
         public string Category { get; private set; }
         public string Total { get; private set; }

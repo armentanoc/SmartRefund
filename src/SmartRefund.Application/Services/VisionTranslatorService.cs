@@ -48,28 +48,32 @@ namespace SmartRefund.Application.Services
             if (string.IsNullOrWhiteSpace(category))
                 throw new FieldIsNullOrWhitespaceException("Category", category);
 
-            string[] validCategories = Enum.GetNames(typeof(TranslatedVisionReceiptCategoryEnum));
-            string[] words = category.Split(new[] { ' ', '\t', '\n', '\r', ',' }, StringSplitOptions.RemoveEmptyEntries);
+            string cleanCategory = RemoveDiacritics(category)
+                .ToLower().Replace("ç", "c").Replace("ã", "a"); 
+            //por que é necessário se o RemoveDiacritics passa no teste???
 
-            string cleanCategory = RemoveDiacritics(category);
-            string enumCandidate = ""; //= word to be tested if it's a valid category
-
-            //_logger.LogInformation($"RawCategory: {category}");
-            //_logger.LogInformation($"FirstCleanseCategory: {cleanCategory}");
+            string enumCandidate = GetMatchingCategory(cleanCategory);
 
             if (Enum.TryParse(enumCandidate, out TranslatedVisionReceiptCategoryEnum result))
             {
                 LogInformation("Category", category, result.ToString());
                 return result;
-            }
+            } 
 
             throw new UnnableToTranslateException("Category", category);
         }
 
+        private string GetMatchingCategory(string cleanCategory)
+        {
+            var validCategories = Enum.GetNames(typeof(TranslatedVisionReceiptCategoryEnum));
+
+            return validCategories.FirstOrDefault(validCategory =>
+                cleanCategory.Contains(validCategory, StringComparison.OrdinalIgnoreCase))
+                ?? "OUTROS";
+        }
 
         public string RemoveDiacritics(string text)
         {
-
             string normalizedText = text.Normalize(NormalizationForm.FormD);
             StringBuilder result = new StringBuilder();
 
@@ -92,14 +96,13 @@ namespace SmartRefund.Application.Services
             return cleanDescription;
         }
 
-
         public bool GetIsReceipt(string isReceipt)
         {
             if (string.IsNullOrWhiteSpace(isReceipt))
                 throw new FieldIsNullOrWhitespaceException("IsRecept", isReceipt);
 
-            bool isYes = Regex.IsMatch(isReceipt, @"^sim$", RegexOptions.IgnoreCase);
-            bool isNo = Regex.IsMatch(isReceipt, @"^n(ã|a)o$", RegexOptions.IgnoreCase);
+            bool isYes = Regex.IsMatch(isReceipt, @"\bsim\b", RegexOptions.IgnoreCase);
+            bool isNo = Regex.IsMatch(isReceipt, @"\bn(ã|a)o\b", RegexOptions.IgnoreCase);
             bool isReceiptBool;
 
             if (isYes && !isNo)
@@ -124,14 +127,21 @@ namespace SmartRefund.Application.Services
             if (string.IsNullOrWhiteSpace(total))
                 throw new FieldIsNullOrWhitespaceException("Total", total);
 
-            string numberPattern = @"[\d]+([.,][\d]+)?";
+            string numberPattern = @"[\d]+(?:[,.][\d]+)*";
             Match match = Regex.Match(total, numberPattern);
-
-            _logger.LogInformation($"RawTotal: {total}");
 
             if (match.Success)
             {
                 string decimalString = match.Value;
+
+                if (decimalString.Length >= 3 && decimalString[decimalString.Length - 3] == ',')
+                    decimalString = decimalString.Remove(decimalString.Length - 3, 1).Insert(decimalString.Length - 3, ".");
+
+                for (int i = 0; i < decimalString.Length; i++)
+                {
+                    if (i != decimalString.Length - 3 && decimalString[i] == '.')
+                        decimalString = decimalString.Remove(i, 1);
+                }
 
                 if (decimal.TryParse(decimalString, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal decimalValue))
                 {
