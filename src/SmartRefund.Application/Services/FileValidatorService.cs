@@ -31,46 +31,57 @@ namespace SmartRefund.Application.Services
             _logger = logger;
         }
 
-        public async bool Validate(IFormFile file)
+        public async Task<InternalReceipt?> Validate(IFormFile file, uint employeeId)
         {
-            //var path = filePath;
-            //var file = System.IO.File.ReadAllBytes(path);
-
-            byte[] header = new byte[4];
-
-            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            
+            if (ValidateSize(file.Length) && ValidateType(file)) //await
             {
-                fs.Read(header, 0, 4);
+                byte[] imageBytes;
+                using (var memoryStream = new MemoryStream())
+                {
+                    await file.CopyToAsync(memoryStream);
+                    imageBytes = memoryStream.ToArray();
+                }
+
+                InternalReceipt receipt = new InternalReceipt(employeeId, imageBytes);
+
+                await _repository.AddAsync(receipt);
+
+                return receipt;
             }
 
-            if (ValidateSize(lenght) && ValidateType(name, header))
-            {
-                await _repository.AddAsync(); //fazer o objeto e passar aqui!
-                return true;
-            }
+            return null;
 
-            return false;
         }
 
         public bool ValidateSize(long lenght)
         {
-            if (lenght > 5 * 1024 * 1024) //mudar para 20MB?
+            if (lenght >= 20 * 1024 * 1024)
             {
                 throw new ArgumentException("Arquivo é maior do que 5MB");
             }
             return true;
         }
 
-        public bool ValidateType(string extension, byte[] header)
+        public bool ValidateType(IFormFile file) //async Task<bool>
         {
+            //byte[] header = new byte[4];
+            //using (var memoryStream = new MemoryStream())
+            //{
+            //    await file.CopyToAsync(memoryStream);
+            //    memoryStream.Read(header, 0, 4);
+            //}
+
+            var extension = Path.GetExtension(file.FileName);
+
             string[] possibleExtensions = [".png", ".jpg", ".jpeg"];
 
             if(possibleExtensions.Contains(extension))
             {
-                if (IsJpeg(header) || IsPng(header))
-                {
+                //if (IsJpeg(header) || IsPng(header))
+                //{
                     return true;
-                }
+                //}
             }
             else
             {

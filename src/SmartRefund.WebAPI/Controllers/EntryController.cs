@@ -23,39 +23,11 @@ namespace SmartRefund.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([Required] IFormFile file, [Required] uint employeeId)
         {
-
-            var filePath = $"wwwroot/{Guid.NewGuid()}-{file.FileName}";
-
-            using (var fileStream = System.IO.File.Create(filePath))
-            {
-                await file.CopyToAsync(fileStream);
-            };
-            var extension = Path.GetExtension(file.FileName);
-
-            _fileValidator.Validate(file);
-
-            InternalReceipt receipt = new InternalReceipt(employeeId);
-            return Ok();
-
-            return Ok();
-
             
-            
+            var result = await _fileValidator.Validate(file, employeeId);
 
+            return Ok(result);
 
-
-            //Para tentarmos fazer a imagem ir para o banco
-            /*byte[] barray;
-            using (var memoryStream = new MemoryStream())
-            {
-            await file.CopyToAsync(memoryStream);
-
-            barray = memoryStream.ToArray();
-            }*/
-            //Colocar barray como parâmetro do construtor
-
-            //CLASSE INTERNALRECEIPT
-            // public byte[] Image { get; set; }
         }
     }
 }
