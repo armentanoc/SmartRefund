@@ -31,7 +31,7 @@ namespace SmartRefund.WebAPI.Controllers
             };
             var extension = Path.GetExtension(file.FileName);
 
-            _fileValidator.Validate(file.Length, extension);
+            _fileValidator.Validate(file.Length, extension, filePath);
            
             InternalReceipt receipt = new InternalReceipt(employeeId);
             return Ok();
