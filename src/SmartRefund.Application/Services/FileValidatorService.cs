@@ -34,7 +34,7 @@ namespace SmartRefund.Application.Services
         public async Task<InternalReceipt?> Validate(IFormFile file, uint employeeId)
         {
             
-            if (ValidateSize(file.Length) && ValidateType(file)) //await
+            if (ValidateSize(file.Length) && ValidateType(file.FileName) && ValidateExtension(file)) //await
             {
                 byte[] imageBytes;
                 using (var memoryStream = new MemoryStream())
@@ -58,12 +58,28 @@ namespace SmartRefund.Application.Services
         {
             if (lenght >= 20 * 1024 * 1024)
             {
-                throw new ArgumentException("Arquivo é maior do que 5MB");
+                throw new ArgumentException("Arquivo é maior do que 20MB");
             }
             return true;
         }
 
-        public bool ValidateType(IFormFile file) //async Task<bool>
+        public bool ValidateType(string fileName)
+        {
+            string[] possibleExtensions = [".png", ".jpg", ".jpeg"];
+
+            if(possibleExtensions.Contains(fileName))
+            {
+                return true;
+            }
+            else
+            {
+                throw new ArgumentException("Extensão não permitida");
+            }
+
+            return false;
+        }
+
+        public bool ValidateExtension(IFormFile file)  //async Task<bool>
         {
             //byte[] header = new byte[4];
             //using (var memoryStream = new MemoryStream())
@@ -72,23 +88,12 @@ namespace SmartRefund.Application.Services
             //    memoryStream.Read(header, 0, 4);
             //}
 
-            var extension = Path.GetExtension(file.FileName);
+            //if (IsJpeg(header) || IsPng(header))
+            //{
+                return true;
+            //}
 
-            string[] possibleExtensions = [".png", ".jpg", ".jpeg"];
-
-            if(possibleExtensions.Contains(extension))
-            {
-                //if (IsJpeg(header) || IsPng(header))
-                //{
-                    return true;
-                //}
-            }
-            else
-            {
-                throw new ArgumentException("Extensão não permitida");
-            }
-
-            return false;
+            //throw new ArgumentException("Extensão não permitida");
         }
 
         private static bool IsJpeg(byte[] header)
@@ -102,6 +107,5 @@ namespace SmartRefund.Application.Services
             // Verifica se os primeiros bytes correspondem ao header de um arquivo PNG
             return header[0] == 0x89 && header[1] == 0x50 && header[2] == 0x4E && header[3] == 0x47;
         }
-
     }
 }
