@@ -1,5 +1,4 @@
-﻿using SmartRefund.Domain.Enums;
-
+﻿
 namespace SmartRefund.Domain.Models
 {
     public class RawVisionReceipt : BaseEntity
@@ -14,6 +13,7 @@ namespace SmartRefund.Domain.Models
 
         public RawVisionReceipt()
         {
+            // required by EF Core
         }
 
         public RawVisionReceipt(InternalReceipt internalReceipt, string isReceipt, string category, string total, string description, bool isTranslated)
@@ -23,6 +23,10 @@ namespace SmartRefund.Domain.Models
             Category = category;
             Total = total;
             Description = description;
+            IsTranslated = isTranslated;
+        }
+        public void SetIsTranslated(bool isTranslated)
+        {
             IsTranslated = isTranslated;
         }
     }

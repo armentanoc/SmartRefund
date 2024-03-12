@@ -58,7 +58,9 @@ public class ExceptionFilter : IAsyncExceptionFilter
             StatusCode = statusCode
         };
 
-        _logger.LogError(objectResponse.ToString());
+        _logger.LogError($"Erro no Sistema" +
+            $"\nMensagem: {objectResponse.Error.message}" +
+            $"\nStatusCode: {objectResponse.Error.statusCode}");
 
         await Task.CompletedTask;
     }
