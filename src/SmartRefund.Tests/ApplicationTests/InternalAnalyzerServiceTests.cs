@@ -90,9 +90,9 @@ namespace SmartRefund.Tests.ApplicationTests
 
 
         [Theory]
-        [InlineData("SUBMETIDO", TranslatedVisionReceiptStatusEnum.SUBMETIDO)]
-        [InlineData("PAGA", TranslatedVisionReceiptStatusEnum.PAGA)]
-        [InlineData("RECUSADA", TranslatedVisionReceiptStatusEnum.RECUSADA)]
+        [InlineData("SUBMETIDo", TranslatedVisionReceiptStatusEnum.SUBMETIDO)]
+        [InlineData("PaGA", TranslatedVisionReceiptStatusEnum.PAGA)]
+        [InlineData("REcUSADA", TranslatedVisionReceiptStatusEnum.RECUSADA)]
         public void TryParseStatus_Should_Parse_Valid_Status(string statusString, TranslatedVisionReceiptStatusEnum expectedStatus)
         {
             // Arrange
