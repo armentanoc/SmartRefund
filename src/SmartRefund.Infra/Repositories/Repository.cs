@@ -53,7 +53,7 @@ namespace SmartRefund.Infra.Repositories
             throw new EntityNotFoundException(_specificEntity, id);
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+                public async Task<IEnumerable<T>> GetAllAsync()
         {
             return await _context.Set<T>().ToListAsync();
         }

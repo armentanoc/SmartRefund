@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.Application.Services;
+using SmartRefund.Domain.Enums;
+using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Context;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.Infra.Repositories;
@@ -52,6 +54,7 @@ namespace SmartRefund.WebAPI
             builder.Services.AddScoped<IFileValidatorService, FileValidatorService>();
             builder.Services.AddScoped<IVisionTranslatorService, VisionTranslatorService>();
             builder.Services.AddScoped<ITranslatedVisionReceiptRepository, TranslatedVisionReceiptRepository>();
+            builder.Services.AddScoped<IInternalAnalyzerService, InternalAnalyzerService>();
             builder.Services.AddScoped<IRawVisionReceiptRepository, RawVisionReceiptRepository>();
             builder.Services.AddScoped<IInternalReceiptRepository, InternalReceiptRepository>();
 
@@ -64,7 +67,7 @@ namespace SmartRefund.WebAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            
             //Custom Logging Middleware
             app.UseMiddleware<LoggingMiddleware>();
 
