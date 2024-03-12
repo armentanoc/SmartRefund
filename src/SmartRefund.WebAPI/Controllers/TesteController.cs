@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
-using SmartRefund.ViewModels.Requests;
 
 namespace SmartRefund.WebAPI.Controllers
 {
@@ -20,15 +19,6 @@ namespace SmartRefund.WebAPI.Controllers
             _rawRepository = repository;
             _logger = logger;
             _translatorService = service;
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Add([FromBody] RawVisionReceiptRequest rawVisionReceiptRequest)
-        {
-            var internalReceipt = new InternalReceipt(1);
-            var rawVisionReceipt = new RawVisionReceipt(internalReceipt, rawVisionReceiptRequest.IsReceipt, rawVisionReceiptRequest.Category, rawVisionReceiptRequest.Total, rawVisionReceiptRequest.Description, false);
-            var createdRawVisionReceipt = await _rawRepository.AddAsync(rawVisionReceipt);
-            return CreatedAtAction("GetItemById", new { id = createdRawVisionReceipt.Id }, new { message = "Resource created successfully.", data = createdRawVisionReceipt });
         }
 
         [HttpGet("{id}")]
