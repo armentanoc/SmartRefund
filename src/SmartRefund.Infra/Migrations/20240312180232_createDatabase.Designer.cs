@@ -11,8 +11,8 @@ using SmartRefund.Infra.Context;
 namespace SmartRefund.Infra.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240311173846_CreateTableInternalReceipt")]
-    partial class CreateTableInternalReceipt
+    [Migration("20240312180232_createDatabase")]
+    partial class createDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -50,20 +50,33 @@ namespace SmartRefund.Infra.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("Id");
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
-                    b.ToTable("RawVisionReceipt");
-                });
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
-            modelBuilder.Entity("SmartRefund.Domain.Models.Teste", b =>
-                {
-                    b.Property<uint>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<uint>("InternalReceiptId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("IsReceipt")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsTranslated")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Total")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Teste");
+                    b.HasIndex("InternalReceiptId");
+
+                    b.ToTable("RawVisionReceipt");
                 });
 
             modelBuilder.Entity("SmartRefund.Domain.Models.TranslatedVisionReceipt", b =>
@@ -96,6 +109,17 @@ namespace SmartRefund.Infra.Migrations
                     b.HasIndex("RawVisionReceiptId");
 
                     b.ToTable("TranslatedVisionReceipt");
+                });
+
+            modelBuilder.Entity("SmartRefund.Domain.Models.RawVisionReceipt", b =>
+                {
+                    b.HasOne("SmartRefund.Domain.Models.InternalReceipt", "InternalReceipt")
+                        .WithMany()
+                        .HasForeignKey("InternalReceiptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InternalReceipt");
                 });
 
             modelBuilder.Entity("SmartRefund.Domain.Models.TranslatedVisionReceipt", b =>

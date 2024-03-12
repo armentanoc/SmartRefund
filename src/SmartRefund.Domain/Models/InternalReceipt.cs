@@ -14,6 +14,7 @@ namespace SmartRefund.Domain.Models
         public InternalReceiptStatusEnum Status { get; private set; }
         public byte[] Image { get; private set; }
 
+        //Recebe a imagem
 
         public InternalReceipt(uint employeeId, byte[] image) 
         {
