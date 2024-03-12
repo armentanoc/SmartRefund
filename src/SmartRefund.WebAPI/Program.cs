@@ -1,5 +1,3 @@
-
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using SmartRefund.Application.Interfaces;
@@ -53,7 +51,6 @@ namespace SmartRefund.WebAPI
 
             builder.Services.AddScoped<IFileValidatorService, FileValidatorService>();
             builder.Services.AddScoped<IVisionTranslatorService, VisionTranslatorService>();
-            builder.Services.AddScoped<IRepositoryTeste, RepositoryTeste>();
             builder.Services.AddScoped<ITranslatedVisionReceiptRepository, TranslatedVisionReceiptRepository>();
             builder.Services.AddScoped<IRawVisionReceiptRepository, RawVisionReceiptRepository>();
             builder.Services.AddScoped<IInternalReceiptRepository, InternalReceiptRepository>();

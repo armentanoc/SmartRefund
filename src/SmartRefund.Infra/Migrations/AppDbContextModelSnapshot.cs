@@ -76,17 +76,6 @@ namespace SmartRefund.Infra.Migrations
                     b.ToTable("RawVisionReceipt");
                 });
 
-            modelBuilder.Entity("SmartRefund.Domain.Models.Teste", b =>
-                {
-                    b.Property<uint>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Teste");
-                });
-
             modelBuilder.Entity("SmartRefund.Domain.Models.TranslatedVisionReceipt", b =>
                 {
                     b.Property<uint>("Id")
