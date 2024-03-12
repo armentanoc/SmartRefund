@@ -2,8 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.Application.Services;
-using SmartRefund.Domain.Enums;
-using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Context;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.Infra.Repositories;
@@ -31,7 +29,7 @@ namespace SmartRefund.WebAPI
             }
             );
 
-            //Remove os provedores de log padrão**
+            //Remove os provedores de log padr?o**
             builder.Logging.ClearProviders();
 
             //Adiciona os log no console**
@@ -51,13 +49,16 @@ namespace SmartRefund.WebAPI
                 options.UseSqlite(builder.Configuration.GetConnectionString("SmartRefundSqlite"));
             });
 
+            //Services
             builder.Services.AddScoped<IFileValidatorService, FileValidatorService>();
+            builder.Services.AddScoped<IVisionExecutorService, VisionExecutorService>();
             builder.Services.AddScoped<IVisionTranslatorService, VisionTranslatorService>();
-            builder.Services.AddScoped<ITranslatedVisionReceiptRepository, TranslatedVisionReceiptRepository>();
             builder.Services.AddScoped<IInternalAnalyzerService, InternalAnalyzerService>();
+
+            //Repositories
+            builder.Services.AddScoped<ITranslatedVisionReceiptRepository, TranslatedVisionReceiptRepository>();
             builder.Services.AddScoped<IRawVisionReceiptRepository, RawVisionReceiptRepository>();
             builder.Services.AddScoped<IInternalReceiptRepository, InternalReceiptRepository>();
-
 
             var app = builder.Build();
 
@@ -67,7 +68,7 @@ namespace SmartRefund.WebAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            
+
             //Custom Logging Middleware
             app.UseMiddleware<LoggingMiddleware>();
 

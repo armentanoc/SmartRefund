@@ -16,14 +16,14 @@ namespace SmartRefund.Domain.Models
             // required by EF Core
         }
 
-        public RawVisionReceipt(InternalReceipt internalReceipt, string isReceipt, string category, string total, string description, bool isTranslated)
+        public RawVisionReceipt(InternalReceipt internalReceipt, string isReceipt, string category, string total, string description)
         {
             InternalReceipt = internalReceipt;
             IsReceipt = isReceipt;
             Category = category;
             Total = total;
             Description = description;
-            IsTranslated = isTranslated;
+            IsTranslated = false;
         }
         public void SetIsTranslated(bool isTranslated)
         {

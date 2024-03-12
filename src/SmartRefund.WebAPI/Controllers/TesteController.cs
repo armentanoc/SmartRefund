@@ -9,22 +9,35 @@ namespace SmartRefund.WebAPI.Controllers
     [ApiController]
     [Route("[controller]")]
     public class TesteController : ControllerBase
+
     {
+        public IInternalReceiptRepository _internalReceiptRepository;
         public IRawVisionReceiptRepository _rawRepository;
         public ILogger<TesteController> _logger;
         public IVisionTranslatorService _translatorService;
+        public IVisionExecutorService _visionExecutorService;
         //public MyBackgroundWorker _backgroundWorker;
-        public TesteController(IRawVisionReceiptRepository repository, ILogger<TesteController> logger, IVisionTranslatorService service)
+        public TesteController(IRawVisionReceiptRepository repository, ILogger<TesteController> logger, IVisionTranslatorService service, IInternalReceiptRepository internalReceiptRepository, IVisionExecutorService visionExecutorService)
         {
             _rawRepository = repository;
             _logger = logger;
             _translatorService = service;
+            _internalReceiptRepository = internalReceiptRepository;
+            _visionExecutorService = visionExecutorService;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("get/{id}")]
         public async Task<RawVisionReceipt> GetItemById([FromRoute] uint id)
         {
             return await _rawRepository.GetAsync(id);
+        }
+
+        [HttpGet("execute/{id}/{apiKey}")]
+        public async Task<ActionResult<RawVisionReceipt>> GetRawVisionReceiptByInternalReceipt([FromRoute] uint id, [FromRoute] string apiKey)
+        {
+            var internalReceipt = await _internalReceiptRepository.GetAsync(id);
+            var rawVisionReceipt = await _visionExecutorService.Start(internalReceipt, apiKey);
+            return Ok(rawVisionReceipt);
         }
 
         [HttpGet("testaTraducao/{id}")]
