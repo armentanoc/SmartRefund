@@ -19,6 +19,7 @@
   <ItemGroup>
     <Folder Include="Middlewares\" />
     <Folder Include="Filters\" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
   <ItemGroup>
