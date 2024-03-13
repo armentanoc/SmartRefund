@@ -26,14 +26,13 @@ namespace SmartRefund.Application.Services
             _configuration = configuration;
         }
 
-        public async Task<RawVisionReceipt> ExecuteRequest(InternalReceipt internalReceiptInput)
+        public async Task<RawVisionReceipt> ExecuteRequest(InternalReceipt input)
         {
-            if (internalReceiptInput.Status.Equals(InternalReceiptStatusEnum.Successful) ||
-                internalReceiptInput.Status.Equals(InternalReceiptStatusEnum.Unsuccessful))
-                throw new Exception("Já processou"); //criar exceção personalizdada
+            if (!IsExecutableStatus(input.Status))
+                throw new NonVisionExecutableStatus(input.Id, input.Status.ToString()); 
 
             OpenAIAPI api = ConfigureApiKey();
-            var rawImage = internalReceiptInput.Image;
+            var rawImage = input.Image;
             var chat = api.Chat.CreateConversation();
             chat.Model = Model.GPT4_Vision;
 
@@ -57,7 +56,7 @@ namespace SmartRefund.Application.Services
             //passar um exemplo, etc. 
 
             var rawVisionReceipt = new RawVisionReceipt(
-                internalReceipt: internalReceiptInput,
+                internalReceipt: input,
                 isReceipt: isReceiptAnswer,
                 total: totalAnswer,
                 category: categoryAnswer,
@@ -67,8 +66,8 @@ namespace SmartRefund.Application.Services
             var addedRawVisionReceipt = await _rawVisionReceiptRepository.AddAsync(rawVisionReceipt);
             _logger.LogInformation($"Internal Receipt was interpreted by GPT Vision and added to repository (Id {addedRawVisionReceipt.Id})");
 
-            internalReceiptInput.SetStatus(Domain.Models.Enums.InternalReceiptStatusEnum.Successful);
-            var updateInternalReceipt = await _internalReceiptRepository.UpdateAsync(internalReceiptInput);
+            input.SetStatus(InternalReceiptStatusEnum.Successful);
+            var updateInternalReceipt = await _internalReceiptRepository.UpdateAsync(input);
             _logger.LogInformation($"Internal Receipt status updated to {updateInternalReceipt.Status} (Id {updateInternalReceipt.Id})");
 
             return addedRawVisionReceipt;
@@ -87,6 +86,12 @@ namespace SmartRefund.Application.Services
                 throw new ApiKeyNotFoundException(envVariableApiKey);
 
             return new OpenAIAPI(APIKey);
+        }
+
+        public bool IsExecutableStatus(InternalReceiptStatusEnum status)
+        {
+            return status != InternalReceiptStatusEnum.Successful
+                && status != InternalReceiptStatusEnum.Unsuccessful;
         }
     }
 }

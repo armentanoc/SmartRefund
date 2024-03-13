@@ -39,6 +39,10 @@ public class ExceptionFilter : IAsyncExceptionFilter
                 statusCode = StatusCodes.Status400BadRequest;
                 break;
 
+            case NonVisionExecutableStatus _:
+                statusCode = StatusCodes.Status400BadRequest;
+                break;
+
             default:
                 statusCode = StatusCodes.Status500InternalServerError;
                 break;
