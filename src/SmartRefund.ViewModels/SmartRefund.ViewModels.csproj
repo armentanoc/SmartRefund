@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Responses\" />
+    <ProjectReference Include="..\SmartRefund.Domain\SmartRefund.Domain.csproj" />
   </ItemGroup>
 
 </Project>
