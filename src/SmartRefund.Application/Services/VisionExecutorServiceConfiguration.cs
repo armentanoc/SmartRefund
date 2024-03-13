@@ -6,6 +6,13 @@ namespace SmartRefund.Application.Services
 {
     public class VisionExecutorServiceConfiguration : IVisionExecutorServiceConfiguration
     {
+        private readonly IConfiguration _configuration;
+
+        public VisionExecutorServiceConfiguration(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         public string OpenAIVisionApiEnvVar
         {
             get
@@ -17,21 +24,28 @@ namespace SmartRefund.Application.Services
             }
         }
 
-        private readonly IConfiguration _configuration;
-
-        public VisionExecutorServiceConfiguration(IConfiguration configuration)
+        public OpenAIVisionPrompts OpenAIVisionPrompts
         {
-            _configuration = configuration;
+            get
+            {
+                return new OpenAIVisionPrompts
+                {
+                    SystemPrompt = GetPrompt("Prompts:System", "System prompt"),
+                    ImagePrompt = GetPrompt("Prompts:User:Image", "Image prompt"),
+                    IsReceiptPrompt = GetPrompt("Prompts:User:IsReceipt", "IsReceipt prompt"),
+                    TotalPrompt = GetPrompt("Prompts:User:Total", "Total prompt"),
+                    CategoryPrompt = GetPrompt("Prompts:User:Category", "Category prompt"),
+                    DescriptionPrompt = GetPrompt("Prompts:User:Description", "Description prompt")
+                };
+            }
         }
 
-        public OpenAIVisionPrompts OpenAIVisionPrompts => new OpenAIVisionPrompts
+        private string GetPrompt(string configKey, string propertyName)
         {
-            SystemPrompt = _configuration["OpenAIVisionConfig:Prompts:System"],
-            ImagePrompt = _configuration["OpenAIVisionConfig:Prompts:User:Image"],
-            IsReceiptPrompt = _configuration["OpenAIVisionConfig:Prompts:User:IsReceipt"],
-            TotalPrompt = _configuration["OpenAIVisionConfig:Prompts:User:Total"],
-            CategoryPrompt = _configuration["OpenAIVisionConfig:Prompts:User:Category"],
-            DescriptionPrompt = _configuration["OpenAIVisionConfig:Prompts:User:Description"]
-        };
+            var prompt = _configuration[$"OpenAIVisionConfig:{configKey}"];
+            if (string.IsNullOrWhiteSpace(prompt))
+                throw new VisionConfigurationException(propertyName);
+            return prompt;
+        }
     }
 }
