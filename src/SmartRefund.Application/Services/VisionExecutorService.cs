@@ -99,10 +99,11 @@ public class VisionExecutorService : IVisionExecutorService
 
     public OpenAIAPI ConfigureApiKey()
     {
-        var apiKey = _configuration[_visionConfig.OpenAIVisionApiEnvVar];
+        var envVar = _visionConfig.OpenAIVisionApiEnvVar;
+        var apiKey = _configuration[envVar];
 
         if (string.IsNullOrWhiteSpace(apiKey))
-            throw new ApiKeyNotFoundException();
+            throw new ApiKeyNotFoundException(envVar);
 
         return new OpenAIAPI(apiKey);
     }
