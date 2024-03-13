@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.Application.Services;
@@ -16,23 +17,21 @@ namespace SmartRefund.WebAPI
             var apiName = "SmartRefund Web API";
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
-            //Add Logging
+            // Add Logging
             builder.Services.AddLogging();
 
-            //Controllers
+            // Controllers
             builder.Services.AddControllers(options =>
             {
-                //Custom Exception Filter
+                // Custom Exception Filter
                 options.Filters.Add<ExceptionFilter>();
             }
             );
 
-            //Remove os provedores de log padr?o**
+            // Remove os provedores de log padr?o**
             builder.Logging.ClearProviders();
 
-            //Adiciona os log no console**
+            // Adiciona os log no console**
             builder.Logging.AddConsole();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -49,13 +48,18 @@ namespace SmartRefund.WebAPI
                 options.UseSqlite(builder.Configuration.GetConnectionString("SmartRefundSqlite"));
             });
 
-            //Services
+            // Add OpenAIKey EnvVar
+            builder.Configuration.AddEnvironmentVariables(
+                builder.Configuration.GetSection("OpenAIVisionConfig:EnvVariable").Value
+                ); 
+
+            // Services
             builder.Services.AddScoped<IFileValidatorService, FileValidatorService>();
             builder.Services.AddScoped<IVisionExecutorService, VisionExecutorService>();
             builder.Services.AddScoped<IVisionTranslatorService, VisionTranslatorService>();
             builder.Services.AddScoped<IInternalAnalyzerService, InternalAnalyzerService>();
 
-            //Repositories
+            // Repositories
             builder.Services.AddScoped<ITranslatedVisionReceiptRepository, TranslatedVisionReceiptRepository>();
             builder.Services.AddScoped<IRawVisionReceiptRepository, RawVisionReceiptRepository>();
             builder.Services.AddScoped<IInternalReceiptRepository, InternalReceiptRepository>();
@@ -69,10 +73,8 @@ namespace SmartRefund.WebAPI
                 app.UseSwaggerUI();
             }
 
-            //Custom Logging Middleware
+            // Custom Logging Middleware
             app.UseMiddleware<LoggingMiddleware>();
-
-            app.UseHttpsRedirection();
 
             app.UseAuthorization();
 

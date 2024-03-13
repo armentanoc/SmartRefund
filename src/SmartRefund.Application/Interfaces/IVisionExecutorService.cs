@@ -1,10 +1,12 @@
 ﻿
+using OpenAI_API;
 using SmartRefund.Domain.Models;
 
 namespace SmartRefund.Application.Interfaces
 {
     public interface IVisionExecutorService
     {
-        Task<RawVisionReceipt> Start(InternalReceipt internalReceipt, string apiKey);
+        OpenAIAPI ConfigureApiKey();
+        Task<RawVisionReceipt> ExecuteRequest(InternalReceipt internalReceipt);
     }
 }

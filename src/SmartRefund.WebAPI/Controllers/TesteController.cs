@@ -32,11 +32,11 @@ namespace SmartRefund.WebAPI.Controllers
             return await _rawRepository.GetAsync(id);
         }
 
-        [HttpGet("execute/{id}/{apiKey}")]
-        public async Task<ActionResult<RawVisionReceipt>> GetRawVisionReceiptByInternalReceipt([FromRoute] uint id, [FromRoute] string apiKey)
+        [HttpGet("executeVision/{id}")]
+        public async Task<ActionResult<RawVisionReceipt>> GetRawVisionReceiptByInternalReceipt([FromRoute] uint id)
         {
             var internalReceipt = await _internalReceiptRepository.GetAsync(id);
-            var rawVisionReceipt = await _visionExecutorService.Start(internalReceipt, apiKey);
+            var rawVisionReceipt = await _visionExecutorService.ExecuteRequest(internalReceipt);
             return Ok(rawVisionReceipt);
         }
 

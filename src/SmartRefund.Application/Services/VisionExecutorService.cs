@@ -1,17 +1,16 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SmartRefund.Application.Interfaces;
-using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
+using SmartRefund.Application.Interfaces;
+using SmartRefund.Domain.Models.Enums;
+using SmartRefund.Domain.Models;
+using OpenAI_API.Models;
 using OpenAI_API.Chat;
 using OpenAI_API;
-using OpenAI_API.Models;
-using SmartRefund.Domain.Models.Enums;
-
+using SmartRefund.CustomExceptions;
 
 namespace SmartRefund.Application.Services
 {
-    //pegar do banco em []bytes -> converter pra base 64 -> enviar pra api da openai -> pegar o retorno -> salvar no banco
     public class VisionExecutorService : IVisionExecutorService
     {
         private IInternalReceiptRepository _internalReceiptRepository;
@@ -25,20 +24,16 @@ namespace SmartRefund.Application.Services
             _rawVisionReceiptRepository = rawVisionReceiptRepository;
             _logger = logger;
             _configuration = configuration;
-            //é o mesmo configuration tanto appsettings.json quanto env variables, inclusive faz hierarquia de sobreposição
         }
 
-        public async Task<RawVisionReceipt> Start(InternalReceipt internalReceiptInput, string apiKey)
+        public async Task<RawVisionReceipt> ExecuteRequest(InternalReceipt internalReceiptInput)
         {
             if (internalReceiptInput.Status.Equals(InternalReceiptStatusEnum.Successful) ||
                 internalReceiptInput.Status.Equals(InternalReceiptStatusEnum.Unsuccessful))
                 throw new Exception("Já processou"); //criar exceção personalizdada
 
-            var APIkey = apiKey; //vir do environment variables
-            //: não é um caractere válido para variáveis de ambiente, temos que substituir por __ em caso de hierarquia
+            OpenAIAPI api = ConfigureApiKey();
             var rawImage = internalReceiptInput.Image;
-
-            OpenAIAPI api = new OpenAIAPI(APIkey);
             var chat = api.Chat.CreateConversation();
             chat.Model = Model.GPT4_Vision;
 
@@ -77,6 +72,21 @@ namespace SmartRefund.Application.Services
             _logger.LogInformation($"Internal Receipt status updated to {updateInternalReceipt.Status} (Id {updateInternalReceipt.Id})");
 
             return addedRawVisionReceipt;
+        }
+
+        public OpenAIAPI ConfigureApiKey()
+        {
+            var envVariableApiKey = _configuration.GetSection("OpenAIVisionConfig:EnvVariable").Value;
+
+            if (string.IsNullOrWhiteSpace(envVariableApiKey))
+                throw new ApiKeyNotFoundException();
+
+            var APIKey = _configuration[envVariableApiKey];
+
+            if (string.IsNullOrWhiteSpace(APIKey))
+                throw new ApiKeyNotFoundException(envVariableApiKey);
+
+            return new OpenAIAPI(APIKey);
         }
     }
 }
