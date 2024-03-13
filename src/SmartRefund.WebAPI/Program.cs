@@ -55,6 +55,7 @@ namespace SmartRefund.WebAPI
 
             // Services
             builder.Services.AddScoped<IFileValidatorService, FileValidatorService>();
+            builder.Services.AddScoped<IVisionExecutorServiceConfiguration, VisionExecutorServiceConfiguration>();
             builder.Services.AddScoped<IVisionExecutorService, VisionExecutorService>();
             builder.Services.AddScoped<IVisionTranslatorService, VisionTranslatorService>();
             builder.Services.AddScoped<IInternalAnalyzerService, InternalAnalyzerService>();

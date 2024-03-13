@@ -1,4 +1,5 @@
 ﻿using SmartRefund.Domain.Enums;
+using System;
 
 namespace SmartRefund.Domain.Models
 {
