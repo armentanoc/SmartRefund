@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace SmartRefund.ViewModels.Responses
 {
     public class TranslatedReceiptResponse
@@ -15,7 +10,7 @@ namespace SmartRefund.ViewModels.Responses
 
         public TranslatedReceiptResponse()
         {
-
+            // required by EF
         }
         public TranslatedReceiptResponse(decimal total, string category, string status, string description)
         {

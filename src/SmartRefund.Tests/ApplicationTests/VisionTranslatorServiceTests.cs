@@ -9,7 +9,7 @@ using SmartRefund.Infra.Interfaces;
 
 namespace SmartRefund.ViewModels.Requests
 {
-    public class VisionTranslatorServiceTest
+    public class VisionTranslatorServiceTests
     {
         private VisionTranslatorService MakeSut()
         {
