@@ -1,6 +1,88 @@
-# SmartRefund
+# Projeto SmartRefund 🤖💰
 
-## Para configurar a Variável de Ambiente com a API Key Localmente
+<table>
+    <tr>
+       <td style="vertical-align: top;"><img src="https://github.com/armentanoc/SmartRefund/assets/88147887/851e0a30-c8fe-4c9c-958a-cd9ac14d9667"></td>
+        <td style="vertical-align: top;">Agilize o processo de reembolso de despesas utilizando técnicas avançadas de processamento de imagem. Com nossa solução, você pode extrair facilmente informações cruciais de recibos e faturas, tornando o preenchimento dos detalhes das despesas rápido, preciso e eficiente. Isso não apenas simplifica o trabalho dos colaboradores, mas também confere rapidez ao setor financeiro, permitindo que eles dediquem mais tempo a tarefas estratégicas. Simplifique seu fluxo de trabalho, elimine erros e economize tempo.</td>
+    </tr>
+</table>
+
+
+## Endpoints da API 🚀
+A API oferece os seguintes endpoints:
+
+### Entry 🔗
+
+```
+POST /employeeId
+{
+ "image": "exemplo.jpg"
+}
+
+Realiza o upload de uma imagem que é potencial nota fiscal e dá início a todo o processamento em background.
+```
+
+<div align="center" display="flex">
+<img src="" height="500px">
+</div>
+
+## Estrutura do Projeto :building_construction:
+
+A pasta `/src` contém a solução `SmartRefund` e os projetos que compõem a aplicação.
+
+---
+
+### 💻 `SmartRefund.WebAPI` 
+Projeto principal que contém a API e os controladores.
+
+### 📦 `SmartRefund.Domain` 
+Projeto que contém as entidades de domínio da aplicação.
+
+### 🗃️ `SmartRefund.Infra` 
+Projeto responsável pela camada de infraestrutura, incluindo o contexto do banco de dados e repositórios.
+
+### 🚀 `SmartRefund.Application` 
+Projeto que implementa a lógica de aplicação e serviços.
+
+### 👀 `SmartRefund.ViewModels` 
+Projeto que contém os modelos de visualização utilizados pelos controladores.
+
+### 🐛 `SmartRefund.CustomExceptions` 
+Projeto que contém as exceções customizadas lançadas pela aplicação.
+
+### 🧪 `SmartRefund.Tests` 
+Projeto que contém os testes unitários em xUnity da lógica de negócio da aplicação.
+
+<!--dotnet tool install -g dotnet-reportgenerator-globaltool
+dotnet tool install dotnet-stryker-->
+```
+dotnet test --collect:"XPlat Code Coverage"
+
+reportgenerator "-reports:.\**\coverage.cobertura.xml" -reporttypes:Html -targetdir:output
+
+dotnet-stryker
+```
+
+## Configurações da Aplicação Personalizadas 📁
+
+As configurações do serviço que chama o GPT Vision para passar a imagem postada por um funcionário e extrair os dados são totalmente customizáveis: a API key é passada através de uma variável de ambiente com o nome especificado em `EnvVariable` e os `Prompts` de `System` e diversos prompts de `User` também são customizáveis, sendo traduzidos também através de um serviço de configuração, de maneira a facilitar a manutenibilidade e escalabilidade.
+
+```
+  "OpenAIVisionConfig": {
+  "EnvVariable": "OPENAI_KEY_DIVERSEDEV",
+  "Prompts": {
+    "System": "Você é um especialista em ler notas fiscais e extrair informações importantes.",
+    "User": {
+      "Image": "Você deve considerar essa imagem de nota fiscal para responder às próximas perguntas.",
+      "IsReceipt": "Essa imagem é algum comprovante fiscal? Responda com SIM ou NAO.",
+      "Total": "Qual o valor total dessa despesa? Escreva o valor apenas com números.",
+      "Category": "Que categoria de despesa é essa? Responda entre: HOSPEDAGEM OU TRANSPORTE OU VIAGEM OU ALIMENTACAO OU OUTROS.",
+      "Description": "Descreva essa nota fiscal em texto corrido com detalhes como, se houver, Produto, Quantidade, Nome da Empresa, CNPJ e Data e Horário da Emissão da Nota."
+    }
+  }
+},
+```
+## Autenticação na OpenAI com Variável de Ambiente🔒
 
 - Execute o PowerShell como Administrador
 - Configure a Variável de Ambiente; para uma configuração definitiva a nível de máquina, é possível fazer, por exemplo: 
@@ -8,14 +90,55 @@
 [System.Environment]::SetEnvironmentVariable('OPENAI_KEY_DIVERSEDEV','myApiKey', 'Machine')
 ```
 - Reinicie o Visual Studio
+  
+## Middleware Customizado de Logging 🗞️ e Filtro Customizado de Exceção 🐛
 
-## Para testar o EF Core "do zero" e/ou fazer modificações
+Através do `Middlewares/LoggingMiddleware` é realizado o logging sempre no começo e no final de uma requisição, com detalhes sobre o status e eventuais erros de forma personalizada, que são capturados no Filtro Customizado de Exceção Global (`Filters/ExceptionFilter.cs`).
 
-- Abrir o package manager console (ir em search e pesquisar)
-- Marcar o projeto de Infra como default
-- Apagar as pastas Migrations e o DB -- se quiser, não é necessário em muitos casos
-- Add-Migration NomeDaMigration (ex.: CreateDatabaseInitial, AddTableXXX)
-- Update-Database
+<div align="center" display="flex">
+<img src="..." height="500px">
+</div>
+
+## Configuração do Banco de Dados 🛢️
+
+O projeto utiliza o SQLite como banco de dados, e as configurações podem ser encontradas no arquivo `appsettings.json` do projeto `SmartRefund.WebAPI`. Certifique-se de ajustar as configurações conforme necessário.
+
+```json
+"ConnectionStrings": {
+  "SmartRefundSqlite": "Data Source=SmartRefundDB.db"
+},
+```
+<!--<div align="center" display="flex">
+<img src="" height="500px">
+</div>
+-->
+
+## Execução do Projeto ▶️
+
+1. Clone e abra a solução no Visual Studio.
+2. Configure o projeto `SmartRefund.Infra` como o projeto de inicialização no `Package Manager Console`.
+3. Certifique-se de que as migrações do banco de dados foram realizadas pelo Entity Framework. Se não, execute os seguintes comandos:
+```
+Add-Migration CreateDatabaseInitial
+Update-Database
+```
+4. Execute o projeto.
+
+## Documentação da API 📚
+A API está documentada usando Swagger. Após a execução do projeto, acesse a documentação em:
+
+```
+http://localhost:xxxx/swagger/v1/swagger.json
+```
+
+## Contribuições 🛠️
+
+Aceitamos contribuições! Se encontrar um bug ou tiver uma solicitação de recurso, por favor, abra uma issue. 
+
+
+--------------------------
+
+# Nossas anotações
 
 ## Git Co-Author command
 
