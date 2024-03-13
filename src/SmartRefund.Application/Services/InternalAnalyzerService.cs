@@ -82,6 +82,18 @@ namespace SmartRefund.Application.Services
 
             return translatedVisionReceipt;
         }
+
+        public async Task<IEnumerable<TranslatedVisionReceipt>> GetAll()
+        {
+            var result = await _receiptRepository.GetAllWithRawVisionReceiptAsync();
+
+            if (result != null && result.Count() != 0)
+            {
+                return result;
+            }
+
+            throw new InvalidOperationException("Nenhum objeto encontrado");
+        }
     }
 
  }

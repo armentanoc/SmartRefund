@@ -38,5 +38,15 @@ namespace SmartRefund.WebAPI.Controllers
             return Ok(UpdatedObject);
         }
 
+        [HttpGet("receipts")]
+        public async Task<IActionResult> GetAll()
+        {
+            var receipts = await _analyzerService.GetAll();
+            //if (receipts != null && receipts.Count() != 0)
+            return Ok(receipts);
+
+            //return NotFound();
+        }
+
     }
 }

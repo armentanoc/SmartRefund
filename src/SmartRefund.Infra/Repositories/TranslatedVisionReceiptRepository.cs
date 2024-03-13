@@ -18,5 +18,13 @@ namespace SmartRefund.Infra.Repositories
                 .Where(receipt => receipt.Status == status)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<TranslatedVisionReceipt>> GetAllWithRawVisionReceiptAsync()
+        {
+            return await _context.Set<TranslatedVisionReceipt>()
+                 .Include(receipt => receipt.RawVisionReceipt)
+                 .Include(receipt => receipt.RawVisionReceipt.InternalReceipt)
+                 .ToListAsync();
+        }
     }
 }
