@@ -57,12 +57,14 @@ namespace SmartRefund.Application.Services
         {
             return receipts.Select(receipt =>
                 new TranslatedReceiptResponse(
+                    receiptId: receipt.Id,
+                    employeeId: receipt.RawVisionReceipt.InternalReceipt.EmployeeId,
                     total: receipt.Total,
                     category: receipt.Category.ToString(),
                     status: receipt.Status.ToString(),
                     description: receipt.Description
                 )
-            );
+            ); 
         }
 
 

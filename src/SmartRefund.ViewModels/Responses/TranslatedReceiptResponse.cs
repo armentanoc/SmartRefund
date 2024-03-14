@@ -6,6 +6,9 @@ namespace SmartRefund.ViewModels.Responses
     [ExcludeFromCodeCoverage]
     public class TranslatedReceiptResponse
     {
+        public uint ReceiptId { get; set; }
+
+        public uint EmployeeId { get; set; }
         public decimal Total { get; set; }
         public string Category { get; set; }    
         public string Status { get; set; }
@@ -15,8 +18,10 @@ namespace SmartRefund.ViewModels.Responses
         {
             // required by EF
         }
-        public TranslatedReceiptResponse(decimal total, string category, string status, string description)
+        public TranslatedReceiptResponse(uint receiptId, uint employeeId, decimal total, string category, string status, string description)
         {
+            ReceiptId = receiptId;
+            EmployeeId = employeeId;
             Total = total;
             Category = category;
             Status = status;
