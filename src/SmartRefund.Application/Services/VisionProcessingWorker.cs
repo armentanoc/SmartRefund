@@ -25,8 +25,6 @@ public class VisionProcessingWorker : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            _logger.LogInformation("while");
-
             using (var scope = Services.CreateScope())
             {
                 var visionExecutorService = scope.ServiceProvider.GetRequiredService<IVisionExecutorService>();
@@ -40,17 +38,12 @@ public class VisionProcessingWorker : BackgroundService
                 await ProcessInternalReceiptsWithStatusAsync(internalReceiptRepository, visionExecutorService, InternalReceiptStatusEnum.FailedMoreThanOnce, stoppingToken);
                 await TranslateRawVisionReceiptAsync(rawVisionReceiptRepository, visionTranslatorService, stoppingToken);
             }
-
-            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
         }
     }
 
     private async Task ProcessInternalReceiptsWithStatusAsync(IInternalReceiptRepository internalReceiptRepository, IVisionExecutorService visionExecutorService, InternalReceiptStatusEnum status, CancellationToken stoppingToken)
     {
-        _logger.LogInformation(
-            $"ProcessInternalReceiptsWithStatusAsync is working with status: {status}");
-
-
         var internalReceipts = await internalReceiptRepository.GetByStatusAsync(status);
 
         foreach (var receipt in internalReceipts)
@@ -60,9 +53,7 @@ public class VisionProcessingWorker : BackgroundService
 
             try
             {
-                _logger.LogInformation($"Processing InternalReceipt with ID: {receipt.Id} and Status: {receipt.Status.ToString()}");
                 await visionExecutorService.ExecuteRequestAsync(receipt);
-                _logger.LogInformation($"Processed InternalReceipt with ID: {receipt.Id}");
             }
             catch (Exception ex)
             {
@@ -73,10 +64,6 @@ public class VisionProcessingWorker : BackgroundService
 
     private async Task TranslateRawVisionReceiptAsync(IRawVisionReceiptRepository rawVisionReceiptRepository, IVisionTranslatorService visionTranslatorService, CancellationToken stoppingToken)
     {
-        _logger.LogInformation(
-            "TranslateRawVisionReceiptAsync Scoped Service Hosted Service is working.");
-
-
         var rawReceipts = await rawVisionReceiptRepository.GetByIsTranslatedFalseAsync();
 
         foreach (var receipt in rawReceipts)
@@ -86,13 +73,11 @@ public class VisionProcessingWorker : BackgroundService
 
             try
             {
-                _logger.LogInformation($"Processing RawReceipt with ID: {receipt.Id}");
                 await visionTranslatorService.GetTranslatedVisionReceipt(receipt);
-                _logger.LogInformation($"Processed RawReceipt with ID: {receipt.Id}");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error processing InternalReceipt with ID: {receipt.Id}");
+                _logger.LogError(ex, $"Error processing RawReceipt with ID: {receipt.Id}");
             }
         }
     }
