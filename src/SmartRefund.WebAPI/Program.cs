@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.Application.Services;
@@ -51,7 +50,7 @@ namespace SmartRefund.WebAPI
             // Add OpenAIKey EnvVar
             builder.Configuration.AddEnvironmentVariables(
                 builder.Configuration.GetSection("OpenAIVisionConfig:EnvVariable").Value
-                ); 
+                );
 
             // Services
             builder.Services.AddScoped<IFileValidatorService, FileValidatorService>();
@@ -59,6 +58,7 @@ namespace SmartRefund.WebAPI
             builder.Services.AddScoped<IVisionExecutorService, VisionExecutorService>();
             builder.Services.AddScoped<IVisionTranslatorService, VisionTranslatorService>();
             builder.Services.AddScoped<IInternalAnalyzerService, InternalAnalyzerService>();
+            builder.Services.AddHostedService<VisionProcessingWorker>();
 
             // Repositories
             builder.Services.AddScoped<ITranslatedVisionReceiptRepository, TranslatedVisionReceiptRepository>();

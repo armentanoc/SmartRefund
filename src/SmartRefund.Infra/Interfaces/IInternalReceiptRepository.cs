@@ -1,13 +1,10 @@
 ﻿using SmartRefund.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SmartRefund.Domain.Models.Enums;
 
 namespace SmartRefund.Infra.Interfaces
 {
     public interface IInternalReceiptRepository : IRepository<InternalReceipt>
     {
+        Task<IEnumerable<InternalReceipt>> GetByStatusAsync(InternalReceiptStatusEnum status);
     }
 }

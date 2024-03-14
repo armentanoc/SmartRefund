@@ -1,15 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using OpenAI_API;
+using OpenAI_API.Chat;
+using OpenAI_API.Models;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.CustomExceptions;
-using SmartRefund.Domain.Models.Enums;
 using SmartRefund.Domain.Models;
+using SmartRefund.Domain.Models.Enums;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Responses;
 using System.Text.RegularExpressions;
-using OpenAI_API.Models;
-using OpenAI_API.Chat;
-using OpenAI_API;
 
 public class VisionExecutorService : IVisionExecutorService
 {
@@ -112,5 +112,10 @@ public class VisionExecutorService : IVisionExecutorService
     {
         return status != InternalReceiptStatusEnum.Successful
             && status != InternalReceiptStatusEnum.Unsuccessful;
+    }
+
+    public async Task<IEnumerable<InternalReceipt>> GetInternalReceiptsWithStatusAsync(InternalReceiptStatusEnum status)
+    {
+        return await _internalReceiptRepository.GetByStatusAsync(status);
     }
 }

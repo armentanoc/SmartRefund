@@ -16,5 +16,6 @@ namespace SmartRefund.Application.Interfaces
         OpenAIAPI ConfigureApiKey();
         bool IsExecutableStatus(InternalReceiptStatusEnum status);
         bool IsInvalidAnswer(string answer);
+        Task<IEnumerable<InternalReceipt>> GetInternalReceiptsWithStatusAsync(InternalReceiptStatusEnum status);
     }
 }
