@@ -20,14 +20,6 @@ namespace SmartRefund.Infra.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<TranslatedVisionReceipt>> GetAllWithRawVisionReceiptAsync()
-        {
-            return await _context.Set<TranslatedVisionReceipt>()
-                 .Include(receipt => receipt.RawVisionReceipt)
-                 .Include(receipt => receipt.RawVisionReceipt.InternalReceipt)
-                 .ToListAsync();
-        }
-
         public async Task<TranslatedVisionReceipt> GetByIdAsync(uint id)
         {
             var entityToReturn = await _context
@@ -46,6 +38,15 @@ namespace SmartRefund.Infra.Repositories
             }
 
             throw new EntityNotFoundException(_specificEntity, id);
+        }
+
+        // Apenas para visualização
+        public async Task<IEnumerable<TranslatedVisionReceipt>> GetAllWithRawVisionReceiptAsync()
+        {
+            return await _context.Set<TranslatedVisionReceipt>()
+                 .Include(receipt => receipt.RawVisionReceipt)
+                 .Include(receipt => receipt.RawVisionReceipt.InternalReceipt)
+                 .ToListAsync();
         }
     }
 }
