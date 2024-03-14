@@ -66,7 +66,7 @@ namespace SmartRefund.WebAPI
             builder.Services.AddScoped<IVisionTranslatorService, VisionTranslatorService>();
             builder.Services.AddScoped<ICacheService, CacheService>();
             builder.Services.AddScoped<IInternalAnalyzerService, InternalAnalyzerService>();
-            builder.Services.AddHostedService<VisionProcessingWorker>();
+
 
             // Repositories
             builder.Services.AddScoped<ITranslatedVisionReceiptRepository, TranslatedVisionReceiptRepository>();
@@ -74,6 +74,8 @@ namespace SmartRefund.WebAPI
             builder.Services.AddScoped<IInternalReceiptRepository, InternalReceiptRepository>();
             // Add CacheService
          
+
+            builder.Services.AddHostedService<VisionProcessingWorker>();
 
             var app = builder.Build();
 
