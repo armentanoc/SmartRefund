@@ -78,7 +78,7 @@ namespace SmartRefund.Application.Services
 
         private async Task<TranslatedVisionReceipt> GetById(uint id)
         {
-            var translatedVisionReceipt = await _receiptRepository.GetAsync(id);
+            var translatedVisionReceipt = await _receiptRepository.GetByIdAsync(id);
 
             return translatedVisionReceipt;
         }

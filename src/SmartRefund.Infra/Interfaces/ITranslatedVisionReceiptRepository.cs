@@ -7,6 +7,7 @@ namespace SmartRefund.Infra.Interfaces
     {
         Task<IEnumerable<TranslatedVisionReceipt>> GetAllByStatusAsync(TranslatedVisionReceiptStatusEnum status);
         Task<IEnumerable<TranslatedVisionReceipt>> GetAllWithRawVisionReceiptAsync();
+        Task<TranslatedVisionReceipt> GetByIdAsync(uint id);
     }
 
 }
