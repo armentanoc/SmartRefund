@@ -43,6 +43,10 @@ public class ExceptionFilter : IAsyncExceptionFilter
                 statusCode = StatusCodes.Status400BadRequest;
                 break;
 
+            case UnableToParseException _:
+                statusCode = StatusCodes.Status400BadRequest;
+                break;
+
             default:
                 statusCode = StatusCodes.Status500InternalServerError;
                 break;

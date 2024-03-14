@@ -58,6 +58,12 @@ namespace SmartRefund.Application.Services
         {
             var translatedVisionReceipt = await GetById(id);
 
+            if (translatedVisionReceipt.Status != TranslatedVisionReceiptStatusEnum.SUBMETIDO)
+            {
+                // Criar Exception?
+                throw new InvalidOperationException("Status has already been updated.");
+            }
+
             if (TryParseStatus(newStatus, out var result))
             {
                 translatedVisionReceipt.SetStatus(result);
@@ -66,7 +72,7 @@ namespace SmartRefund.Application.Services
                 return updatedObject;
             }
 
-            throw new InvalidOperationException("Status enviado inválido!");
+            throw new UnableToParseException(newStatus);
         }
 
         public bool TryParseStatus(string newStatus, out TranslatedVisionReceiptStatusEnum result)
@@ -74,13 +80,23 @@ namespace SmartRefund.Application.Services
             return Enum.TryParse<TranslatedVisionReceiptStatusEnum>(newStatus, true, out result);
         }
 
-
-
         private async Task<TranslatedVisionReceipt> GetById(uint id)
         {
-            var translatedVisionReceipt = await _receiptRepository.GetAsync(id);
+            var translatedVisionReceipt = await _receiptRepository.GetByIdAsync(id);
 
             return translatedVisionReceipt;
+        }
+
+        public async Task<IEnumerable<TranslatedVisionReceipt>> GetAll()
+        {
+            var result = await _receiptRepository.GetAllWithRawVisionReceiptAsync();
+
+            if (result != null && result.Count() != 0)
+            {
+                return result;
+            }
+
+            throw new InvalidOperationException("Nenhum objeto encontrado");
         }
     }
 
