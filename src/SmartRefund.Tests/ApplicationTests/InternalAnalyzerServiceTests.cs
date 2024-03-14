@@ -3,6 +3,7 @@ using System.Reflection;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.Application.Services;
 using SmartRefund.Domain.Enums;
