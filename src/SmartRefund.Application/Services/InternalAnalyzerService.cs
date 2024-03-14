@@ -57,12 +57,14 @@ namespace SmartRefund.Application.Services
         {
             return receipts.Select(receipt =>
                 new TranslatedReceiptResponse(
+                    receiptId: receipt.Id,
+                    employeeId: receipt.RawVisionReceipt.InternalReceipt.EmployeeId,
                     total: receipt.Total,
                     category: receipt.Category.ToString(),
                     status: receipt.Status.ToString(),
                     description: receipt.Description
                 )
-            );
+            ); 
         }
 
 
@@ -80,7 +82,7 @@ namespace SmartRefund.Application.Services
                     }
                 throw new AlreadyUpdatedReceiptException(id);
             }
-                throw new InvalidOperationException("Status enviado inválido!");
+                throw new UnableToParseException(newStatus);
             }
 
         public bool TryParseStatus(string newStatus, out TranslatedVisionReceiptStatusEnum result)
