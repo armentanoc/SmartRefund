@@ -129,14 +129,4 @@ public class VisionExecutorService : IVisionExecutorService
         return status != InternalReceiptStatusEnum.Successful
             && status != InternalReceiptStatusEnum.Unsuccessful;
     }
-
-    public async Task<IEnumerable<InternalReceipt>> GetInternalReceiptsWithStatusAsync(InternalReceiptStatusEnum status)
-    {
-        return await _internalReceiptRepository.GetByStatusAsync(status);
-    }
-
-    public async Task<IEnumerable<RawVisionReceipt>> GetRawReceiptsWithIsTranslatedFalseAsync()
-    {
-        return await _rawVisionReceiptRepository.GetByIsTranslatedFalseAsync();
-    }
 }
