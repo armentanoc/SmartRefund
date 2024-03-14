@@ -66,15 +66,13 @@ namespace SmartRefund.Application.Services
                 return updatedObject;
             }
 
-            throw new InvalidOperationException("Status enviado inválido!");
+            throw new UnableToParseException(newStatus);
         }
 
         public bool TryParseStatus(string newStatus, out TranslatedVisionReceiptStatusEnum result)
         {
             return Enum.TryParse<TranslatedVisionReceiptStatusEnum>(newStatus, true, out result);
         }
-
-
 
         private async Task<TranslatedVisionReceipt> GetById(uint id)
         {
