@@ -7,6 +7,7 @@ using SmartRefund.Application.Interfaces;
 using SmartRefund.Application.Services;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
+using SmartRefund.ViewModels.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,7 +95,7 @@ namespace SmartRefund.Tests.ApplicationTests
             var result = await _fileValidatorService.Validate(fileMock, employeeId);
 
             // Assert
-            result.Should().BeOfType<InternalReceipt>();
+            result.Should().BeOfType<InternalReceiptResponse>();
 
         }
 
