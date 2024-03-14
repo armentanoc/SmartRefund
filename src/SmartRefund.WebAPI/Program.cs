@@ -57,7 +57,7 @@ namespace SmartRefund.WebAPI
             // Add OpenAIKey EnvVar
             builder.Configuration.AddEnvironmentVariables(
                 builder.Configuration.GetSection("OpenAIVisionConfig:EnvVariable").Value
-                ); 
+                );
 
             // Services
             builder.Services.AddScoped<IFileValidatorService, FileValidatorService>();
@@ -66,6 +66,7 @@ namespace SmartRefund.WebAPI
             builder.Services.AddScoped<IVisionTranslatorService, VisionTranslatorService>();
             builder.Services.AddScoped<ICacheService, CacheService>();
             builder.Services.AddScoped<IInternalAnalyzerService, InternalAnalyzerService>();
+            builder.Services.AddHostedService<VisionProcessingWorker>();
 
             // Repositories
             builder.Services.AddScoped<ITranslatedVisionReceiptRepository, TranslatedVisionReceiptRepository>();
