@@ -58,6 +58,12 @@ namespace SmartRefund.Application.Services
         {
             var translatedVisionReceipt = await GetById(id);
 
+            if (translatedVisionReceipt.Status != TranslatedVisionReceiptStatusEnum.SUBMETIDO)
+            {
+                // Criar Exception?
+                throw new InvalidOperationException("Status has already been updated.");
+            }
+
             if (TryParseStatus(newStatus, out var result))
             {
                 translatedVisionReceipt.SetStatus(result);
