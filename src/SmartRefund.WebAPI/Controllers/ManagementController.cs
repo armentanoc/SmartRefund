@@ -5,9 +5,11 @@ using SmartRefund.Domain.Enums;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Requests;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartRefund.WebAPI.Controllers
 {
+    [ExcludeFromCodeCoverage]
     [ApiController]
     [Route("[controller]")]
     public class ManagementController : Controller

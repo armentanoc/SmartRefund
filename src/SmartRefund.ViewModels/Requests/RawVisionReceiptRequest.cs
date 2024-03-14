@@ -1,5 +1,8 @@
-﻿namespace SmartRefund.ViewModels.Requests
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace SmartRefund.ViewModels.Requests
 {
+    [ExcludeFromCodeCoverage]
     public class RawVisionReceiptRequest
     {
         public string IsReceipt { get; private set; }

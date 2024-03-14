@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using SmartRefund.Domain.Models;
 using SmartRefund.Domain.Models.Enums;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartRefund.ViewModels.Responses
 {
+    [ExcludeFromCodeCoverage]
     public class InternalReceiptResponse
     {
         public uint EmployeeId { get; private set; }

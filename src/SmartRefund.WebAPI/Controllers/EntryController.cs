@@ -6,9 +6,11 @@ using SmartRefund.Domain.Models;
 using SmartRefund.Application.Services;
 using System.ComponentModel.DataAnnotations;
 using SmartRefund.ViewModels;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartRefund.WebAPI.Controllers
 {
+    [ExcludeFromCodeCoverage]
     [Route("api/[controller]")]
     [ApiController]
     public class EntryController : ControllerBase

@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartRefund.WebAPI.Controllers
 {
+    [ExcludeFromCodeCoverage]
     [ApiController]
     [Route("[controller]")]
     public class TesteController : ControllerBase
