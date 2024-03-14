@@ -5,6 +5,7 @@ using SmartRefund.CustomExceptions;
 using System.Diagnostics.CodeAnalysis;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.Infra.Repositories;
+using SmartRefund.Application.Services;
 
 [ExcludeFromCodeCoverage]
 public class ExceptionFilter : IAsyncExceptionFilter
@@ -47,6 +48,9 @@ public class ExceptionFilter : IAsyncExceptionFilter
                 statusCode = StatusCodes.Status400BadRequest;
                 break;
 
+            case AlreadyUpdatedReceiptException _:
+                statusCode = StatusCodes.Status400BadRequest;
+                break;
             default:
                 statusCode = StatusCodes.Status500InternalServerError;
                 break;

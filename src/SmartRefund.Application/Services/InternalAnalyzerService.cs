@@ -28,39 +28,19 @@ namespace SmartRefund.Application.Services
             _cacheService = cacheService;
         }
 
-
-      /*  public async Task<IEnumerable<TranslatedReceiptResponse>> GetAllByStatus()
-        {
-            try
-            {
-                var receipts = await _receiptRepository.GetAllByStatusAsync(TranslatedVisionReceiptStatusEnum.SUBMETIDO);
-                return this.ConvertToResponse(receipts);
-            }
-            catch
-            {
-                throw new InvalidOperationException("Ocorreu um erro ao buscar as notas fiscais!");
-            }
-        }*/
         public async Task<IEnumerable<TranslatedReceiptResponse>> GetAllByStatus()
         {
             try
             {
-                // Tenta obter os dados do cache
                 var cachedReceipts =  await _cacheService.GetCachedDataAsync<TranslatedReceiptResponse>(cacheKey);
-
                 if (cachedReceipts != null && cachedReceipts.Any())
                 {
-                    _logger.LogInformation("dados do cache");
-                    // Se os dados estiverem em cache, retorna os dados do cache
                     return cachedReceipts;
-
                 }
                 else
                 {
                     var receipts = await _receiptRepository.GetAllByStatusAsync(TranslatedVisionReceiptStatusEnum.SUBMETIDO);
                     var response = ConvertToResponse(receipts);
-                    _logger.LogInformation("dados do repo nao cacheado");
-                    // Armazenamos os dados em cache
                     await _cacheService.SetCachedDataAsync(cacheKey, response);
 
                     return response;
@@ -68,7 +48,7 @@ namespace SmartRefund.Application.Services
             }
             catch
             {
-                throw new InvalidOperationException("Ocorreu um erro ao buscar as notas fiscais!");
+                throw new GetReceiptsException();
             }
         }
 
@@ -100,13 +80,13 @@ namespace SmartRefund.Application.Services
             if (TryParseStatus(newStatus, out var result))
             {
                 var translatedVisionReceipt = await GetById(id);
-               // if (translatedVisionReceipt.Status == TranslatedVisionReceiptStatusEnum.SUBMETIDO)
-               // {
-                    translatedVisionReceipt.SetStatus(result);
-                    var updatedObject = await _receiptRepository.UpdateAsync(translatedVisionReceipt);
-                    return updatedObject;
-              //  }
-               // throw new InvalidOperationException("Nota fiscal já foi avaliada!");
+                    if (translatedVisionReceipt.Status == TranslatedVisionReceiptStatusEnum.SUBMETIDO)
+                    {
+                        translatedVisionReceipt.SetStatus(result);
+                        var updatedObject = await _receiptRepository.UpdateAsync(translatedVisionReceipt);
+                        return updatedObject;
+                    }
+                throw new AlreadyUpdatedReceiptException(id);
             }
 
             throw new UnableToParseException(newStatus);
