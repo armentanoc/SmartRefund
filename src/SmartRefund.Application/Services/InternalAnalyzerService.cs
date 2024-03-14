@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.CustomExceptions;
-
 using SmartRefund.Domain.Enums;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
@@ -19,15 +18,18 @@ namespace SmartRefund.Application.Services
     {
         private readonly ITranslatedVisionReceiptRepository _receiptRepository;
         private readonly ILogger<InternalAnalyzerService> _logger;
+        private readonly ICacheService _cacheService;
+        private string cacheKey = "submittedReceipts";
 
-        public InternalAnalyzerService(ITranslatedVisionReceiptRepository translatedVisionReceiptRepository, ILogger<InternalAnalyzerService> logger)
+        public InternalAnalyzerService(ITranslatedVisionReceiptRepository translatedVisionReceiptRepository, ILogger<InternalAnalyzerService> logger, ICacheService cacheService)
         {
             _receiptRepository = translatedVisionReceiptRepository;
             _logger = logger;
+            _cacheService = cacheService;
         }
 
 
-        public async Task<IEnumerable<TranslatedReceiptResponse>> GetAllByStatus()
+      /*  public async Task<IEnumerable<TranslatedReceiptResponse>> GetAllByStatus()
         {
             try
             {
@@ -38,7 +40,38 @@ namespace SmartRefund.Application.Services
             {
                 throw new InvalidOperationException("Ocorreu um erro ao buscar as notas fiscais!");
             }
+        }*/
+        public async Task<IEnumerable<TranslatedReceiptResponse>> GetAllByStatus()
+        {
+            try
+            {
+                // Tenta obter os dados do cache
+                var cachedReceipts =  await _cacheService.GetCachedDataAsync<TranslatedReceiptResponse>(cacheKey);
+
+                if (cachedReceipts != null && cachedReceipts.Any())
+                {
+                    _logger.LogInformation("dados do cache");
+                    // Se os dados estiverem em cache, retorna os dados do cache
+                    return cachedReceipts;
+
+                }
+                else
+                {
+                    var receipts = await _receiptRepository.GetAllByStatusAsync(TranslatedVisionReceiptStatusEnum.SUBMETIDO);
+                    var response = ConvertToResponse(receipts);
+                    _logger.LogInformation("dados do repo nao cacheado");
+                    // Armazenamos os dados em cache
+                    await _cacheService.SetCachedDataAsync(cacheKey, response);
+
+                    return response;
+                }
+            }
+            catch
+            {
+                throw new InvalidOperationException("Ocorreu um erro ao buscar as notas fiscais!");
+            }
         }
+
 
         private IEnumerable<TranslatedReceiptResponse> ConvertToResponse(IEnumerable<TranslatedVisionReceipt> receipts)
         {
@@ -66,10 +99,14 @@ namespace SmartRefund.Application.Services
 
             if (TryParseStatus(newStatus, out var result))
             {
-                translatedVisionReceipt.SetStatus(result);
-                var updatedObject = await _receiptRepository.UpdateAsync(translatedVisionReceipt);
-
-                return updatedObject;
+                var translatedVisionReceipt = await GetById(id);
+               // if (translatedVisionReceipt.Status == TranslatedVisionReceiptStatusEnum.SUBMETIDO)
+               // {
+                    translatedVisionReceipt.SetStatus(result);
+                    var updatedObject = await _receiptRepository.UpdateAsync(translatedVisionReceipt);
+                    return updatedObject;
+              //  }
+               // throw new InvalidOperationException("Nota fiscal já foi avaliada!");
             }
 
             throw new UnableToParseException(newStatus);

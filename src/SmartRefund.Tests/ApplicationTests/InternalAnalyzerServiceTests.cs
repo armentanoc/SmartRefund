@@ -1,9 +1,9 @@
-﻿using System;
+﻿
 using System.Reflection;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
+using SmartRefund.Application.Interfaces;
 using SmartRefund.Application.Services;
 using SmartRefund.Domain.Enums;
 using SmartRefund.Domain.Models;
@@ -20,8 +20,8 @@ namespace SmartRefund.Tests.ApplicationTests
         public void ConvertToResponse_Converts_Receipts_To_Response(decimal total, TranslatedVisionReceiptCategoryEnum category, TranslatedVisionReceiptStatusEnum status, string description, decimal expectedTotal, string expectedCategory, string expectedStatus, string expectedDescription)
         {
             // Arrange
-            var receipt = new TranslatedVisionReceipt(new RawVisionReceipt(), true, category, status, total, description);
-            var service = new InternalAnalyzerService(null, null);
+            var receipt = new TranslatedVisionReceipt(new RawVisionReceipt(), true, category, status, total, description, "1");
+            var service = new InternalAnalyzerService(null, null, null);
 
             MethodInfo methodInfo = typeof(InternalAnalyzerService).GetMethod("ConvertToResponse", BindingFlags.NonPublic | BindingFlags.Instance);
             if (methodInfo == null)
@@ -63,23 +63,24 @@ namespace SmartRefund.Tests.ApplicationTests
                 TranslatedVisionReceiptCategoryEnum.ALIMENTACAO,
                 TranslatedVisionReceiptStatusEnum.SUBMETIDO,
                 100,
-                "Receipt description 1");
+                "Receipt description 1", "1");
             var updatedReceipt = new TranslatedVisionReceipt(
                 new RawVisionReceipt(),
                 true,
                 TranslatedVisionReceiptCategoryEnum.ALIMENTACAO,
                 expectedStatus,
                 100,
-                "Receipt description 1");
+                "Receipt description 1", "2");
             receipt.SetId(id);
             updatedReceipt.SetId(id);
 
             var repository = Substitute.For<ITranslatedVisionReceiptRepository>();
             repository.GetByIdAsync(1).Returns(receipt);
             repository.UpdateAsync(Arg.Is<TranslatedVisionReceipt>(r => r.Id == id)).Returns(updatedReceipt);
-
+           
             var logger = Substitute.For<ILogger<InternalAnalyzerService>>();
-            var service = new InternalAnalyzerService(repository, logger);
+            var cache = Substitute.For<ICacheService>();
+            var service = new InternalAnalyzerService(repository, logger, cache);
 
             // Act
             var result = await service.UpdateStatus(1, newStatus);
@@ -95,7 +96,7 @@ namespace SmartRefund.Tests.ApplicationTests
         public void TryParseStatus_Should_Parse_Valid_Status(string statusString, TranslatedVisionReceiptStatusEnum expectedStatus)
         {
             // Arrange
-            var service = new InternalAnalyzerService(null, null);
+            var service = new InternalAnalyzerService(null, null, null);
 
             // Act
             var result = service.TryParseStatus(statusString, out var parsedStatus);
@@ -109,7 +110,7 @@ namespace SmartRefund.Tests.ApplicationTests
         public void TryParseStatus_Should_Return_False_For_Invalid_Status()
         {
             // Arrange
-            var service = new InternalAnalyzerService(null, null);
+            var service = new InternalAnalyzerService(null, null, null);
 
             // Act
             var result = service.TryParseStatus("INVALID_STATUS", out var parsedStatus);
@@ -125,7 +126,8 @@ namespace SmartRefund.Tests.ApplicationTests
             var repository = Substitute.For<ITranslatedVisionReceiptRepository>();
             repository.GetAllByStatusAsync(TranslatedVisionReceiptStatusEnum.SUBMETIDO).Returns(new List<TranslatedVisionReceipt>());
             var logger = Substitute.For<ILogger<InternalAnalyzerService>>();
-            var service = new InternalAnalyzerService(repository, logger);
+            var cache = Substitute.For<ICacheService>();
+            var service = new InternalAnalyzerService(repository, logger, cache);
 
             // Act
             var result = await service.GetAllByStatus();
@@ -139,9 +141,9 @@ namespace SmartRefund.Tests.ApplicationTests
         public void ConvertToResponse_Should_Convert_Empty_Receipt_List()
         {
             // Arrange
-            var service = new InternalAnalyzerService(null, null);
+            var service = new InternalAnalyzerService(null, null, null);
 
-            MethodInfo methodInfo = typeof(InternalAnalyzerService).GetMethod("ConvertToResponse", BindingFlags.NonPublic | BindingFlags.Instance);
+            MethodInfo methodInfo = typeof(InternalAnalyzerService).GetMethod("ConvertAllToResponse", BindingFlags.NonPublic | BindingFlags.Instance);
             if (methodInfo == null)
             {
                 throw new InvalidOperationException("Método ConvertToResponse não encontrado.");
@@ -161,14 +163,15 @@ namespace SmartRefund.Tests.ApplicationTests
             // Arrange
             var expectedReceipts = new List<TranslatedVisionReceipt>
             {
-                new TranslatedVisionReceipt(new RawVisionReceipt(), true, TranslatedVisionReceiptCategoryEnum.ALIMENTACAO, TranslatedVisionReceiptStatusEnum.SUBMETIDO, 100, "Receipt description 1"),
-                new TranslatedVisionReceipt(new RawVisionReceipt(), true, TranslatedVisionReceiptCategoryEnum.TRANSPORTE, TranslatedVisionReceiptStatusEnum.PAGA, 200, "Receipt description 2")
+                new TranslatedVisionReceipt(new RawVisionReceipt(), true, TranslatedVisionReceiptCategoryEnum.ALIMENTACAO, TranslatedVisionReceiptStatusEnum.SUBMETIDO, 100, "Receipt description 1", "1"),
+                new TranslatedVisionReceipt(new RawVisionReceipt(), true, TranslatedVisionReceiptCategoryEnum.TRANSPORTE, TranslatedVisionReceiptStatusEnum.PAGA, 200, "Receipt description 2", "2")
             };
 
             var repository = Substitute.For<ITranslatedVisionReceiptRepository>();
             repository.GetAllWithRawVisionReceiptAsync().Returns(expectedReceipts);
             var logger = Substitute.For<ILogger<InternalAnalyzerService>>();
-            var service = new InternalAnalyzerService(repository, logger);
+            var cache = Substitute.For<ICacheService>();
+            var service = new InternalAnalyzerService(repository, logger, cache);
 
             // Act
             var result = await service.GetAll();
