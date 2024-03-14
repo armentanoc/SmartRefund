@@ -3,17 +3,18 @@ using System.Reflection;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using SmartRefund.Application.Services;
 using SmartRefund.Domain.Enums;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Responses;
+using Xunit;
 
 namespace SmartRefund.Tests.ApplicationTests
 {
     public class InternalAnalyzerServiceTests
     {
-
         [Theory]
         [MemberData(nameof(ReceiptData))]
         public void ConvertToResponse_Converts_Receipts_To_Response(decimal total, TranslatedVisionReceiptCategoryEnum category, TranslatedVisionReceiptStatusEnum status, string description, decimal expectedTotal, string expectedCategory, string expectedStatus, string expectedDescription)
@@ -42,13 +43,12 @@ namespace SmartRefund.Tests.ApplicationTests
         public static TheoryData<decimal, TranslatedVisionReceiptCategoryEnum, TranslatedVisionReceiptStatusEnum, string, decimal, string, string, string> ReceiptData()
         {
             return new TheoryData<decimal, TranslatedVisionReceiptCategoryEnum, TranslatedVisionReceiptStatusEnum, string, decimal, string, string, string>
-        {
-            { 100, TranslatedVisionReceiptCategoryEnum.ALIMENTACAO, TranslatedVisionReceiptStatusEnum.SUBMETIDO, "Receipt description 1", 100, "ALIMENTACAO", "SUBMETIDO", "Receipt description 1" },
-            { 200, TranslatedVisionReceiptCategoryEnum.TRANSPORTE, TranslatedVisionReceiptStatusEnum.PAGA, "Receipt description 2", 200, "TRANSPORTE", "PAGA", "Receipt description 2" },
-            { 150, TranslatedVisionReceiptCategoryEnum.HOSPEDAGEM, TranslatedVisionReceiptStatusEnum.SUBMETIDO, "Receipt description 3", 150, "HOSPEDAGEM", "SUBMETIDO", "Receipt description 3" }
-        };
+            {
+                { 100, TranslatedVisionReceiptCategoryEnum.ALIMENTACAO, TranslatedVisionReceiptStatusEnum.SUBMETIDO, "Receipt description 1", 100, "ALIMENTACAO", "SUBMETIDO", "Receipt description 1" },
+                { 200, TranslatedVisionReceiptCategoryEnum.TRANSPORTE, TranslatedVisionReceiptStatusEnum.PAGA, "Receipt description 2", 200, "TRANSPORTE", "PAGA", "Receipt description 2" },
+                { 150, TranslatedVisionReceiptCategoryEnum.HOSPEDAGEM, TranslatedVisionReceiptStatusEnum.SUBMETIDO, "Receipt description 3", 150, "HOSPEDAGEM", "SUBMETIDO", "Receipt description 3" }
+            };
         }
-
 
         [Theory]
         [InlineData(1, "SUBMETIDO", TranslatedVisionReceiptStatusEnum.SUBMETIDO)]
@@ -58,11 +58,11 @@ namespace SmartRefund.Tests.ApplicationTests
         {
             // Arrange
             var receipt = new TranslatedVisionReceipt(
-                new RawVisionReceipt(), 
-                true, 
-                TranslatedVisionReceiptCategoryEnum.ALIMENTACAO, 
-                TranslatedVisionReceiptStatusEnum.SUBMETIDO, 
-                100, 
+                new RawVisionReceipt(),
+                true,
+                TranslatedVisionReceiptCategoryEnum.ALIMENTACAO,
+                TranslatedVisionReceiptStatusEnum.SUBMETIDO,
+                100,
                 "Receipt description 1");
             var updatedReceipt = new TranslatedVisionReceipt(
                 new RawVisionReceipt(),
@@ -88,11 +88,10 @@ namespace SmartRefund.Tests.ApplicationTests
             result.Status.Should().Be(expectedStatus);
         }
 
-
         [Theory]
-        [InlineData("SUBMETIDo", TranslatedVisionReceiptStatusEnum.SUBMETIDO)]
-        [InlineData("PaGA", TranslatedVisionReceiptStatusEnum.PAGA)]
-        [InlineData("REcUSADA", TranslatedVisionReceiptStatusEnum.RECUSADA)]
+        [InlineData("SUBMETIDO", TranslatedVisionReceiptStatusEnum.SUBMETIDO)]
+        [InlineData("PAGA", TranslatedVisionReceiptStatusEnum.PAGA)]
+        [InlineData("RECUSADA", TranslatedVisionReceiptStatusEnum.RECUSADA)]
         public void TryParseStatus_Should_Parse_Valid_Status(string statusString, TranslatedVisionReceiptStatusEnum expectedStatus)
         {
             // Arrange
@@ -119,6 +118,64 @@ namespace SmartRefund.Tests.ApplicationTests
             result.Should().BeFalse();
         }
 
-    }
+        [Fact]
+        public async Task GetAllByStatus_Should_Return_Valid_Responses()
+        {
+            // Arrange
+            var repository = Substitute.For<ITranslatedVisionReceiptRepository>();
+            repository.GetAllByStatusAsync(TranslatedVisionReceiptStatusEnum.SUBMETIDO).Returns(new List<TranslatedVisionReceipt>());
+            var logger = Substitute.For<ILogger<InternalAnalyzerService>>();
+            var service = new InternalAnalyzerService(repository, logger);
 
+            // Act
+            var result = await service.GetAllByStatus();
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ConvertToResponse_Should_Convert_Empty_Receipt_List()
+        {
+            // Arrange
+            var service = new InternalAnalyzerService(null, null);
+
+            MethodInfo methodInfo = typeof(InternalAnalyzerService).GetMethod("ConvertToResponse", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (methodInfo == null)
+            {
+                throw new InvalidOperationException("Método ConvertToResponse não encontrado.");
+            }
+
+            // Act
+            var result = (IEnumerable<TranslatedReceiptResponse>)methodInfo.Invoke(service, new object[] { new List<TranslatedVisionReceipt>() });
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task GetAll_Should_Return_All_Received_TranslatedVisionReceipts()
+        {
+            // Arrange
+            var expectedReceipts = new List<TranslatedVisionReceipt>
+            {
+                new TranslatedVisionReceipt(new RawVisionReceipt(), true, TranslatedVisionReceiptCategoryEnum.ALIMENTACAO, TranslatedVisionReceiptStatusEnum.SUBMETIDO, 100, "Receipt description 1"),
+                new TranslatedVisionReceipt(new RawVisionReceipt(), true, TranslatedVisionReceiptCategoryEnum.TRANSPORTE, TranslatedVisionReceiptStatusEnum.PAGA, 200, "Receipt description 2")
+            };
+
+            var repository = Substitute.For<ITranslatedVisionReceiptRepository>();
+            repository.GetAllWithRawVisionReceiptAsync().Returns(expectedReceipts);
+            var logger = Substitute.For<ILogger<InternalAnalyzerService>>();
+            var service = new InternalAnalyzerService(repository, logger);
+
+            // Act
+            var result = await service.GetAll();
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeEquivalentTo(expectedReceipts);
+        }
+    }
 }
