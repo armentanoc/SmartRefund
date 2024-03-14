@@ -38,15 +38,31 @@ public class VisionExecutorService : IVisionExecutorService
         if (!IsExecutableStatus(input.Status))
             throw new NonVisionExecutableStatus(input.Id, input.Status.ToString());
 
-        OpenAIAPI api = ConfigureApiKey();
-        var rawImage = input.Image;
-        var conversation = api.Chat.CreateConversation();
-        conversation.Model = Model.GPT4_Vision;
-        var response = await ProcessVisionResponseAsync(conversation, rawImage, input);
-        var addedRawVisionReceipt = await CreateRawVisionReceiptAsync(input, response);
-        await UpdateInternalReceiptAsync(input);
+        try
+        {
+            OpenAIAPI api = ConfigureApiKey();
+            var rawImage = input.Image;
+            var conversation = api.Chat.CreateConversation();
+            conversation.Model = Model.GPT4_Vision;
+            var response = await ProcessVisionResponseAsync(conversation, rawImage, input);
+            var addedRawVisionReceipt = await CreateRawVisionReceiptAsync(input, response);
+            await UpdateInternalReceiptAsync(input);
 
-        return addedRawVisionReceipt;
+            return addedRawVisionReceipt;
+        }
+        catch (Exception e)
+        {
+            input.SetStatus(input.Status switch
+            {
+                InternalReceiptStatusEnum.Unprocessed => InternalReceiptStatusEnum.FailedOnce,
+                InternalReceiptStatusEnum.FailedOnce => InternalReceiptStatusEnum.FailedMoreThanOnce,
+                InternalReceiptStatusEnum.FailedMoreThanOnce => InternalReceiptStatusEnum.Unsuccessful,
+                _ => input.Status
+            });
+
+            await _internalReceiptRepository.UpdateAsync(input);
+            throw;
+        }
     }
 
     public async Task<RawVisionResponse> ProcessVisionResponseAsync(Conversation conversation, byte[] rawImage, InternalReceipt input)
@@ -117,5 +133,10 @@ public class VisionExecutorService : IVisionExecutorService
     public async Task<IEnumerable<InternalReceipt>> GetInternalReceiptsWithStatusAsync(InternalReceiptStatusEnum status)
     {
         return await _internalReceiptRepository.GetByStatusAsync(status);
+    }
+
+    public async Task<IEnumerable<RawVisionReceipt>> GetRawReceiptsWithIsTranslatedFalseAsync()
+    {
+        return await _rawVisionReceiptRepository.GetByIsTranslatedFalseAsync();
     }
 }
