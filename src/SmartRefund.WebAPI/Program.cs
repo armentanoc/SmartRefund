@@ -58,12 +58,14 @@ namespace SmartRefund.WebAPI
             builder.Services.AddScoped<IVisionExecutorService, VisionExecutorService>();
             builder.Services.AddScoped<IVisionTranslatorService, VisionTranslatorService>();
             builder.Services.AddScoped<IInternalAnalyzerService, InternalAnalyzerService>();
-            builder.Services.AddHostedService<VisionProcessingWorker>();
+
 
             // Repositories
             builder.Services.AddScoped<ITranslatedVisionReceiptRepository, TranslatedVisionReceiptRepository>();
             builder.Services.AddScoped<IRawVisionReceiptRepository, RawVisionReceiptRepository>();
             builder.Services.AddScoped<IInternalReceiptRepository, InternalReceiptRepository>();
+
+            builder.Services.AddHostedService<VisionProcessingWorker>();
 
             var app = builder.Build();
 
