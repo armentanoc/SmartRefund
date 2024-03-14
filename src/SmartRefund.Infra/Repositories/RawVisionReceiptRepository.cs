@@ -1,4 +1,5 @@
-﻿using SmartRefund.Domain.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Context;
 using SmartRefund.Infra.Interfaces;
 using System.Diagnostics.CodeAnalysis;
@@ -11,5 +12,11 @@ namespace SmartRefund.Infra.Repositories
         public RawVisionReceiptRepository(AppDbContext context) : base(context)
         {
         }
+
+        public async Task<IEnumerable<RawVisionReceipt>> GetByIsTranslatedFalseAsync()
+        {
+            return await _context.RawVisionReceipt.Where(r => r.IsTranslated == false).ToListAsync();
+        }
+
     }
 }

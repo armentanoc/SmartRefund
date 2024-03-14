@@ -22,60 +22,76 @@ public class VisionProcessingWorker : BackgroundService
         _logger.LogInformation(
             "Consume Scoped Service Hosted Service running.");
 
-        _logger.LogInformation("Vision processing worker started.");
-
         while (!stoppingToken.IsCancellationRequested)
         {
-            try
+            _logger.LogInformation("while");
+
+            using (var scope = Services.CreateScope())
             {
-                await ProcessInternalReceiptsWithStatusAsync(InternalReceiptStatusEnum.Unprocessed, stoppingToken);
-                //await ProcessInternalReceiptsWithStatusAsync(InternalReceiptStatusEnum.FailedOnce, stoppingToken);
-                //await ProcessInternalReceiptsWithStatusAsync(InternalReceiptStatusEnum.FailedMoreThanOnce, stoppingToken);
-                _logger.LogInformation("VisionProcessingWorker try");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while processing InternalReceipts.");
+                var visionExecutorService = scope.ServiceProvider.GetRequiredService<IVisionExecutorService>();
+
+                await ProcessInternalReceiptsWithStatusAsync(visionExecutorService, InternalReceiptStatusEnum.Unprocessed, stoppingToken);
+                await ProcessInternalReceiptsWithStatusAsync(visionExecutorService, InternalReceiptStatusEnum.FailedOnce, stoppingToken);
+                await ProcessInternalReceiptsWithStatusAsync(visionExecutorService, InternalReceiptStatusEnum.FailedMoreThanOnce, stoppingToken);
+                await TranslateRawVisionReceiptAsync(visionExecutorService, stoppingToken);
             }
 
             await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
         }
     }
 
-    private async Task ProcessInternalReceiptsWithStatusAsync(InternalReceiptStatusEnum status, CancellationToken stoppingToken)
+    private async Task ProcessInternalReceiptsWithStatusAsync(IVisionExecutorService visionExecutorService, InternalReceiptStatusEnum status, CancellationToken stoppingToken)
     {
         _logger.LogInformation(
-            "Consume Scoped Service Hosted Service is working.");
+            $"ProcessInternalReceiptsWithStatusAsync is working with status: {status}");
 
-        using (var scope = Services.CreateScope())
+
+        var internalReceipts = await visionExecutorService.GetInternalReceiptsWithStatusAsync(status);
+
+        foreach (var receipt in internalReceipts)
         {
-            var scopedProcessingService =
-                scope.ServiceProvider
-                    .GetRequiredService<IVisionExecutorService>();
+            if (stoppingToken.IsCancellationRequested)
+                break;
 
-            var internalReceipts = await scopedProcessingService.GetInternalReceiptsWithStatusAsync(InternalReceiptStatusEnum.Unprocessed);
-
-            foreach (var receipt in internalReceipts)
+            try
             {
-                if (stoppingToken.IsCancellationRequested)
-                    break;
-
-                try
-                {
-                    _logger.LogInformation($"Processing InternalReceipt with ID: {receipt.Id} and Status: {receipt.Status.ToString()}");
-
-                    await scopedProcessingService.ExecuteRequestAsync(receipt);
-
-                    _logger.LogInformation($"Processed InternalReceipt with ID: {receipt.Id}");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, $"Error processing InternalReceipt with ID: {receipt.Id}");
-                }
+                _logger.LogInformation($"Processing InternalReceipt with ID: {receipt.Id} and Status: {receipt.Status.ToString()}");
+                await visionExecutorService.ExecuteRequestAsync(receipt);
+                _logger.LogInformation($"Processed InternalReceipt with ID: {receipt.Id}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error processing InternalReceipt with ID: {receipt.Id}");
             }
         }
-
     }
+
+    private async Task TranslateRawVisionReceiptAsync(IVisionExecutorService visionExecutorService, CancellationToken stoppingToken)
+    {
+        _logger.LogInformation(
+            "TranslateRawVisionReceiptAsync Scoped Service Hosted Service is working.");
+
+
+        var rawReceipts = await visionExecutorService.GetRawReceiptsWithIsTranslatedFalseAsync();
+
+        foreach (var receipt in rawReceipts)
+        {
+            if (stoppingToken.IsCancellationRequested)
+                break;
+
+            try
+            {
+                _logger.LogInformation($"Processing RawReceipt with ID: {receipt.Id}");
+                //await visionExecutorService.ExecuteRequestAsync(receipt);
+                _logger.LogInformation($"Processed RawReceipt with ID: {receipt.Id}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error processing InternalReceipt with ID: {receipt.Id}");
+            }
+        }
+    }
+
     public override async Task StopAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation(
