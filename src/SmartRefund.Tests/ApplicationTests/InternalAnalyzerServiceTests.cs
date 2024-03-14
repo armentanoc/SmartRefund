@@ -75,7 +75,7 @@ namespace SmartRefund.Tests.ApplicationTests
             updatedReceipt.SetId(id);
 
             var repository = Substitute.For<ITranslatedVisionReceiptRepository>();
-            repository.GetAsync(1).Returns(receipt);
+            repository.GetByIdAsync(1).Returns(receipt);
             repository.UpdateAsync(Arg.Is<TranslatedVisionReceipt>(r => r.Id == id)).Returns(updatedReceipt);
 
             var logger = Substitute.For<ILogger<InternalAnalyzerService>>();
