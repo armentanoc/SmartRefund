@@ -46,6 +46,11 @@ public class ExceptionFilter : IAsyncExceptionFilter
             case AlreadyUpdatedReceiptException _:
                 statusCode = StatusCodes.Status400BadRequest;
                 break;
+
+            case UnableToParseException _:
+                statusCode = StatusCodes.Status400BadRequest;
+                break;
+
             default:
                 statusCode = StatusCodes.Status500InternalServerError;
                 break;
