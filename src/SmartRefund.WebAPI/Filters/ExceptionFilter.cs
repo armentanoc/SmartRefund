@@ -47,6 +47,14 @@ public class ExceptionFilter : IAsyncExceptionFilter
                 statusCode = StatusCodes.Status413PayloadTooLarge;
                 break;
 
+            case NonVisionExecutableStatus _:
+                statusCode = StatusCodes.Status400BadRequest;
+                break;
+
+            case UnableToParseException _:
+                statusCode = StatusCodes.Status400BadRequest;
+                break;
+
             default:
                 statusCode = StatusCodes.Status500InternalServerError;
                 break;
@@ -67,8 +75,8 @@ public class ExceptionFilter : IAsyncExceptionFilter
         };
 
         _logger.LogError($"Erro no Sistema" +
-            $"\nMensagem: {objectResponse.Error.message}" +
-            $"\nStatusCode: {objectResponse.Error.statusCode}");
+            $" Mensagem: {objectResponse.Error.message}" +
+            $" StatusCode: {objectResponse.Error.statusCode}");
 
         await Task.CompletedTask;
     }

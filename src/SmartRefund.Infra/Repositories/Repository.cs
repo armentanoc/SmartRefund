@@ -12,7 +12,7 @@ namespace SmartRefund.Infra.Repositories
     public class Repository<T> : IRepository<T> where T : BaseEntity
     {
         internal readonly AppDbContext _context;
-        private string _specificEntity = typeof(T).Name;
+        protected string _specificEntity = typeof(T).Name;
 
         public Repository(AppDbContext context)
         {

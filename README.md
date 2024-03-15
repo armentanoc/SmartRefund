@@ -1,5 +1,14 @@
 # SmartRefund
 
+## Para configurar a Variável de Ambiente com a API Key Localmente
+
+- Execute o PowerShell como Administrador
+- Configure a Variável de Ambiente; para uma configuração definitiva a nível de máquina, é possível fazer, por exemplo: 
+```
+[System.Environment]::SetEnvironmentVariable('OPENAI_KEY_DIVERSEDEV','myApiKey', 'Machine')
+```
+- Reinicie o Visual Studio
+
 ## Para testar o EF Core "do zero" e/ou fazer modificações
 
 - Abrir o package manager console (ir em search e pesquisar)
