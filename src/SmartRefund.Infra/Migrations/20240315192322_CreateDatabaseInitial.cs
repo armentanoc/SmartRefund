@@ -8,7 +8,7 @@ namespace SmartRefund.Infra.Migrations
 {
     [ExcludeFromCodeCoverage]
     /// <inheritdoc />
-    public partial class createDataBase : Migration
+    public partial class CreateDatabaseInitial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,7 +22,8 @@ namespace SmartRefund.Infra.Migrations
                     EmployeeId = table.Column<uint>(type: "INTEGER", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
-                    Image = table.Column<byte[]>(type: "BLOB", nullable: false)
+                    Image = table.Column<byte[]>(type: "BLOB", nullable: false),
+                    UniqueHash = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -40,7 +41,8 @@ namespace SmartRefund.Infra.Migrations
                     Category = table.Column<string>(type: "TEXT", nullable: false),
                     Total = table.Column<string>(type: "TEXT", nullable: false),
                     Description = table.Column<string>(type: "TEXT", nullable: false),
-                    IsTranslated = table.Column<bool>(type: "INTEGER", nullable: false)
+                    IsTranslated = table.Column<bool>(type: "INTEGER", nullable: false),
+                    UniqueHash = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -64,7 +66,8 @@ namespace SmartRefund.Infra.Migrations
                     Category = table.Column<int>(type: "INTEGER", nullable: false),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
                     Total = table.Column<decimal>(type: "TEXT", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: false)
+                    Description = table.Column<string>(type: "TEXT", nullable: false),
+                    UniqueHash = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -5,12 +5,6 @@ using SmartRefund.Domain.Enums;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Responses;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmartRefund.Application.Services
 {
@@ -57,7 +51,7 @@ namespace SmartRefund.Application.Services
         {
             return receipts.Select(receipt =>
                 new TranslatedReceiptResponse(
-                    receiptId: receipt.Id,
+                    uniqueHash: receipt.UniqueHash,
                     employeeId: receipt.RawVisionReceipt.InternalReceipt.EmployeeId,
                     total: receipt.Total,
                     category: receipt.Category.ToString(),

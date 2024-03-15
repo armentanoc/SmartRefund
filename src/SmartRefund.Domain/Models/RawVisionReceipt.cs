@@ -10,13 +10,14 @@ namespace SmartRefund.Domain.Models
         public string Total { get; private set; }
         public string Description { get; private set; }
         public bool IsTranslated { get; private set; }
+        public string UniqueHash { get ; private set; }
 
         public RawVisionReceipt()
         {
             // required by EF Core
         }
 
-        public RawVisionReceipt(InternalReceipt internalReceipt, string isReceipt, string category, string total, string description)
+        public RawVisionReceipt(InternalReceipt internalReceipt, string isReceipt, string category, string total, string description, string uniqueHash)
         {
             InternalReceipt = internalReceipt;
             IsReceipt = isReceipt;
@@ -24,6 +25,7 @@ namespace SmartRefund.Domain.Models
             Total = total;
             Description = description;
             IsTranslated = false;
+            UniqueHash = uniqueHash;
         }
         public void SetIsTranslated(bool isTranslated)
         {
