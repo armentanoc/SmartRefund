@@ -15,7 +15,9 @@ namespace SmartRefund.Infra.Repositories
         }
         public async Task<IEnumerable<TranslatedVisionReceipt>> GetAllByStatusAsync(TranslatedVisionReceiptStatusEnum status)
         {
-            return await _context.Set<TranslatedVisionReceipt>()
+               return await _context.Set<TranslatedVisionReceipt>()
+                .Include(entity => entity.RawVisionReceipt)
+                .Include(entity => entity.RawVisionReceipt.InternalReceipt)
                 .Where(receipt => receipt.Status == status)
                 .ToListAsync();
         }

@@ -20,6 +20,7 @@ namespace SmartRefund.WebAPI.Controllers
         }
 
         [HttpGet("receipts/submitted")]
+        [SwaggerOperation("Get all Receipts with submitted Status")]
         public async Task<IActionResult> GetAllByStatus()
         {
             var receipts = await _analyzerService.GetAllByStatus();

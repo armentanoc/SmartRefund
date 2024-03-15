@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.Application.Services;
@@ -19,6 +22,7 @@ namespace SmartRefund.WebAPI
 
             // Add Logging
             builder.Services.AddLogging();
+            builder.Services.AddMemoryCache();
 
             // Controllers
             builder.Services.AddControllers(options =>
@@ -58,12 +62,15 @@ namespace SmartRefund.WebAPI
             builder.Services.AddScoped<IVisionExecutorServiceConfiguration, VisionExecutorServiceConfiguration>();
             builder.Services.AddScoped<IVisionExecutorService, VisionExecutorService>();
             builder.Services.AddScoped<IVisionTranslatorService, VisionTranslatorService>();
+            builder.Services.AddScoped<ICacheService, CacheService>();
             builder.Services.AddScoped<IInternalAnalyzerService, InternalAnalyzerService>();
 
             // Repositories
             builder.Services.AddScoped<ITranslatedVisionReceiptRepository, TranslatedVisionReceiptRepository>();
             builder.Services.AddScoped<IRawVisionReceiptRepository, RawVisionReceiptRepository>();
             builder.Services.AddScoped<IInternalReceiptRepository, InternalReceiptRepository>();
+            // Add CacheService
+         
 
             var app = builder.Build();
 
