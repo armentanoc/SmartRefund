@@ -11,6 +11,7 @@ using SmartRefund.Infra.Interfaces;
 using SmartRefund.Infra.Repositories;
 using SmartRefund.WebAPI.Middlewares;
 using System.Diagnostics.CodeAnalysis;
+using SmartRefund.WorkerService;
 
 namespace SmartRefund.WebAPI
 {
@@ -74,6 +75,7 @@ namespace SmartRefund.WebAPI
             builder.Services.AddScoped<IInternalReceiptRepository, InternalReceiptRepository>();
             // Add CacheService
          
+
 
             builder.Services.AddHostedService<VisionProcessingWorker>();
 
