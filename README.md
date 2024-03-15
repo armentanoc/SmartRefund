@@ -1,4 +1,10 @@
-<!--CACHE, EVENT SOURCE, BACKGROUND SERVICE, FALAR DE TODOS OS ENDPOINTS, COLOCAR OS AUTORES, PORTA ESPECÍFICA DA API, ESPECIFICAR TESTES-->
+<!--CACHE, EVENT SOURCE, BACKGROUND SERVICE, PORTA ESPECÍFICA DA API, ESPECIFICAR TESTES-->
+[![author](https://img.shields.io/badge/author-lauradefaria-blue.svg)](https://github.com/lauradefaria)
+[![author](https://img.shields.io/badge/author-armentanoc-black.svg)](https://github.com/armentanoc)
+[![author](https://img.shields.io/badge/author-czambanini-purple.svg)](https://github.com/czambanini)
+[![author](https://img.shields.io/badge/author-paulaandrezza-pink.svg)](https://github.com/paulaandrezza)
+[![author](https://img.shields.io/badge/author-ignunes-green.svg)](https://github.com/ig-nunes)
+[![author](https://img.shields.io/badge/author-cristopherkovalski-red.svg)](https://github.com/cristopherkovalski)
 # Projeto SmartRefund 🤖💰
 
 <table>
@@ -26,6 +32,89 @@ Realiza o upload de uma imagem que é potencial nota fiscal e dá início a todo
 <div align="center" display="flex">
 <img src="" height="500px">
 </div>
+
+### Management (icone)
+
+```
+GET /receipts/submitted
+{
+ //
+}
+
+Retorna todas as notas fiscais com status em SUBMETIDO, para que o financeiro possa visualizar.
+```
+
+<div align="center" display="flex">
+<img src="" height="500px">
+</div>
+
+```
+PATCH /update-status
+{
+ //
+}
+
+Altera o status da despesa para PAGA ou RECUSADA.
+```
+
+<div align="center" display="flex">
+<img src="" height="500px">
+</div>
+
+```
+GET /receipts
+{
+ //
+}
+
+Retorna todas as notas fiscais existentes no sistema.
+```
+
+<div align="center" display="flex">
+<img src="" height="500px">
+</div>
+
+### Test (icone)
+
+```
+GET /get/{id}
+{
+ //
+}
+
+Retorna a nota fiscal desejada pelo ID.
+```
+
+<div align="center" display="flex">
+<img src="" height="500px">
+</div>
+
+```
+GET /executeVision/{id}
+{
+ //
+}
+
+Seleciona a possível nota fiscal pelo ID, depois realiza a verificação e execução pelo ChatGPT, retornando o resultado fornecido sem nenhuma alteração.
+```
+
+<div align="center" display="flex">
+<img src="" height="500px">
+</div>
+
+```
+GET /testaTraducao/{id}
+{
+ //
+}
+
+Seleciona pelo ID uma nota fiscal já executada pela API do ChatGPT e reformula a resposta armazenada para o formato desejado da saída.
+```
+
+<div align="center" display="flex">
+<img src="" height="500px">
+</div>
+
 
 ## Estrutura do Projeto :building_construction:
 
