@@ -32,7 +32,7 @@ namespace SmartRefund.Application.Services.Tests
         {
             // Arrange
             var service = CreateVisionExecutorService();
-            var internalReceipt = new InternalReceipt(1, new byte[0]);
+            var internalReceipt = new InternalReceipt(1, new byte[0], "4");
             internalReceipt.SetStatus(status);
 
             // Act & Assert
@@ -49,7 +49,7 @@ namespace SmartRefund.Application.Services.Tests
             configuration["OpenAIVisionConfig:EnvVariable"].Returns(apiKey);
             var service = CreateVisionExecutorService(configuration);
 
-            var internalReceipt = new InternalReceipt(1, new byte[0]);
+            var internalReceipt = new InternalReceipt(1, new byte[0], "5");
             internalReceipt.SetStatus(InternalReceiptStatusEnum.Unprocessed);
 
             // Act & Assert
@@ -72,7 +72,7 @@ namespace SmartRefund.Application.Services.Tests
             mockedConfig.Setup(c => c.OpenAIVisionApiEnvVar).Returns("OpenAIVisionConfig:EnvVariable");
             mockedConfig.Setup(c => c.OpenAIVisionPrompts).Returns(new OpenAIVisionPrompts());
 
-            var internalReceipt = new InternalReceipt(1, new byte[0]);
+            var internalReceipt = new InternalReceipt(1, new byte[0], "6");
             internalReceipt.SetStatus(InternalReceiptStatusEnum.Unprocessed);
 
             var repositoryMock = new Mock<IInternalReceiptRepository>();

@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.CustomExceptions;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Responses;
-using System.Reflection.PortableExecutable;
 
 
 namespace SmartRefund.Application.Services
@@ -33,7 +33,8 @@ namespace SmartRefund.Application.Services
                     imageBytes = memoryStream.ToArray();
                 }
 
-                InternalReceipt receipt = new InternalReceipt(employeeId, imageBytes);
+                var uniqueHash = await GenerateUniqueHash();
+                InternalReceipt receipt = new InternalReceipt(employeeId, imageBytes, uniqueHash);
                 InternalReceiptResponse response = new InternalReceiptResponse(receipt);
 
                 await _repository.AddAsync(receipt);
@@ -43,6 +44,14 @@ namespace SmartRefund.Application.Services
 
             return null;
 
+        }
+
+        private async Task<string> GenerateUniqueHash()
+        {
+            var receipts = await _repository.GetAllAsync();
+            InternalReceipt? lastReceipt = receipts.LastOrDefault();
+            uint id = lastReceipt?.Id ?? 0;
+            return WebEncoders.Base64UrlEncode(BitConverter.GetBytes(id));
         }
 
         public bool ValidateSize(long lenght)
