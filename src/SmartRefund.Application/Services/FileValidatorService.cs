@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using SmartRefund.Application.Interfaces;
+using SmartRefund.CustomExceptions;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
 using System.Reflection.PortableExecutable;
@@ -34,7 +35,7 @@ namespace SmartRefund.Application.Services
         public async Task<InternalReceipt?> Validate(IFormFile file, uint employeeId)
         {
             
-            if (ValidateSize(file.Length) && ValidateType(file) && ValidateExtension(file.FileName)) //await
+            if (ValidateSize(file.Length) && ValidateExtension(file.FileName) && await ValidateType(file)) 
             {
                 byte[] imageBytes;
                 using (var memoryStream = new MemoryStream())
@@ -58,7 +59,7 @@ namespace SmartRefund.Application.Services
         {
             if (lenght >= 20 * 1024 * 1024)
             {
-                throw new ArgumentException("Arquivo é maior do que 20MB");
+                throw new InvalidFileSizeException(lenght);
             }
             return true;
         }
@@ -75,26 +76,26 @@ namespace SmartRefund.Application.Services
             }
             else
             {
-                throw new ArgumentException("Extensão não permitida");
+                throw new InvalidFileTypeException(extension);
             }
 
         }
 
-        public bool ValidateType(IFormFile file)  //async Task<bool>
+        public async Task<bool> ValidateType(IFormFile file)  
         {
-            //byte[] header = new byte[4];
-            //using (var memoryStream = new MemoryStream())
-            //{
-            //    await file.CopyToAsync(memoryStream);
-            //    memoryStream.Read(header, 0, 4);
-            //}
+            byte[] header = new byte[4];
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.CopyToAsync(memoryStream);
+                memoryStream.Read(header, 0, 4);
+            }
 
-            //if (IsJpeg(header) || IsPng(header))
-            //{
+            if (IsJpeg(header) || IsPng(header))
+            {
                 return true;
-            //}
+            }
 
-            //throw new ArgumentException("Extensão não permitida");
+            throw new InvalidFileTypeException(Path.GetExtension(file.FileName));
         }
 
         private static bool IsJpeg(byte[] header)
