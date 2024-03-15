@@ -74,9 +74,11 @@ namespace SmartRefund.Application.Services
         public async Task<bool> ValidateType(IFormFile file)  
         {
             byte[] header = new byte[4];
+
             using (var memoryStream = new MemoryStream())
             {
                 await file.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
                 memoryStream.Read(header, 0, 4);
             }
 
@@ -90,8 +92,9 @@ namespace SmartRefund.Application.Services
 
         private static bool IsJpeg(byte[] header)
         {
-            // Verifica se os primeiros bytes correspondem ao header de um arquivo JPG
-            return header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF;
+            // Verifica se os primeiros bytes correspondem ao header de um arquivo JPEG or JPG
+            return (header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF) // JPEG
+                || (header[0] == 0x4A && header[1] == 0x46 && header[2] == 0x49 && header[3] == 0x46); // JFIF
         }
 
         private static bool IsPng(byte[] header)
