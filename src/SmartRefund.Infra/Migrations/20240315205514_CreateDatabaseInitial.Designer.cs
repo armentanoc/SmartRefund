@@ -11,8 +11,13 @@ using SmartRefund.Infra.Context;
 namespace SmartRefund.Infra.Migrations
 {
     [DbContext(typeof(AppDbContext))]
+<<<<<<<< HEAD:src/SmartRefund.Infra/Migrations/20240315205514_CreateDatabaseInitial.Designer.cs
     [Migration("20240315205514_CreateDatabaseInitial")]
     partial class CreateDatabaseInitial
+========
+    [Migration("20240312225757_createDataBase")]
+    partial class createDataBase
+>>>>>>>> origin/main:src/SmartRefund.Infra/Migrations/20240312225757_createDataBase.Designer.cs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

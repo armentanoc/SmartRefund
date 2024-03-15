@@ -81,7 +81,7 @@ namespace SmartRefund.Application.Services
 
         }
 
-        public async Task<bool> ValidateType(IFormFile file)
+        public async Task<bool> ValidateType(IFormFile file)  
         {
             byte[] header = new byte[4];
 

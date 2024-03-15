@@ -8,7 +8,11 @@ namespace SmartRefund.Infra.Migrations
 {
     [ExcludeFromCodeCoverage]
     /// <inheritdoc />
+<<<<<<<< HEAD:src/SmartRefund.Infra/Migrations/20240315205514_CreateDatabaseInitial.cs
     public partial class CreateDatabaseInitial : Migration
+========
+    public partial class createDataBase : Migration
+>>>>>>>> origin/main:src/SmartRefund.Infra/Migrations/20240312225757_createDataBase.cs
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
