@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
+using OpenAI_API.Chat;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.CustomExceptions;
 
@@ -40,6 +42,19 @@ namespace SmartRefund.Application.Services
             }
         }
 
+        public ChatRequest ChatRequestConfig
+        {
+            get 
+            {
+                return new ChatRequest
+                {
+                    Model = GetChatRequestConfig("Model"),
+                    ResponseFormat = GetChatRequestConfig("ResponseFormat"),
+                    MaxTokens = TryParseToInt(GetChatRequestConfig("MaxTokens")),
+                };               
+            }
+        }
+
         private string GetPrompt(string configKey, string propertyName)
         {
             var prompt = _configuration[$"OpenAIVisionConfig:{configKey}"];
@@ -47,5 +62,32 @@ namespace SmartRefund.Application.Services
                 throw new VisionConfigurationException(propertyName);
             return prompt;
         }
+
+        private string? GetChatRequestConfig(string configKey)
+        {
+            var value = _configuration[$"OpenAIVisionConfig:ChatRequestConfig:{configKey}"];
+            if (string.IsNullOrWhiteSpace(configKey))
+            {
+                return null;
+            }
+
+            return value;
+        }
+
+        private int? TryParseToInt(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new InvalidOperationException("Não foi passado o número máximo de tokens no appsettings");
+            }
+
+            if (int.TryParse(value, out int result))
+            {
+                return result;
+            };
+
+            throw new UnableToParseException(value);
+        }
+
     }
 }
