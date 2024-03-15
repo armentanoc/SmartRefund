@@ -16,14 +16,16 @@ namespace SmartRefund.WebAPI.Controllers
         public ILogger<TesteController> _logger;
         public IVisionTranslatorService _translatorService;
         public IVisionExecutorService _visionExecutorService;
+        public IEventSourceService _eventSourceService;
         //public MyBackgroundWorker _backgroundWorker;
-        public TesteController(IRawVisionReceiptRepository repository, ILogger<TesteController> logger, IVisionTranslatorService service, IInternalReceiptRepository internalReceiptRepository, IVisionExecutorService visionExecutorService)
+        public TesteController(IRawVisionReceiptRepository repository, ILogger<TesteController> logger, IVisionTranslatorService service, IInternalReceiptRepository internalReceiptRepository, IVisionExecutorService visionExecutorService, IEventSourceService eventSourceService)
         {
             _rawRepository = repository;
             _logger = logger;
             _translatorService = service;
             _internalReceiptRepository = internalReceiptRepository;
             _visionExecutorService = visionExecutorService;
+            _eventSourceService = eventSourceService;
         }
 
         [HttpGet("get/{id}")]
@@ -48,6 +50,14 @@ namespace SmartRefund.WebAPI.Controllers
             //_backgroundWorker.TranslateAsync(rawVisionReceipt);
             return Ok($"Tradução iniciada para: RawVisionReceipt de Id{rawVisionReceipt.Id}" +
                 $"\nResultado: {translatedReceipt}");
+        }
+
+        [HttpGet("EventSourcing")]
+        public async Task<ActionResult> ShowEventSource(uint id)
+        {
+            await _eventSourceService.PrintEventSourcing(id);
+
+            return Ok();
         }
 
         //  You can implement a background worker by creating a class that INHERITS FROM THE BACKGROUND SERVICE 

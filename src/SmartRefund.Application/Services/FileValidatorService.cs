@@ -13,11 +13,13 @@ namespace SmartRefund.Application.Services
     {
         private IInternalReceiptRepository _repository;
         private ILogger<FileValidatorService> _logger;
+        private IEventSourceRepository _eventSourceRepository;
 
-        public FileValidatorService(IInternalReceiptRepository repository, ILogger<FileValidatorService> logger)
+        public FileValidatorService(IInternalReceiptRepository repository, ILogger<FileValidatorService> logger, IEventSourceRepository eventSourceRepository)
         {
             _repository = repository;
             _logger = logger;
+            _eventSourceRepository = eventSourceRepository;
         }
 
         public async Task<InternalReceiptResponse?> Validate(IFormFile file, uint employeeId)
@@ -34,6 +36,9 @@ namespace SmartRefund.Application.Services
 
                 InternalReceipt receipt = new InternalReceipt(employeeId, imageBytes);
                 InternalReceiptResponse response = new InternalReceiptResponse(receipt);
+
+                ReceiptEventSource eventSourcing = new ReceiptEventSource(receipt.Id);
+                await _eventSourceRepository.AddEvent(eventSourcing.Id, new InternalReceiptCreated(receipt.Id, receipt.CreationDate, receipt.Status));
 
                 await _repository.AddAsync(receipt);
 

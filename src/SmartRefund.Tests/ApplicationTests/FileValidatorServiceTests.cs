@@ -20,12 +20,14 @@ namespace SmartRefund.Tests.ApplicationTests
     {
         private FileValidatorService _fileValidatorService;
         private IInternalReceiptRepository _mockReceiptRepository;
+        private IEventSourceRepository _mockEventSourceRepository;
 
         public FileValidatorServiceTests()
         {
             _mockReceiptRepository = Substitute.For<IInternalReceiptRepository>();
+            _mockEventSourceRepository = Substitute.For<IEventSourceRepository>();
             ILogger<FileValidatorService> loggerMock = Substitute.For<ILogger<FileValidatorService>>();
-            _fileValidatorService = new FileValidatorService(_mockReceiptRepository, loggerMock);
+            _fileValidatorService = new FileValidatorService(_mockReceiptRepository, loggerMock, _mockEventSourceRepository);
         }
 
         [Theory]
