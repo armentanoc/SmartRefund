@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using SmartRefund.Application.Interfaces;
+using SmartRefund.Domain.Models;
 using SmartRefund.Domain.Models.Enums;
 using SmartRefund.Infra.Context;
 using SmartRefund.Infra.Interfaces;
@@ -28,7 +30,14 @@ namespace SmartRefund.WorkerService
                 using (var scope = Services.CreateScope())
                 {
                     var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
-                    await ProcessChangesAsync(stoppingToken);
+
+                    if (dbContext.ChangeTracker.HasChanges())
+                        _logger.LogInformation("changed detected");
+
+                    if (dbContext.ChangeTracker.Entries<InternalReceipt>().Any(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted))
+                        _logger.LogInformation("Changes detected in InternalReceipt table.");
+
+                    //await ProcessChangesAsync(stoppingToken);
                 }
             }
         }
@@ -43,29 +52,38 @@ namespace SmartRefund.WorkerService
                 var internalReceiptRepository = scope.ServiceProvider.GetRequiredService<IInternalReceiptRepository>();
                 var rawVisionReceiptRepository = scope.ServiceProvider.GetRequiredService<IRawVisionReceiptRepository>();
 
-                await ProcessInternalReceiptsWithStatusAsync(internalReceiptRepository, visionExecutorService, InternalReceiptStatusEnum.Unprocessed, stoppingToken);
-                await ProcessInternalReceiptsWithStatusAsync(internalReceiptRepository, visionExecutorService, InternalReceiptStatusEnum.FailedOnce, stoppingToken);
-                await ProcessInternalReceiptsWithStatusAsync(internalReceiptRepository, visionExecutorService, InternalReceiptStatusEnum.FailedMoreThanOnce, stoppingToken);
+                await ProcessInternalReceiptsWithStatusAsync(internalReceiptRepository, visionExecutorService, stoppingToken);
                 await TranslateRawVisionReceiptAsync(rawVisionReceiptRepository, visionTranslatorService, stoppingToken);
             }
         }
 
-        private async Task ProcessInternalReceiptsWithStatusAsync(IInternalReceiptRepository internalReceiptRepository, IVisionExecutorService visionExecutorService, InternalReceiptStatusEnum status, CancellationToken stoppingToken)
+        private async Task ProcessInternalReceiptsWithStatusAsync(IInternalReceiptRepository internalReceiptRepository, IVisionExecutorService visionExecutorService, CancellationToken stoppingToken)
         {
-            var internalReceipts = await internalReceiptRepository.GetByStatusAsync(status);
-
-            foreach (var receipt in internalReceipts)
+            var statusesToProcess = new List<InternalReceiptStatusEnum>
             {
-                if (stoppingToken.IsCancellationRequested)
-                    break;
+                InternalReceiptStatusEnum.Unprocessed,
+                InternalReceiptStatusEnum.FailedOnce,
+                InternalReceiptStatusEnum.FailedMoreThanOnce
+            };
 
-                try
+
+            foreach (var status in statusesToProcess)
+            {
+                var internalReceipts = await internalReceiptRepository.GetByStatusAsync(status);
+
+                foreach (var receipt in internalReceipts)
                 {
-                    await visionExecutorService.ExecuteRequestAsync(receipt);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, $"Error processing InternalReceipt with ID: {receipt.Id}");
+                    if (stoppingToken.IsCancellationRequested)
+                        break;
+
+                    try
+                    {
+                        await visionExecutorService.ExecuteRequestAsync(receipt);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"Error processing InternalReceipt with ID: {receipt.Id}");
+                    }
                 }
             }
         }
