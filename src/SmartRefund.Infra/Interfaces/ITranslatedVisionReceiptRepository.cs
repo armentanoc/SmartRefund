@@ -10,6 +10,6 @@ namespace SmartRefund.Infra.Interfaces
 
         // Apenas para visualização
         Task<IEnumerable<TranslatedVisionReceipt>> GetAllWithRawVisionReceiptAsync();
+        Task<TranslatedVisionReceipt> GetByUniqueHashAsync(string uniqueHash);
     }
-
 }
