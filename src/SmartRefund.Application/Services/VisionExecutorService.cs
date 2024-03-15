@@ -74,7 +74,7 @@ public class VisionExecutorService : IVisionExecutorService
         conversation.AppendUserInput(prompts.ImagePrompt, ChatMessage.ImageInput.FromImageBytes(rawImage));
 
         response.IsReceipt = await GetResponseAsync(conversation, prompts.IsReceiptPrompt, new NonReceiptException(input.Id));
-        var isValidResolution = await GetResponseAsync(conversation, prompts.IsResolutionReadable, new NonResolutionReadableException(input.Id));
+        await GetResponseAsync(conversation, prompts.IsResolutionReadable, new NonResolutionReadableException(input.Id));
         response.Total = await GetResponseAsync(conversation, prompts.TotalPrompt);
         response.Category = await GetResponseAsync(conversation, prompts.CategoryPrompt);
         response.Description = await GetResponseAsync(conversation, prompts.DescriptionPrompt);

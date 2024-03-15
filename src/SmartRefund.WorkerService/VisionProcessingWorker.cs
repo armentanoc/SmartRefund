@@ -27,20 +27,8 @@ namespace SmartRefund.WorkerService
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                //using (var scope = Services.CreateScope())
-                //{
-                //var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
-
-                //if (dbContext.ChangeTracker.HasChanges())
-                //    _logger.LogInformation("changed detected");
-
-                //if (dbContext.ChangeTracker.Entries<InternalReceipt>().Any(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted))
-                //    _logger.LogInformation("Changes detected in InternalReceipt table.");
-
-                //}
-
                 await ProcessChangesAsync(stoppingToken);
-                await Task.Delay(TimeSpan.FromHours(12), stoppingToken);
+                await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
             }
 
         }
@@ -69,24 +57,20 @@ namespace SmartRefund.WorkerService
                 InternalReceiptStatusEnum.FailedMoreThanOnce
             };
 
+            var internalReceipts = await internalReceiptRepository.GetByStatusAsync(statusesToProcess);
 
-            foreach (var status in statusesToProcess)
+            foreach (var receipt in internalReceipts)
             {
-                var internalReceipts = await internalReceiptRepository.GetByStatusAsync(status);
+                if (stoppingToken.IsCancellationRequested)
+                    break;
 
-                foreach (var receipt in internalReceipts)
+                try
                 {
-                    if (stoppingToken.IsCancellationRequested)
-                        break;
-
-                    try
-                    {
-                        await visionExecutorService.ExecuteRequestAsync(receipt);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, $"Error processing InternalReceipt with ID: {receipt.Id}");
-                    }
+                    await visionExecutorService.ExecuteRequestAsync(receipt);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Error processing InternalReceipt with ID: {receipt.Id}");
                 }
             }
         }

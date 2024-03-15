@@ -5,6 +5,6 @@ namespace SmartRefund.Infra.Interfaces
 {
     public interface IInternalReceiptRepository : IRepository<InternalReceipt>
     {
-        Task<IEnumerable<InternalReceipt>> GetByStatusAsync(InternalReceiptStatusEnum status);
+        Task<IEnumerable<InternalReceipt>> GetByStatusAsync(List<InternalReceiptStatusEnum> statuses);
     }
 }
