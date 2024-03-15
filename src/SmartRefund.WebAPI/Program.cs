@@ -6,6 +6,7 @@ using SmartRefund.Infra.Context;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.Infra.Repositories;
 using SmartRefund.WebAPI.Middlewares;
+using SmartRefund.WorkerService;
 
 namespace SmartRefund.WebAPI
 {
@@ -64,6 +65,7 @@ namespace SmartRefund.WebAPI
             builder.Services.AddScoped<ITranslatedVisionReceiptRepository, TranslatedVisionReceiptRepository>();
             builder.Services.AddScoped<IRawVisionReceiptRepository, RawVisionReceiptRepository>();
             builder.Services.AddScoped<IInternalReceiptRepository, InternalReceiptRepository>();
+
 
             builder.Services.AddHostedService<VisionProcessingWorker>();
 
