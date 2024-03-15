@@ -59,17 +59,6 @@ public class ExceptionFilter : IAsyncExceptionFilter
                 statusCode = StatusCodes.Status400BadRequest;
                 break;
 
-            case AlreadyUpdatedReceiptException _:
-                statusCode = StatusCodes.Status400BadRequest;
-                break;
-            case InvalidFileTypeException _:
-                statusCode = StatusCodes.Status422UnprocessableEntity;
-                break;
-
-            case InvalidFileSizeException _:
-                statusCode = StatusCodes.Status413PayloadTooLarge;
-                break;
-
             default:
                 statusCode = StatusCodes.Status500InternalServerError;
                 break;

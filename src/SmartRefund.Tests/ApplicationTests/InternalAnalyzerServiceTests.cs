@@ -21,7 +21,7 @@ namespace SmartRefund.Tests.ApplicationTests
         public void ConvertToResponse_Converts_Receipts_To_Response(TranslatedVisionReceipt receipt, string expectedReceiptHash, uint expectedEmployeeId, decimal expectedTotal, string expectedCategory, string expectedStatus, string expectedDescription)
         {
             // Arrange
-            var receipt = new TranslatedVisionReceipt(new RawVisionReceipt(), true, category, status, total, description, "1");
+            var newReceipt = new TranslatedVisionReceipt(new RawVisionReceipt(), true, receipt.Category, receipt.Status, receipt.Total, receipt.Description, "1");
             var service = new InternalAnalyzerService(null, null, null);
 
             MethodInfo methodInfo = typeof(InternalAnalyzerService).GetMethod("ConvertAllToResponse", BindingFlags.NonPublic | BindingFlags.Instance);
