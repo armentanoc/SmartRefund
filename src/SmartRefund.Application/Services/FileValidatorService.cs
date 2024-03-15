@@ -59,6 +59,7 @@ namespace SmartRefund.Application.Services
 
             string[] possibleExtensions = [".png", ".jpg", ".jpeg"];
 
+            Console.WriteLine(extension);
             if(possibleExtensions.Contains(extension))
             {
                 return true;

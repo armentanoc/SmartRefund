@@ -10,7 +10,9 @@ using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Responses;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,7 +35,7 @@ namespace SmartRefund.Tests.ApplicationTests
         [InlineData(23 * 1024 * 1024)]
         public void Image_size_cannot_be_equal_to_or_bigger_than_twenty_mb(long size)
         {
-            Assert.Throws<ArgumentException>(() => _fileValidatorService.ValidateSize(size));
+            Assert.Throws<ArgumentException>(() => _fileValidatorService.ValidateSize(size));  //Ajuste exceção customizada
         }
 
         [Fact]
@@ -79,25 +81,66 @@ namespace SmartRefund.Tests.ApplicationTests
         [InlineData("ImageTestZip.zip")]
         public void Other_file_types_are_not_accepted(string fileName)
         {
-            Assert.Throws<ArgumentException> (() => _fileValidatorService.ValidateExtension(fileName));
+            Assert.Throws<ArgumentException> (() => _fileValidatorService.ValidateExtension(fileName));  //Ajuste exceção customizada
         }
 
         [Fact]
         public async void If_is_validated_an_internal_receipt_is_created()
         {
-            //Arrange
-            var fileMock = Substitute.For<IFormFile>();
-            fileMock.Length.Returns(2 * 1024 * 1024);
-            fileMock.FileName.Returns("example.jpg");
             uint employeeId = 123;
+            var filePath = $@"C:\Users\lauraa\Documents\PROJETO FINAL\src\SmartRefund.Tests\FileForTest\ImageTestPng.png";
 
-            // Act
-            var result = await _fileValidatorService.Validate(fileMock, employeeId);
+            using (var stream = new FileStream(filePath, FileMode.Open))
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    stream.CopyTo(memoryStream);
 
-            // Assert
-            result.Should().BeOfType<InternalReceiptResponse>();
+                    var file = new FormFile(memoryStream, 0, memoryStream.Length, null, Path.GetFileName(filePath));
 
+                    var result = await _fileValidatorService.Validate(file, employeeId);
+
+                    result.Should().BeOfType<InternalReceiptResponse>();
+                }
+            }
         }
 
+        [Fact]
+        public async void Png_file_with_other_extension_accepted()
+        {
+            var filePath = $@"C:\Users\lauraa\Documents\PROJETO FINAL\src\SmartRefund.Tests\FileForTest\ImageTestPng.png";
+            
+            using (var stream = new FileStream(filePath, FileMode.Open))
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    stream.CopyTo(memoryStream);
+
+                    var file = new FormFile(memoryStream, 0, memoryStream.Length, null, Path.GetFileName(filePath));
+                                
+                    Assert.True(await _fileValidatorService.ValidateType(file));
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData("DocumentTestPdf.png.pdf")]
+        [InlineData("DocumentTestPdf.png")]
+        public async void Pdf_file_with_other_extension_not_accepted(string document)
+        {
+            var filePath = $@"C:\Users\lauraa\Documents\PROJETO FINAL\src\SmartRefund.Tests\FileForTest\{document}";
+
+            using (var stream = new FileStream(filePath, FileMode.Open))
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    stream.CopyTo(memoryStream);
+
+                    var file = new FormFile(memoryStream, 0, memoryStream.Length, null, Path.GetFileName(filePath));
+
+                    await Assert.ThrowsAsync<ArgumentException>(async () => await _fileValidatorService.ValidateType(file));
+                }
+            }
+        }
     }
 }
