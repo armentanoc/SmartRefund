@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SmartRefund.Application\SmartRefund.Application.csproj" />
+    <ProjectReference Include="..\SmartRefund.WorkerService\SmartRefund.WorkerService.csproj" />
   </ItemGroup>
 
 </Project>
