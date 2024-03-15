@@ -8,6 +8,7 @@ namespace SmartRefund.CustomExceptions
     public class EntityNotFoundException : Exception
     {
         public string SpecificEntity { get; private set; }
+        public string UniqueHash { get; private set; }
         public uint Id { get; private set; }
 
         public EntityNotFoundException(string specificEntity, uint id)
@@ -15,6 +16,13 @@ namespace SmartRefund.CustomExceptions
         {
             SpecificEntity = specificEntity;
             Id = id;
+        }
+
+        public EntityNotFoundException(string specificEntity, string uniqueHash)
+            : base($"Entity {specificEntity} with UniqueHash {uniqueHash} doesn't exist.")
+        {
+            SpecificEntity = specificEntity;
+            UniqueHash = uniqueHash;
         }
         public EntityNotFoundException(string specificEntity)
             : base($"Entity with property {specificEntity} doesn't exist.")

@@ -19,7 +19,7 @@ namespace SmartRefund.Infra.Repositories
         {
                return await _context.Set<TranslatedVisionReceipt>()
                 .Include(entity => entity.RawVisionReceipt)
-                .Include(entity => entity.RawVisionReceipt.InternalReceipt)
+                    .ThenInclude(rawVisionReceipt => rawVisionReceipt.InternalReceipt)
                 .Where(receipt => receipt.Status == status)
                 .ToListAsync();
         }
@@ -29,7 +29,7 @@ namespace SmartRefund.Infra.Repositories
             var entityToReturn = await _context
                 .Set<TranslatedVisionReceipt>()
                 .Include(entity => entity.RawVisionReceipt)
-                .Include(entity => entity.RawVisionReceipt.InternalReceipt)
+                    .ThenInclude(rawVisionReceipt => rawVisionReceipt.InternalReceipt)
                 .FirstOrDefaultAsync(entity =>
                 entity.Id == id
             );
@@ -48,9 +48,26 @@ namespace SmartRefund.Infra.Repositories
         public async Task<IEnumerable<TranslatedVisionReceipt>> GetAllWithRawVisionReceiptAsync()
         {
             return await _context.Set<TranslatedVisionReceipt>()
-                 .Include(receipt => receipt.RawVisionReceipt)
-                 .Include(receipt => receipt.RawVisionReceipt.InternalReceipt)
+                 .Include(entity => entity.RawVisionReceipt)
+                    .ThenInclude(rawVisionReceipt => rawVisionReceipt.InternalReceipt)
                  .ToListAsync();
+        }
+
+        public async Task<TranslatedVisionReceipt> GetByUniqueHashAsync(string uniqueHash)
+        {
+            var entityToReturn =
+                await _context.Set<TranslatedVisionReceipt>()
+                .Include(entity => entity.RawVisionReceipt)
+                    .ThenInclude(rawVisionReceipt => rawVisionReceipt.InternalReceipt)
+                .FirstOrDefaultAsync(entity => entity.UniqueHash.Equals(uniqueHash));
+
+            if (entityToReturn != null)
+            {
+                await _context.SaveChangesAsync();
+                return entityToReturn;
+            }
+
+            throw new EntityNotFoundException(_specificEntity, uniqueHash);
         }
     }
 }

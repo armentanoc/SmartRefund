@@ -8,6 +8,6 @@ namespace SmartRefund.Infra.Interfaces
         Task<IEnumerable<TranslatedVisionReceipt>> GetAllByStatusAsync(TranslatedVisionReceiptStatusEnum status);
         Task<TranslatedVisionReceipt> GetByIdAsync(uint id);
         Task<IEnumerable<TranslatedVisionReceipt>> GetAllWithRawVisionReceiptAsync();
+        Task<TranslatedVisionReceipt> GetByUniqueHashAsync(string uniqueHash);
     }
-
 }
