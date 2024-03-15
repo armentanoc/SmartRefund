@@ -5,11 +5,11 @@ namespace SmartRefund.CustomExceptions
 {
     [ExcludeFromCodeCoverage]
     [Serializable]
-    public class NonReceiptException : Exception
+    public class NonResolutionReadableException : Exception
     {
-        public uint Id {  get; private set; }
-        public NonReceiptException(uint id)
-           : base($"Comprovante Inválido (InternalReceiptId: {id})")
+        public uint Id { get; private set; }
+        public NonResolutionReadableException(uint id)
+           : base($"Resolução ilegível (InternalReceiptId: {id})")
         {
             Id = id;
         }
