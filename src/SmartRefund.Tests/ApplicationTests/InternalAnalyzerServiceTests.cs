@@ -21,7 +21,7 @@ namespace SmartRefund.Tests.ApplicationTests
             // Arrange
             var service = new InternalAnalyzerService(null, null, null);
 
-            MethodInfo methodInfo = typeof(InternalAnalyzerService).GetMethod("ConvertToResponse", BindingFlags.NonPublic | BindingFlags.Instance);
+            MethodInfo methodInfo = typeof(InternalAnalyzerService).GetMethod("ConvertAllToResponse", BindingFlags.NonPublic | BindingFlags.Instance);
             if (methodInfo == null)
             {
                 throw new InvalidOperationException("Método ConvertToResponse não encontrado.");
