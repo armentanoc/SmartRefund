@@ -12,5 +12,6 @@ namespace SmartRefund.Application.Interfaces
     {
         Task<IEnumerable<TranslatedReceiptResponse>> GetAllByStatus();
         Task<TranslatedVisionReceipt> UpdateStatus(uint id, string newStatus);
+        Task<IEnumerable<TranslatedVisionReceipt>> GetAll();
     }
 }

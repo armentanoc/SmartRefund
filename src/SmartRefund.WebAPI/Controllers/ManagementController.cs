@@ -20,6 +20,7 @@ namespace SmartRefund.WebAPI.Controllers
         }
 
         [HttpGet("receipts/submitted")]
+        [SwaggerOperation("Get all Receipts with submitted Status")]
         public async Task<IActionResult> GetAllByStatus()
         {
             var receipts = await _analyzerService.GetAllByStatus();
@@ -36,6 +37,17 @@ namespace SmartRefund.WebAPI.Controllers
         {
             var UpdatedObject = await _analyzerService.UpdateStatus(updateRequest.Id, updateRequest.NewStatus);
             return Ok(UpdatedObject);
+        }
+
+        // Apenas para visualização
+        [HttpGet("receipts")]
+        public async Task<IActionResult> GetAll()
+        {
+            var receipts = await _analyzerService.GetAll();
+            //if (receipts != null && receipts.Count() != 0)
+            return Ok(receipts);
+
+            //return NotFound();
         }
 
     }
