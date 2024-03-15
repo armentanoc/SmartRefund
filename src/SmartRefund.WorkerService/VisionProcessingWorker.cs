@@ -20,15 +20,16 @@ namespace SmartRefund.WorkerService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await Task.Delay(100);
+            await Task.Delay(100, stoppingToken);
 
             _logger.LogInformation(
             "Consume Scoped Service Hosted Service running.");
 
-            while (!stoppingToken.IsCancellationRequested)
+            using (var scope = Services.CreateScope())
             {
-                using (var scope = Services.CreateScope())
+                while (!stoppingToken.IsCancellationRequested)
                 {
+
                     var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
 
                     if (dbContext.ChangeTracker.HasChanges())
@@ -38,6 +39,8 @@ namespace SmartRefund.WorkerService
                         _logger.LogInformation("Changes detected in InternalReceipt table.");
 
                     //await ProcessChangesAsync(stoppingToken);
+                    // TODO: Descobrir uma forma de chamar ProcessInternalReceiptsWithStatusAsync ou TranslateRawVisionReceiptAsync
+                    // somente quando houver alterações nas tabelas InternalReceipt e RawVisionReceipt
                 }
             }
         }
