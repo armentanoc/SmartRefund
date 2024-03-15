@@ -24,7 +24,7 @@ namespace SmartRefund.Tests.ApplicationTests
             var receipt = new TranslatedVisionReceipt(new RawVisionReceipt(), true, category, status, total, description, "1");
             var service = new InternalAnalyzerService(null, null, null);
 
-            MethodInfo methodInfo = typeof(InternalAnalyzerService).GetMethod("ConvertToResponse", BindingFlags.NonPublic | BindingFlags.Instance);
+            MethodInfo methodInfo = typeof(InternalAnalyzerService).GetMethod("ConvertAllToResponse", BindingFlags.NonPublic | BindingFlags.Instance);
             if (methodInfo == null)
             {
                 throw new InvalidOperationException("Método ConvertToResponse não encontrado.");
