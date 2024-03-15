@@ -1,12 +1,11 @@
-using Microsoft.EntityFrameworkCore;
 using SmartRefund.Application.Interfaces;
-using SmartRefund.Domain.Models;
 using SmartRefund.Domain.Models.Enums;
-using SmartRefund.Infra.Context;
 using SmartRefund.Infra.Interfaces;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartRefund.WorkerService
 {
+    [ExcludeFromCodeCoverage]
     public class VisionProcessingWorker : BackgroundService
     {
         private readonly ILogger<VisionProcessingWorker> _logger;
@@ -20,29 +19,30 @@ namespace SmartRefund.WorkerService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await Task.Delay(100, stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
 
             _logger.LogInformation(
             "Consume Scoped Service Hosted Service running.");
 
-            using (var scope = Services.CreateScope())
+
+            while (!stoppingToken.IsCancellationRequested)
             {
-                while (!stoppingToken.IsCancellationRequested)
-                {
+                //using (var scope = Services.CreateScope())
+                //{
+                //var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
 
-                    var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
+                //if (dbContext.ChangeTracker.HasChanges())
+                //    _logger.LogInformation("changed detected");
 
-                    if (dbContext.ChangeTracker.HasChanges())
-                        _logger.LogInformation("changed detected");
+                //if (dbContext.ChangeTracker.Entries<InternalReceipt>().Any(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted))
+                //    _logger.LogInformation("Changes detected in InternalReceipt table.");
 
-                    if (dbContext.ChangeTracker.Entries<InternalReceipt>().Any(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted))
-                        _logger.LogInformation("Changes detected in InternalReceipt table.");
+                //}
 
-                    //await ProcessChangesAsync(stoppingToken);
-                    // TODO: Descobrir uma forma de chamar ProcessInternalReceiptsWithStatusAsync ou TranslateRawVisionReceiptAsync
-                    // somente quando houver alterações nas tabelas InternalReceipt e RawVisionReceipt
-                }
+                await ProcessChangesAsync(stoppingToken);
+                await Task.Delay(TimeSpan.FromHours(12), stoppingToken);
             }
+
         }
 
         private async Task ProcessChangesAsync(CancellationToken stoppingToken)
