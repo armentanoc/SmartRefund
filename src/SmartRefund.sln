@@ -5,17 +5,19 @@ VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartRefund.WebAPI", "SmartRefund.WebAPI\SmartRefund.WebAPI.csproj", "{5135162E-3F1E-40FE-98E9-1A70B5199040}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartRefund.Domain", "SmartRefund.Domain\SmartRefund.Domain.csproj", "{3C7DF647-DEF8-4BA2-92F2-3204BDD31B1C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartRefund.Domain", "SmartRefund.Domain\SmartRefund.Domain.csproj", "{3C7DF647-DEF8-4BA2-92F2-3204BDD31B1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartRefund.Infra", "SmartRefund.Infra\SmartRefund.Infra.csproj", "{5B42A799-919C-433F-845E-74DBD5433086}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartRefund.Infra", "SmartRefund.Infra\SmartRefund.Infra.csproj", "{5B42A799-919C-433F-845E-74DBD5433086}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartRefund.Application", "SmartRefund.Application\SmartRefund.Application.csproj", "{226A1A56-0C39-4DF9-88AD-D1AF1F2C736B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartRefund.Application", "SmartRefund.Application\SmartRefund.Application.csproj", "{226A1A56-0C39-4DF9-88AD-D1AF1F2C736B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartRefund.ViewModels", "SmartRefund.ViewModels\SmartRefund.ViewModels.csproj", "{AF6B0D12-D01D-4282-9FB3-0E16A9DD1BE3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartRefund.ViewModels", "SmartRefund.ViewModels\SmartRefund.ViewModels.csproj", "{AF6B0D12-D01D-4282-9FB3-0E16A9DD1BE3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartRefund.CustomExceptions", "SmartRefund.CustomExceptions\SmartRefund.CustomExceptions.csproj", "{2D63CFB2-BC65-4347-A2AA-21BA0ED85A20}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartRefund.CustomExceptions", "SmartRefund.CustomExceptions\SmartRefund.CustomExceptions.csproj", "{2D63CFB2-BC65-4347-A2AA-21BA0ED85A20}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartRefund.Tests", "SmartRefund.Tests\SmartRefund.Tests.csproj", "{011480C6-00B7-4161-9B03-A16EED25C510}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartRefund.Tests", "SmartRefund.Tests\SmartRefund.Tests.csproj", "{011480C6-00B7-4161-9B03-A16EED25C510}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartRefund.WorkerService", "SmartRefund.WorkerService\SmartRefund.WorkerService.csproj", "{8A28EF9D-2232-4C42-BF4A-F057CD6F1F29}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{011480C6-00B7-4161-9B03-A16EED25C510}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{011480C6-00B7-4161-9B03-A16EED25C510}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{011480C6-00B7-4161-9B03-A16EED25C510}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A28EF9D-2232-4C42-BF4A-F057CD6F1F29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A28EF9D-2232-4C42-BF4A-F057CD6F1F29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A28EF9D-2232-4C42-BF4A-F057CD6F1F29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A28EF9D-2232-4C42-BF4A-F057CD6F1F29}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

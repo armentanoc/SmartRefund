@@ -2,9 +2,11 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Moq;
 using NSubstitute;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.Application.Services;
+using SmartRefund.CustomExceptions;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Responses;
@@ -12,7 +14,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
+using System.Reflection;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -35,7 +38,7 @@ namespace SmartRefund.Tests.ApplicationTests
         [InlineData(23 * 1024 * 1024)]
         public void Image_size_cannot_be_equal_to_or_bigger_than_twenty_mb(long size)
         {
-            Assert.Throws<ArgumentException>(() => _fileValidatorService.ValidateSize(size));  //Ajuste exceção customizada
+            Assert.Throws<InvalidFileSizeException>(() => _fileValidatorService.ValidateSize(size));
         }
 
         [Fact]
@@ -81,66 +84,67 @@ namespace SmartRefund.Tests.ApplicationTests
         [InlineData("ImageTestZip.zip")]
         public void Other_file_types_are_not_accepted(string fileName)
         {
-            Assert.Throws<ArgumentException> (() => _fileValidatorService.ValidateExtension(fileName));  //Ajuste exceção customizada
+            Assert.Throws<InvalidFileTypeException>(() => _fileValidatorService.ValidateExtension(fileName));
         }
 
         [Fact]
-        public async void If_is_validated_an_internal_receipt_is_created()
+        public async Task If_is_validated_an_internal_receipt_is_created()
         {
-            uint employeeId = 123;
-            var filePath = $@"C:\Users\lauraa\Documents\PROJETO FINAL\src\SmartRefund.Tests\FileForTest\ImageTestPng.png";
+            // Arrange
+            var file = new Mock<IFormFile>();
+            var sourceImgPath = @"../../../ApplicationTests/Assets/example.jpg";
+            var sourceImgBytes = File.ReadAllBytes(sourceImgPath);
+            var ms = new MemoryStream(sourceImgBytes);
+            var fileName = "example.jpg";
 
-            using (var stream = new FileStream(filePath, FileMode.Open))
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    stream.CopyTo(memoryStream);
+            file.Setup(f => f.FileName).Returns(fileName).Verifiable();
 
-                    var file = new FormFile(memoryStream, 0, memoryStream.Length, null, Path.GetFileName(filePath));
+            file.Setup(_ => _.CopyToAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
+                .Returns((Stream stream, CancellationToken token) => ms.CopyToAsync(stream))
+                .Callback((Stream stream, CancellationToken token) => ms.Position = 0)
+                .Verifiable();
 
-                    var result = await _fileValidatorService.Validate(file, employeeId);
+            file.Setup(_ => _.OpenReadStream())
+                .Returns(ms)
+                .Verifiable();
 
-                    result.Should().BeOfType<InternalReceiptResponse>();
-                }
-            }
+            var inputFile = file.Object;
+            uint employeeId = 1;
+
+            // Act
+            var result = await _fileValidatorService.Validate(inputFile, employeeId);
+
+            // Assert
+            result.Should().BeOfType<InternalReceiptResponse>();
         }
 
         [Fact]
-        public async void Png_file_with_other_extension_accepted()
+        public async Task If_is_invalidated_throws_invalid_type_exception()
         {
-            var filePath = $@"C:\Users\lauraa\Documents\PROJETO FINAL\src\SmartRefund.Tests\FileForTest\ImageTestPng.png";
-            
-            using (var stream = new FileStream(filePath, FileMode.Open))
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    stream.CopyTo(memoryStream);
+            // Arrange
+            var file = new Mock<IFormFile>();
+            var sourceImgPath = @"../../../ApplicationTests/Assets/invalidfile.pdf";
+            var sourceImgBytes = File.ReadAllBytes(sourceImgPath);
+            var ms = new MemoryStream(sourceImgBytes);
+            var fileName = "invalidfile.pdf";
 
-                    var file = new FormFile(memoryStream, 0, memoryStream.Length, null, Path.GetFileName(filePath));
-                                
-                    Assert.True(await _fileValidatorService.ValidateType(file));
-                }
-            }
+            file.Setup(f => f.FileName).Returns(fileName).Verifiable();
+
+            file.Setup(_ => _.CopyToAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
+                .Returns((Stream stream, CancellationToken token) => ms.CopyToAsync(stream))
+                .Callback((Stream stream, CancellationToken token) => ms.Position = 0)
+                .Verifiable();
+
+            file.Setup(_ => _.OpenReadStream())
+                .Returns(ms)
+                .Verifiable();
+
+            var inputFile = file.Object;
+            uint employeeId = 1;
+
+            // Act and Assert
+            await Assert.ThrowsAsync<InvalidFileTypeException>(async () => await _fileValidatorService.Validate(inputFile, employeeId));
         }
 
-        [Theory]
-        [InlineData("DocumentTestPdf.png.pdf")]
-        [InlineData("DocumentTestPdf.png")]
-        public async void Pdf_file_with_other_extension_not_accepted(string document)
-        {
-            var filePath = $@"C:\Users\lauraa\Documents\PROJETO FINAL\src\SmartRefund.Tests\FileForTest\{document}";
-
-            using (var stream = new FileStream(filePath, FileMode.Open))
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    stream.CopyTo(memoryStream);
-
-                    var file = new FormFile(memoryStream, 0, memoryStream.Length, null, Path.GetFileName(filePath));
-
-                    await Assert.ThrowsAsync<ArgumentException>(async () => await _fileValidatorService.ValidateType(file));
-                }
-            }
-        }
     }
 }

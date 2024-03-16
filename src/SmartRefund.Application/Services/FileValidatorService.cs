@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using SmartRefund.Application.Interfaces;
+using SmartRefund.CustomExceptions;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Responses;
@@ -23,7 +24,7 @@ namespace SmartRefund.Application.Services
         public async Task<InternalReceiptResponse?> Validate(IFormFile file, uint employeeId)
         {
             
-            if (ValidateSize(file.Length) && ValidateExtension(file.FileName)) // && await ValidateType(file)
+            if (ValidateSize(file.Length) && ValidateExtension(file.FileName) && await ValidateType(file)) 
             {
                 byte[] imageBytes;
                 using (var memoryStream = new MemoryStream())
@@ -48,7 +49,7 @@ namespace SmartRefund.Application.Services
         {
             if (lenght >= 20 * 1024 * 1024)
             {
-                throw new ArgumentException("Arquivo é maior do que 20MB");
+                throw new InvalidFileSizeException(lenght);
             }
             return true;
         }
@@ -66,17 +67,19 @@ namespace SmartRefund.Application.Services
             }
             else
             {
-                throw new ArgumentException("Extensão não permitida");
+                throw new InvalidFileTypeException(extension);
             }
 
         }
 
-        public async Task<bool> ValidateType(IFormFile file)
+        public async Task<bool> ValidateType(IFormFile file)  
         {
             byte[] header = new byte[4];
+
             using (var memoryStream = new MemoryStream())
             {
                 await file.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
                 memoryStream.Read(header, 0, 4);
             }
 
@@ -85,13 +88,14 @@ namespace SmartRefund.Application.Services
                 return true;
             }
 
-            throw new ArgumentException("Extensão não permitida");
+            throw new InvalidFileTypeException(Path.GetExtension(file.FileName));
         }
 
         private static bool IsJpeg(byte[] header)
         {
-            // Verifica se os primeiros bytes correspondem ao header de um arquivo JPG
-            return header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF;
+            // Verifica se os primeiros bytes correspondem ao header de um arquivo JPEG or JPG
+            return (header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF) // JPEG
+                || (header[0] == 0x4A && header[1] == 0x46 && header[2] == 0x49 && header[3] == 0x46); // JFIF
         }
 
         private static bool IsPng(byte[] header)
