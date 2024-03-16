@@ -36,6 +36,10 @@ namespace SmartRefund.Infra.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("UniqueHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.ToTable("InternalReceipt");
@@ -69,6 +73,10 @@ namespace SmartRefund.Infra.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("UniqueHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("InternalReceiptId");
@@ -99,6 +107,10 @@ namespace SmartRefund.Infra.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<decimal>("Total")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UniqueHash")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

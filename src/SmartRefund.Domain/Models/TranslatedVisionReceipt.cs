@@ -12,12 +12,14 @@ namespace SmartRefund.Domain.Models
         public decimal Total { get; private set; }
         public string Description { get; private set; }
 
+        public string UniqueHash { get; private set; }
+
         public TranslatedVisionReceipt()
         {
             //required by EF Core
         }
 
-        public TranslatedVisionReceipt(RawVisionReceipt rawVisionReceipt, bool isReceipt, TranslatedVisionReceiptCategoryEnum category, TranslatedVisionReceiptStatusEnum status, decimal total, string description)
+        public TranslatedVisionReceipt(RawVisionReceipt rawVisionReceipt, bool isReceipt, TranslatedVisionReceiptCategoryEnum category, TranslatedVisionReceiptStatusEnum status, decimal total, string description, string uniqueHash)
         {
             RawVisionReceipt = rawVisionReceipt;
             IsReceipt = isReceipt;
@@ -25,6 +27,7 @@ namespace SmartRefund.Domain.Models
             Status = status;
             Total = total;
             Description = description;
+            UniqueHash = uniqueHash;
         }
 
         public void SetStatus(TranslatedVisionReceiptStatusEnum status)

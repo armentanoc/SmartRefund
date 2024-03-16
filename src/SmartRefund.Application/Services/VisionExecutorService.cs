@@ -100,7 +100,7 @@ public class VisionExecutorService : IVisionExecutorService
 
     public async Task<RawVisionReceipt> CreateRawVisionReceiptAsync(InternalReceipt receipt, RawVisionResponse response)
     {
-        var rawVisionReceipt = new RawVisionReceipt(receipt, isReceipt: response.IsReceipt, category: response.Category, total: response.Total, description: response.Description);
+        var rawVisionReceipt = new RawVisionReceipt(receipt, isReceipt: response.IsReceipt, category: response.Category, total: response.Total, description: response.Description, uniqueHash: receipt.UniqueHash) ;
         var addedRawVisionReceipt = await _rawVisionReceiptRepository.AddAsync(rawVisionReceipt);
         _logger.LogInformation($"Internal Receipt was interpreted by GPT Vision and added to repository (Id: {addedRawVisionReceipt.Id})");
         return addedRawVisionReceipt;
