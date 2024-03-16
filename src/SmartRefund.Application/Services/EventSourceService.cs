@@ -19,13 +19,16 @@ namespace SmartRefund.Application.Services
             _repository = repository;
         }
 
-        public async Task<bool> PrintEventSourcing(uint idEventSourcing)
+        public async Task<bool> PrintEventSourcing(uint idEventSource)
         {
-            var eventSourcing = await _repository.GetById(idEventSourcing);
-            Console.WriteLine($"ID: {eventSourcing.Id} \n");
-            foreach(IEvent evnt in eventSourcing.events)
+            var eventSource = await _repository.GetById(idEventSource);
+            Console.WriteLine($"HASHCODE: {eventSource.UniqueHash} \n");
+
+            foreach (Event evnt in eventSource.Events)
             {
-                Console.WriteLine(evnt.ToString());
+                Console.WriteLine($"{evnt.Status} | {evnt.EventDate}");
+                Console.WriteLine(evnt.Description);
+                Console.WriteLine();
             }
             return true;
         }

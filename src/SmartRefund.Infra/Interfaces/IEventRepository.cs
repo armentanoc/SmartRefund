@@ -7,9 +7,7 @@ using System.Threading.Tasks;
 
 namespace SmartRefund.Infra.Interfaces
 {
-    public interface IEventSourceRepository
+    public interface IEventRepository : IRepository<Event>
     {
-        public Task<ReceiptEventSource> GetById(uint id);
-        public Task<ReceiptEventSource> AddEvent(uint id, Event evnt);
     }
 }

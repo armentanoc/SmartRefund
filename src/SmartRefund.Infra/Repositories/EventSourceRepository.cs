@@ -22,10 +22,10 @@ namespace SmartRefund.Infra.Repositories
             _context = context;
         }
 
-        public async Task<ReceiptEventSource> AddEvent(uint id, IEvent evnt)
+        public async Task<ReceiptEventSource> AddEvent(uint id, Event evnt)
         {
             var eventSource = await GetById(id);
-            eventSource.events.Add(evnt);
+            eventSource.Events.Add(evnt);
             await _context.SaveChangesAsync();
             return eventSource;
         }

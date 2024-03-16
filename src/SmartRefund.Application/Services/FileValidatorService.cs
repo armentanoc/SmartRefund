@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.CustomExceptions;
+using SmartRefund.Domain.Enums;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Responses;
@@ -38,8 +39,8 @@ namespace SmartRefund.Application.Services
                 InternalReceipt receipt = new InternalReceipt(employeeId, imageBytes);
                 InternalReceiptResponse response = new InternalReceiptResponse(receipt);
 
-                ReceiptEventSource eventSourcing = new ReceiptEventSource(receipt);
-                await _eventSourceRepository.AddEvent(eventSourcing.Id, new InternalReceiptCreated(receipt.Id, receipt.CreationDate, receipt.Status));
+                ReceiptEventSource eventSource = new ReceiptEventSource(receipt, "AAAAAA"); //mudar para receipt.UniqueHash
+                await _eventSourceRepository.AddEvent(eventSource.Id, new Event(eventSource, EventSourceStatusEnum.InternalReceiptCreated, receipt.CreationDate, "Internal Receipt created with success"));
 
                 await _repository.AddAsync(receipt);
 

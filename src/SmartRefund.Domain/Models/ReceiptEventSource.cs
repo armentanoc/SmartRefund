@@ -9,14 +9,19 @@ namespace SmartRefund.Domain.Models
     public class ReceiptEventSource : BaseEntity
     {
         public InternalReceipt InternalReceipt { get; set; }
-        public List<IEvent> events { get; set; }
+        public string UniqueHash { get; private set; }
+        public List<Event> Events { get; set; }
 
-        public ReceiptEventSource() { }
+        public ReceiptEventSource()
+        { 
+            // required by EF Core
+        }
 
-        public ReceiptEventSource(InternalReceipt internalReceipt)
+            public ReceiptEventSource(InternalReceipt internalReceipt, string uniqueHash)
         {
             InternalReceipt = internalReceipt;
-            events = new List<IEvent>();
+            UniqueHash = uniqueHash;
+            Events = new List<Event>();
         }
 
     }
