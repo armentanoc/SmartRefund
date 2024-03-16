@@ -1,6 +1,7 @@
 ﻿using Castle.Core.Logging;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NSubstitute;
@@ -29,8 +30,46 @@ namespace SmartRefund.Tests.ApplicationTests
         public FileValidatorServiceTests()
         {
             _mockReceiptRepository = Substitute.For<IInternalReceiptRepository>();
-            ILogger<FileValidatorService> loggerMock = Substitute.For<ILogger<FileValidatorService>>();
-            _fileValidatorService = new FileValidatorService(_mockReceiptRepository, loggerMock);
+            var loggerMock = Substitute.For<ILogger<FileValidatorService>>();
+            var configurationMock = Substitute.For<IConfiguration>();
+            configurationMock["OpenAIVisionConfig:MinResolutionInPPI"].Returns("50"); // Mocking configuration value
+            _fileValidatorService = new FileValidatorService(_mockReceiptRepository, loggerMock, configurationMock);
+        }
+
+        [Fact]
+        public void ValidateType_ValidImage_ReturnsTrue()
+        {
+            // Arrange
+            
+            var sourceImgPath = @"../../../ApplicationTests/Assets/example.jpg";
+            var sourceImgBytes = File.ReadAllBytes(sourceImgPath);
+            var fileName = "example.jpg";
+            var memoryStream = new MemoryStream(sourceImgBytes);
+
+            // Act
+            var result = _fileValidatorService.ValidateType(fileName, memoryStream);
+
+            // Assert
+            Assert.True(result);
+
+            // Dispose
+            memoryStream.Dispose();
+        }
+
+        [Fact]
+        public void ValidateType_InvalidImage_ThrowsInvalidFileTypeException()
+        {
+            // Arrange
+            var sourceImgPath = @"../../../ApplicationTests/Assets/invalidfile.pdf";
+            var sourceImgBytes = File.ReadAllBytes(sourceImgPath);
+            var fileName = "invalidfile.pdf";
+            var memoryStream = new MemoryStream(sourceImgBytes);
+
+            // Act and Assert
+            Assert.Throws<InvalidFileTypeException>(() => _fileValidatorService.ValidateType(fileName, memoryStream));
+
+            // Dispose
+            memoryStream.Dispose();
         }
 
         [Theory]
