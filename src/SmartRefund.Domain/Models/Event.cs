@@ -25,9 +25,13 @@ namespace SmartRefund.Domain.Models
             EventDate = eventDate;
             Description = description;
         }
+
+        public override string ToString()
+        {
+           return $"Event: {Status} - {EventDate} - {Description}";
+        }
     }
 
-    
     //public record InternalReceiptCreated(uint internalReceiptId, DateTime creation, InternalReceiptStatusEnum status, string description = "Internal Receipt created with success");
     //public record VisionExecutorFailed(DateTime eventdate, InternalReceiptStatusEnum status, string description = "Vision Executor process failed, trying again...");
     //public record VisionExecutorUnsuccessful(DateTime eventdate, InternalReceiptStatusEnum status, string description = "Vision Executor process failed. A person in charge will process this receipt");

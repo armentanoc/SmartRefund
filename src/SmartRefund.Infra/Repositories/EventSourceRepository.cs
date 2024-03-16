@@ -3,12 +3,6 @@ using SmartRefund.CustomExceptions;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Context;
 using SmartRefund.Infra.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Tracing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmartRefund.Infra.Repositories
 {
@@ -38,9 +32,23 @@ namespace SmartRefund.Infra.Repositories
             return eventSource;
         }
 
+        public Task<List<ReceiptEventSource>> GetAllByHashAsync(IEnumerable<RawVisionReceipt> rawReceipts)
+        {
+            var hashList = rawReceipts.ToList().Select(receipt => receipt.UniqueHash);
+            return _context.ReceiptEventSource.Where(r => hashList.Contains(r.UniqueHash)).ToListAsync();
+        }
+
+        public Task<List<ReceiptEventSource>> GetAllByHashAsync(IEnumerable<InternalReceipt> internalReceipts)
+        {
+            var hashList = internalReceipts.ToList().Select(receipt => receipt.UniqueHash);
+            return _context.ReceiptEventSource.Where(r => hashList.Contains(r.UniqueHash)).ToListAsync();
+        }
+
         public async Task<ReceiptEventSource> GetById(uint id)
         {
-            var entityToReturn = await _context.Set<ReceiptEventSource>().FirstOrDefaultAsync(entity => entity.Id == id);
+            var entityToReturn = await _context.Set<ReceiptEventSource>()
+                .Include(eventSource => eventSource.Events)
+                .FirstOrDefaultAsync(entity => entity.Id == id);
             if (entityToReturn == null) { throw new EntityNotFoundException(_specificEntity, id); }
             else { return entityToReturn;  }
         }
@@ -49,6 +57,9 @@ namespace SmartRefund.Infra.Repositories
         {
             var entityToReturn = await _context.ReceiptEventSource
                 .Include(receipt => receipt.Events)
+                .Include(receipt => receipt.InternalReceipt)
+                .Include(receipt => receipt.RawVisionReceipt)
+                .Include(receipt => receipt.TranslatedVisionReceipt)
                 .FirstOrDefaultAsync(receiptEventSource => receiptEventSource.UniqueHash.Equals(hash));
 
             if (entityToReturn is ReceiptEventSource)
@@ -56,6 +67,5 @@ namespace SmartRefund.Infra.Repositories
 
             throw new EntityNotFoundException(_specificEntity, hash);
         }
-
     }
 }

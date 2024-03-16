@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SmartRefund.ViewModels.Responses;
 using SmartRefund.Application.Interfaces;
+using SmartRefund.CustomExceptions;
 
 namespace SmartRefund.Application.Services
 {
@@ -19,20 +20,14 @@ namespace SmartRefund.Application.Services
             _repository = repository;
         }
 
-        public async Task<bool> PrintEventSourcing(uint idEventSource)
+        public async Task<ReceiptEventSourceResponse> GetReceiptEventSourceResponseAsync(string hash, bool isFrontEndpoint)
         {
-            var eventSource = await _repository.GetById(idEventSource);
-            Console.WriteLine($"HASHCODE: {eventSource.UniqueHash} \n");
-            Console.WriteLine($"CURRENT STATUS: {eventSource.CurrentStatus} \n");
-            Console.WriteLine($"------------------------------------------");
+            var eventSource = await _repository.GetByUniqueHashAsync(hash);
+            
+            if(eventSource is ReceiptEventSource)
+                return new ReceiptEventSourceResponse(eventSource, isFrontEndpoint);
 
-            foreach (Event evnt in eventSource.Events)
-            {
-                Console.WriteLine($"{evnt.Status} | {evnt.EventDate}");
-                Console.WriteLine(evnt.Description);
-                Console.WriteLine();
-            }
-            return true;
+            throw new EntityNotFoundException(hash);
         }
     }
 }

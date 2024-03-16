@@ -54,20 +54,18 @@ namespace SmartRefund.Application.Services
                 }
 
                 var uniqueHash = await GenerateUniqueHash();
+
                 InternalReceipt receipt = new InternalReceipt(employeeId, imageBytes, uniqueHash);
-                InternalReceiptResponse response = new InternalReceiptResponse(receipt);
+                var addedReceipt = await _repository.AddAsync(receipt);
 
-                await _repository.AddAsync(receipt);
+                ReceiptEventSource eventSource = new ReceiptEventSource(uniqueHash, EventSourceStatusEnum.EventSourceInitialized, addedReceipt);
+                var addedEventSource = await _eventSourceRepository.AddAsync(eventSource);
 
-                ReceiptEventSource eventSource = new ReceiptEventSource(receipt, receipt.UniqueHash);
-                await _eventSourceRepository.AddAsync(eventSource);
-                var newEvent = new Event(eventSource.UniqueHash, EventSourceStatusEnum.InternalReceiptCreated, receipt.CreationDate, "Internal Receipt created with success");
-                
-                await _eventSourceRepository.AddEvent(eventSource.UniqueHash, newEvent);
+                var newEvent = new Event(addedEventSource.UniqueHash, EventSourceStatusEnum.InternalReceiptCreated, addedReceipt.CreationDate, "Internal Receipt created with success");
+                await _eventSourceRepository.AddEvent(addedEventSource.UniqueHash, newEvent);
 
-                return response;
+                return new InternalReceiptResponse(receipt);
             }
-
             throw new InvalidOperationException("File validation failed");
         }
 

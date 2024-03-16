@@ -8,13 +8,14 @@ namespace SmartRefund.Domain.Enums
 {
     public enum EventSourceStatusEnum
     {
-        InternalReceiptCreated = 1,
-        VisionExecutorFailed = 2,
-        VisionExecutorUnsuccessful = 3,
-        VisionExecutorSuccessful = 4,
-        FileTranslationFailed = 5,
-        FileTranslated = 6,
-        PaymentAccepted = 7,
-        PaymentDenied = 8,
+        EventSourceInitialized = 1,
+        InternalReceiptCreated,
+        VisionExecutorFailed,
+        VisionExecutorUnsuccessful,
+        VisionExecutorSuccessful,
+        FileTranslationFailed,
+        FileTranslated,
+        PaymentAccepted,
+        PaymentDenied,
     }
 }

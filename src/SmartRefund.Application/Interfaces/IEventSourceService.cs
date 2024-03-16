@@ -1,15 +1,12 @@
 ﻿using SmartRefund.Infra.Interfaces;
 using SmartRefund.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+using SmartRefund.ViewModels.Responses;
 
 namespace SmartRefund.Application.Interfaces
 {
     public interface IEventSourceService
     {
-        public Task<bool> PrintEventSourcing(uint idEventSourcing);
+        public Task<ReceiptEventSourceResponse> GetReceiptEventSourceResponseAsync(string hash, bool isFrontEndpoint);
     }
 }

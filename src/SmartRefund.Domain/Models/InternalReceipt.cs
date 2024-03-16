@@ -18,7 +18,7 @@ namespace SmartRefund.Domain.Models
 
         //Recebe a imagem
 
-        public InternalReceipt(uint employeeId, byte[] image, string uniqueHash) 
+        public InternalReceipt(uint employeeId, byte[] image, string uniqueHash)
         {
             CreationDate = DateTime.Now;
             EmployeeId = employeeId;

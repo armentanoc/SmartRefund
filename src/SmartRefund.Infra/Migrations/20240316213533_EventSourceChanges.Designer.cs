@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartRefund.Infra.Context;
 
@@ -10,9 +11,11 @@ using SmartRefund.Infra.Context;
 namespace SmartRefund.Infra.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240316213533_EventSourceChanges")]
+    partial class EventSourceChanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.2");
@@ -124,10 +127,10 @@ namespace SmartRefund.Infra.Migrations
                     b.Property<uint>("InternalReceiptId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<uint?>("RawVisionReceiptId")
+                    b.Property<uint>("RawVisionReceiptId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<uint?>("TranslatedVisionReceiptId")
+                    b.Property<uint>("TranslatedVisionReceiptId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("UniqueHash")
@@ -209,11 +212,15 @@ namespace SmartRefund.Infra.Migrations
 
                     b.HasOne("SmartRefund.Domain.Models.RawVisionReceipt", "RawVisionReceipt")
                         .WithMany()
-                        .HasForeignKey("RawVisionReceiptId");
+                        .HasForeignKey("RawVisionReceiptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("SmartRefund.Domain.Models.TranslatedVisionReceipt", "TranslatedVisionReceipt")
                         .WithMany()
-                        .HasForeignKey("TranslatedVisionReceiptId");
+                        .HasForeignKey("TranslatedVisionReceiptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("InternalReceipt");
 

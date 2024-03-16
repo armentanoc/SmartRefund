@@ -1,4 +1,6 @@
 using SmartRefund.Application.Interfaces;
+using SmartRefund.Domain.Enums;
+using SmartRefund.Domain.Models;
 using SmartRefund.Domain.Models.Enums;
 using SmartRefund.Infra.Interfaces;
 using System.Diagnostics.CodeAnalysis;
@@ -42,12 +44,14 @@ namespace SmartRefund.WorkerService
                 var internalReceiptRepository = scope.ServiceProvider.GetRequiredService<IInternalReceiptRepository>();
                 var rawVisionReceiptRepository = scope.ServiceProvider.GetRequiredService<IRawVisionReceiptRepository>();
 
-                await ProcessInternalReceiptsWithStatusAsync(internalReceiptRepository, visionExecutorService, stoppingToken);
-                await TranslateRawVisionReceiptAsync(rawVisionReceiptRepository, visionTranslatorService, stoppingToken);
+                var eventSourceRepository = scope.ServiceProvider.GetRequiredService<IEventSourceRepository>();
+
+                await ProcessInternalReceiptsWithStatusAsync(internalReceiptRepository, visionExecutorService, eventSourceRepository, stoppingToken);
+                await TranslateRawVisionReceiptAsync(rawVisionReceiptRepository, visionTranslatorService, eventSourceRepository, stoppingToken);
             }
         }
 
-        private async Task ProcessInternalReceiptsWithStatusAsync(IInternalReceiptRepository internalReceiptRepository, IVisionExecutorService visionExecutorService, CancellationToken stoppingToken)
+        private async Task ProcessInternalReceiptsWithStatusAsync(IInternalReceiptRepository internalReceiptRepository, IVisionExecutorService visionExecutorService, IEventSourceRepository eventSourceRepository, CancellationToken stoppingToken)
         {
             var statusesToProcess = new List<InternalReceiptStatusEnum>
             {
@@ -57,39 +61,67 @@ namespace SmartRefund.WorkerService
             };
 
             var internalReceipts = await internalReceiptRepository.GetByStatusAsync(statusesToProcess);
+            var eventSources = await eventSourceRepository.GetAllByHashAsync(internalReceipts);
 
             foreach (var receipt in internalReceipts)
             {
                 if (stoppingToken.IsCancellationRequested)
                     break;
 
+                var eventSource = eventSources.FirstOrDefault(e => e.UniqueHash.Equals(receipt.UniqueHash));
                 try
                 {
                     await visionExecutorService.ExecuteRequestAsync(receipt);
-                }
+                    var successEvent = new Event(eventSource.UniqueHash, EventSourceStatusEnum.VisionExecutorSuccessful, DateTime.Now, "Internal Receipt created with success");
+                    await eventSourceRepository.AddEvent(eventSource.UniqueHash, successEvent);
+                    _logger.LogInformation($"InternalReceipt with ID: {receipt.Id} processed with success. | {successEvent}");
+                }   
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"Error processing InternalReceipt with ID: {receipt.Id}");
+                    Event eventToAdd = null;
+
+                    if (receipt.Status.Equals(InternalReceiptStatusEnum.Unsuccessful))
+                    {
+                        eventToAdd = new Event(eventSource.UniqueHash, EventSourceStatusEnum.VisionExecutorUnsuccessful, DateTime.Now, "Vision Executor process failed. A person in charge will process this receipt"); ;
+                        await eventSourceRepository.AddEvent(eventSource.UniqueHash, eventToAdd);
+                    }
+                    else
+                    {
+                        eventToAdd = new Event(eventSource.UniqueHash, EventSourceStatusEnum.VisionExecutorFailed, DateTime.Now, "Vision Executor process failed, trying again...");
+                        await eventSourceRepository.AddEvent(eventSource.UniqueHash, eventToAdd);
+                    }
+
+                    _logger.LogError(ex, $"Error processing InternalReceipt with ID: {receipt.Id} | {eventToAdd}");
                 }
             }
         }
 
-        private async Task TranslateRawVisionReceiptAsync(IRawVisionReceiptRepository rawVisionReceiptRepository, IVisionTranslatorService visionTranslatorService, CancellationToken stoppingToken)
+        private async Task TranslateRawVisionReceiptAsync(IRawVisionReceiptRepository rawVisionReceiptRepository, IVisionTranslatorService visionTranslatorService, IEventSourceRepository eventSourceRepository, CancellationToken stoppingToken)
         {
             var rawReceipts = await rawVisionReceiptRepository.GetByIsTranslatedFalseAsync();
+            var eventSources = await eventSourceRepository.GetAllByHashAsync(rawReceipts);
 
             foreach (var receipt in rawReceipts)
             {
                 if (stoppingToken.IsCancellationRequested)
                     break;
 
-                try
+                var eventSource = eventSources.FirstOrDefault(e => e.UniqueHash.Equals(receipt.UniqueHash));
+                if(!eventSource.CurrentStatus.Equals(EventSourceStatusEnum.FileTranslationFailed))
                 {
-                    await visionTranslatorService.GetTranslatedVisionReceipt(receipt);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, $"Error processing RawReceipt with ID: {receipt.Id}");
+                    try
+                    {
+                        var updatedReceipt = await visionTranslatorService.GetTranslatedVisionReceipt(receipt);
+                        var successEvent = new Event(eventSource.UniqueHash, EventSourceStatusEnum.FileTranslated, DateTime.Now, "The translation process succed. Ready to be analized.");
+                        await eventSourceRepository.AddEvent(eventSource.UniqueHash, successEvent);
+                        _logger.LogInformation($"RawReceipt with ID: {receipt.Id} translated with success. | {successEvent}");
+                    }
+                    catch (Exception ex)
+                    {
+                        var eventToAdd = new Event(eventSource.UniqueHash, EventSourceStatusEnum.FileTranslationFailed, DateTime.Now, "The translation process failed. A person in charge will process this receipt");
+                        await eventSourceRepository.AddEvent(eventSource.UniqueHash, eventToAdd);
+                        _logger.LogError(ex, $"Error processing InternalReceipt with ID: {receipt.Id} | {eventToAdd}");
+                    }
                 }
             }
         }
