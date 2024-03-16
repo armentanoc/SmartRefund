@@ -51,6 +51,7 @@ namespace SmartRefund.Application.Services
                     Model = GetChatRequestConfig("Model"),
                     ResponseFormat = GetChatRequestConfig("ResponseFormat"),
                     MaxTokens = TryParseToInt(GetChatRequestConfig("MaxTokens")),
+                    Temperature = TryParseToDouble(GetChatRequestConfig("Temperature")),
                 };               
             }
         }
@@ -82,6 +83,21 @@ namespace SmartRefund.Application.Services
             }
 
             if (int.TryParse(value, out int result))
+            {
+                return result;
+            };
+
+            throw new UnableToParseException(value);
+        }
+
+        private double? TryParseToDouble(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new InvalidOperationException("Temperatura não foi passada no appsettings");
+            }
+
+            if (double.TryParse(value, out double result))
             {
                 return result;
             };
