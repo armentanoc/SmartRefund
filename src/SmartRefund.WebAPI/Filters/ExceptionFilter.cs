@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using SmartRefund.CustomExceptions;
 using System.Diagnostics.CodeAnalysis;
-using SmartRefund.Application.Interfaces;
-using SmartRefund.Infra.Repositories;
 using SmartRefund.Application.Services;
 
 [ExcludeFromCodeCoverage]
@@ -37,9 +35,13 @@ public class ExceptionFilter : IAsyncExceptionFilter
                 break;
 
             case InvalidOperationException _:
+            case NonVisionExecutableStatus _:
+            case AlreadyUpdatedReceiptException _:
+            case UnableToParseException _:
                 statusCode = StatusCodes.Status400BadRequest;
                 break;
 
+            case InvalidFileResolutionException _:
             case InvalidFileTypeException _:
                 statusCode = StatusCodes.Status422UnprocessableEntity;
                 break;
@@ -48,15 +50,8 @@ public class ExceptionFilter : IAsyncExceptionFilter
                 statusCode = StatusCodes.Status413PayloadTooLarge;
                 break;
 
-            case NonVisionExecutableStatus _:
-                statusCode = StatusCodes.Status400BadRequest;
-                break;
-            case AlreadyUpdatedReceiptException _:
-                statusCode = StatusCodes.Status400BadRequest;
-                break;
-
-            case UnableToParseException _:
-                statusCode = StatusCodes.Status400BadRequest;
+            case VisionConfigurationException _:
+                statusCode = StatusCodes.Status412PreconditionFailed;
                 break;
 
             default:
@@ -81,6 +76,8 @@ public class ExceptionFilter : IAsyncExceptionFilter
         _logger.LogError($"Erro no Sistema" +
             $" Mensagem: {objectResponse.Error.message}" +
             $" StatusCode: {objectResponse.Error.statusCode}");
+
+        context.ExceptionHandled = true;
 
         await Task.CompletedTask;
     }

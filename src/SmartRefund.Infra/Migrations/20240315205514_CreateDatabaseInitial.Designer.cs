@@ -11,8 +11,8 @@ using SmartRefund.Infra.Context;
 namespace SmartRefund.Infra.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240312225757_createDataBase")]
-    partial class createDataBase
+    [Migration("20240315205514_CreateDatabaseInitial")]
+    partial class CreateDatabaseInitial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,6 +38,10 @@ namespace SmartRefund.Infra.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("UniqueHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -72,6 +76,10 @@ namespace SmartRefund.Infra.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("UniqueHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("InternalReceiptId");
@@ -102,6 +110,10 @@ namespace SmartRefund.Infra.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<decimal>("Total")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UniqueHash")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

@@ -1,15 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartRefund.Application.Interfaces;
-using SmartRefund.Application.Services;
-using SmartRefund.Domain.Enums;
-using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Requests;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace SmartRefund.WebAPI.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/management")]
     public class ManagementController : Controller
     {
         private readonly IInternalAnalyzerService _analyzerService;
@@ -20,7 +17,7 @@ namespace SmartRefund.WebAPI.Controllers
         }
 
         [HttpGet("receipts/submitted")]
-        [SwaggerOperation("Get all Receipts with submitted Status")]
+        [SwaggerOperation("Visualize todas as solicitações pendentes")]
         public async Task<IActionResult> GetAllByStatus()
         {
             var receipts = await _analyzerService.GetAllByStatus();
@@ -30,25 +27,12 @@ namespace SmartRefund.WebAPI.Controllers
             return NotFound();
         }
 
-        [HttpPatch]
-        [Route("update-status")]
-        [SwaggerOperation("Update TranslatedVisionReceipt's Status.")]
-        public async Task<IActionResult> UpdateStatus([FromBody] UpdateTVRStatusRequest updateRequest)
+        [HttpPatch("update-status")]
+        [SwaggerOperation("Atualize o status da solicitação por UniqueHash.")]
+        public async Task<IActionResult> UpdateStatus([FromBody] UpdateTVRStatusRequest request)
         {
-            var UpdatedObject = await _analyzerService.UpdateStatus(updateRequest.Id, updateRequest.NewStatus);
+            var UpdatedObject = await _analyzerService.UpdateStatus(request.UniqueHash, request.NewStatus);
             return Ok(UpdatedObject);
         }
-
-        // Apenas para visualização
-        [HttpGet("receipts")]
-        public async Task<IActionResult> GetAll()
-        {
-            var receipts = await _analyzerService.GetAll();
-            //if (receipts != null && receipts.Count() != 0)
-            return Ok(receipts);
-
-            //return NotFound();
-        }
-
     }
 }
