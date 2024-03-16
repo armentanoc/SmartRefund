@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SmartRefund.Infra.Migrations
 {
     /// <inheritdoc />
-    public partial class createDatabase : Migration
+    public partial class createDataBase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
