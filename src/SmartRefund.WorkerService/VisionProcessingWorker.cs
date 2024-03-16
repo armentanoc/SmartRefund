@@ -19,11 +19,10 @@ namespace SmartRefund.WorkerService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
 
             _logger.LogInformation(
-            "Consume Scoped Service Hosted Service running.");
-
+            "Worker Background Service is now running.");
 
             while (!stoppingToken.IsCancellationRequested)
             {
