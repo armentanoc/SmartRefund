@@ -6,10 +6,13 @@ using SmartRefund.Domain.Models;
 using SmartRefund.Application.Services;
 using System.ComponentModel.DataAnnotations;
 using SmartRefund.ViewModels;
+using Swashbuckle.AspNetCore.Annotations;
+using SmartRefund.ViewModels.Responses;
+using SmartRefund.CustomExceptions;
 
 namespace SmartRefund.WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/receipts")]
     [ApiController]
     public class EntryController : ControllerBase
     {
@@ -21,6 +24,10 @@ namespace SmartRefund.WebAPI.Controllers
         }
 
         [HttpPost]
+        [SwaggerOperation("Envie o seu comprovante fiscal para análise")]
+        [ProducesResponseType(typeof(InternalReceiptResponse), 200)]
+        [ProducesResponseType(typeof(ErrorResponse), 413)]
+        [ProducesResponseType(typeof(ErrorResponse), 422)]
         public async Task<IActionResult> Post([Required] IFormFile file, [Required] uint employeeId)
         {
             
