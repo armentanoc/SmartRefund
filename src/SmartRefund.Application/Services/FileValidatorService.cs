@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using SmartRefund.Application.Handlers.Requests;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.CustomExceptions;
 using SmartRefund.Domain.Models;
@@ -12,13 +14,15 @@ namespace SmartRefund.Application.Services
 {
     public class FileValidatorService : IFileValidatorService
     {
+        private readonly IMediator _mediator;
         private IInternalReceiptRepository _repository;
         private ILogger<FileValidatorService> _logger;
 
-        public FileValidatorService(IInternalReceiptRepository repository, ILogger<FileValidatorService> logger)
+        public FileValidatorService(IInternalReceiptRepository repository, ILogger<FileValidatorService> logger, IMediator mediator)
         {
             _repository = repository;
             _logger = logger;
+            _mediator = mediator;
         }
 
         public async Task<InternalReceiptResponse?> Validate(IFormFile file, uint employeeId)
@@ -36,7 +40,12 @@ namespace SmartRefund.Application.Services
                 InternalReceipt receipt = new InternalReceipt(employeeId, imageBytes);
                 InternalReceiptResponse response = new InternalReceiptResponse(receipt);
 
-                await _repository.AddAsync(receipt);
+                var internalReceipt = await _repository.AddAsync(receipt);
+
+                if (internalReceipt != null)
+                {
+                    await _mediator.Send(new SaveDataCommandRequest(internalReceipt));
+                }
 
                 return response;
             }
