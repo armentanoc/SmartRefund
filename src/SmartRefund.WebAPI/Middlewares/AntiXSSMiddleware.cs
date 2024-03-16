@@ -31,9 +31,7 @@ namespace SmartRefund.WebAPI.Middlewares
                 if (ContainsDangerousCharacters(requestBody))
                 {
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                    context.Response.ContentType = "application/json"; // Definir o tipo de conteúdo para application/json
-
-                    // Criar objeto JSON
+                    context.Response.ContentType = "application/json"; 
                     var responseObject = new
                     {
                         error = new
@@ -44,7 +42,7 @@ namespace SmartRefund.WebAPI.Middlewares
                     };
                     var responseJson = JsonSerializer.Serialize(responseObject, new JsonSerializerOptions
                     {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase // Opcional: define a política de nomenclatura para camelCase
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
                     });
                     await context.Response.WriteAsync(responseJson);
                     return;
