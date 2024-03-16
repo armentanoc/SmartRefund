@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Text;
-    using System.Text.RegularExpressions;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Builder;
-    using Microsoft.AspNetCore.Http;
-    using Newtonsoft.Json;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 
 namespace SmartRefund.WebAPI.Middlewares
 {
@@ -30,12 +30,23 @@ namespace SmartRefund.WebAPI.Middlewares
                 var requestBody = await ReadRequestBody(context);
                 if (ContainsDangerousCharacters(requestBody))
                 {
-
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                    context.Response.ContentType = "text/plain";
+                    context.Response.ContentType = "application/json"; // Definir o tipo de conteúdo para application/json
 
-                    // Escrever na resposta
-                    await context.Response.WriteAsync("Detected potential XSS attack!");
+                    // Criar objeto JSON
+                    var responseObject = new
+                    {
+                        error = new
+                        {
+                            message = "Detected potential XSS attack!",
+                            statusCode = 400
+                        }
+                    };
+                    var responseJson = JsonSerializer.Serialize(responseObject, new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase // Opcional: define a política de nomenclatura para camelCase
+                    });
+                    await context.Response.WriteAsync(responseJson);
                     return;
                 }
             }
@@ -61,7 +72,7 @@ namespace SmartRefund.WebAPI.Middlewares
 
         private bool ContainsDangerousCharacters(string input)
         {
-            
+
             if (Regex.IsMatch(input, @"<\s*script\s*\/?>", RegexOptions.IgnoreCase) ||
                 Regex.IsMatch(input, @"<\s*iframe\s*\/?>", RegexOptions.IgnoreCase) ||
                 Regex.IsMatch(input, @"<\s*object\s*\/?>", RegexOptions.IgnoreCase) ||
@@ -79,5 +90,5 @@ namespace SmartRefund.WebAPI.Middlewares
             return false;
         }
     }
-  
+
 }
