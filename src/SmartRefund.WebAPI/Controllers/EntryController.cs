@@ -6,11 +6,13 @@ using SmartRefund.Domain.Models;
 using SmartRefund.Application.Services;
 using System.ComponentModel.DataAnnotations;
 using SmartRefund.ViewModels;
+using SmartRefund.WebAPI.Filters;
 
 namespace SmartRefund.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [TypeFilter(typeof(AuthorizationFilterEmployee))]
     public class EntryController : ControllerBase
     {
         private IFileValidatorService _fileValidator;

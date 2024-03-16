@@ -4,12 +4,14 @@ using SmartRefund.Application.Services;
 using SmartRefund.Domain.Enums;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Requests;
+using SmartRefund.WebAPI.Filters;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace SmartRefund.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [TypeFilter(typeof(AuthorizationFilterFinance))]
     public class ManagementController : Controller
     {
         private readonly IInternalAnalyzerService _analyzerService;
