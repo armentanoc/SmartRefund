@@ -6,16 +6,18 @@ using System.Threading.Tasks;
 
 namespace SmartRefund.Domain.Models
 {
-    public class ReceiptEventSource
+    public class ReceiptEventSource : BaseEntity
     {
-        public uint Id { get; private set; }
-        public List<IEvent> events = new List<IEvent>();
+        public InternalReceipt InternalReceipt { get; set; }
+        public List<IEvent> events { get; set; }
 
         public ReceiptEventSource() { }
 
-        public ReceiptEventSource(uint id)
+        public ReceiptEventSource(InternalReceipt internalReceipt)
         {
-        Id = id;
+            InternalReceipt = internalReceipt;
+            events = new List<IEvent>();
         }
+
     }
 }

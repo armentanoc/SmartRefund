@@ -37,7 +37,7 @@ namespace SmartRefund.Application.Services
                 InternalReceipt receipt = new InternalReceipt(employeeId, imageBytes);
                 InternalReceiptResponse response = new InternalReceiptResponse(receipt);
 
-                ReceiptEventSource eventSourcing = new ReceiptEventSource(receipt.Id);
+                ReceiptEventSource eventSourcing = new ReceiptEventSource(receipt);
                 await _eventSourceRepository.AddEvent(eventSourcing.Id, new InternalReceiptCreated(receipt.Id, receipt.CreationDate, receipt.Status));
 
                 await _repository.AddAsync(receipt);
