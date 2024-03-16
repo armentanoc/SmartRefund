@@ -1,39 +1,57 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SixLabors.ImageSharp;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.CustomExceptions;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Responses;
-using System.Reflection.PortableExecutable;
-
 
 namespace SmartRefund.Application.Services
 {
     public class FileValidatorService : IFileValidatorService
     {
+        private double _minPPI;
+        private readonly IConfiguration _configuration;
         private IInternalReceiptRepository _repository;
         private ILogger<FileValidatorService> _logger;
 
-        public FileValidatorService(IInternalReceiptRepository repository, ILogger<FileValidatorService> logger)
+        public FileValidatorService(IInternalReceiptRepository repository, ILogger<FileValidatorService> logger, IConfiguration configuration)
         {
             _repository = repository;
             _logger = logger;
+            _configuration = configuration;
+            GetPPIConfiguration();
+        }
+
+        public void GetPPIConfiguration()
+        {
+            var property = _configuration["OpenAIVisionConfig:MinResolutionInPPI"];
+            if (double.TryParse(property, out double minPPI))
+                _minPPI = minPPI;
+            else 
+                throw new VisionConfigurationException(nameof(property));
         }
 
         public async Task<InternalReceiptResponse?> Validate(IFormFile file, uint employeeId)
         {
-            
-            if (ValidateSize(file.Length) && ValidateExtension(file.FileName) && await ValidateType(file)) 
+            if (ValidateSize(file.Length) && ValidateExtension(file.FileName))
             {
                 byte[] imageBytes;
+
                 using (var memoryStream = new MemoryStream())
                 {
                     await file.CopyToAsync(memoryStream);
+                    memoryStream.Position = 0;
+                    ValidateType(file.FileName, memoryStream);
+                    ValidateResolution(memoryStream);
                     imageBytes = memoryStream.ToArray();
                 }
 
-                InternalReceipt receipt = new InternalReceipt(employeeId, imageBytes);
+                var uniqueHash = await GenerateUniqueHash();
+                InternalReceipt receipt = new InternalReceipt(employeeId, imageBytes, uniqueHash);
                 InternalReceiptResponse response = new InternalReceiptResponse(receipt);
 
                 await _repository.AddAsync(receipt);
@@ -41,53 +59,69 @@ namespace SmartRefund.Application.Services
                 return response;
             }
 
-            return null;
+            throw new InvalidOperationException("File validation failed");
+        }
 
+        private async Task<string> GenerateUniqueHash()
+        {
+            var receipts = await _repository.GetAllAsync();
+            InternalReceipt? lastReceipt = receipts.LastOrDefault();
+            uint id = lastReceipt?.Id ?? 0;
+            return WebEncoders.Base64UrlEncode(BitConverter.GetBytes(id));
         }
 
         public bool ValidateSize(long lenght)
         {
             if (lenght >= 20 * 1024 * 1024)
-            {
                 throw new InvalidFileSizeException(lenght);
-            }
             return true;
         }
 
         public bool ValidateExtension(string fileName)
         {
             var extension = Path.GetExtension(fileName);
-
             string[] possibleExtensions = [".png", ".jpg", ".jpeg"];
 
-            if(possibleExtensions.Contains(extension))
-            {
-                return true;
-            }
-            else
-            {
+            if (!possibleExtensions.Contains(extension))
                 throw new InvalidFileTypeException(extension);
-            }
-
+            return true;
         }
 
-        public async Task<bool> ValidateType(IFormFile file)  
+        public bool ValidateType(string fileName, MemoryStream memoryStream)
         {
             byte[] header = new byte[4];
-
-            using (var memoryStream = new MemoryStream())
-            {
-                await file.CopyToAsync(memoryStream);
-                memoryStream.Position = 0;
-                memoryStream.Read(header, 0, 4);
-            }
+            memoryStream.Read(header, 0, 4);
 
             if (IsJpeg(header) || IsPng(header))
-            {
                 return true;
-            }
 
-            throw new InvalidFileTypeException(Path.GetExtension(file.FileName));
+            throw new InvalidFileTypeException(Path.GetExtension(fileName));
+        }
+
+        public bool ValidateResolution(MemoryStream memoryStream)
+        {
+            // Reseta a posição da stream antes de ler a imagem
+            memoryStream.Seek(0, SeekOrigin.Begin);
+
+            using (var image = Image.Load(memoryStream))
+            {
+                // Calcula a dimensão da imagem em polegadas
+                double widthInInches = image.Width / image.Metadata.HorizontalResolution;
+                double heightInInches = image.Height / image.Metadata.VerticalResolution;
+
+                // Calcula o PPI horizontal e vertical
+                double horizontalPPI = image.Width / widthInInches;
+                double verticalPPI = image.Height / heightInInches;
+
+                // Calcula o PPI médio
+                double averagePPI = (horizontalPPI + verticalPPI) / 2;
+
+                //Checa se o PPI médio é maior que o PPI mínimo
+                if (averagePPI >= _minPPI)
+                    return true;
+
+                throw new InvalidFileResolutionException(requiredPPI: _minPPI, imagePPI: averagePPI);
+            }
         }
 
         private static bool IsJpeg(byte[] header)

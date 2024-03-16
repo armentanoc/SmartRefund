@@ -36,43 +36,20 @@ namespace SmartRefund.WebAPI.Controllers
             return NotFound("Não encontrado");
         }
 
-   /*     [HttpPatch]
-        [Route("/status")]
-        [SwaggerOperation("Atualize o status da solicitação por ID")]
-        [ProducesResponseType(typeof(TranslatedVisionReceipt), 200)]
-        [ProducesResponseType(typeof(ErrorResponse), 400)]
-        [ProducesResponseType(typeof(ErrorResponse), 404)]
-        [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<IActionResult> UpdateStatus([FromBody] UpdateTVRStatusRequest updateRequest)
-        {
-            var UpdatedObject = await _analyzerService.UpdateStatus(updateRequest.Id, updateRequest.NewStatus);
-            return Ok(UpdatedObject);
-        }*/
+   
 
         [HttpPatch]
         [Route("/status/{id}")]
-        [SwaggerOperation("Atualize o status da solicitação por ID")]
-        [ProducesResponseType(typeof(TranslatedVisionReceipt), 200)]
+        [SwaggerOperation("Atualize o status da solicitação por UniqueHash.")]
+        [ProducesResponseType(typeof(TranslatedReceiptResponse), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 400)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(string), 405)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<IActionResult> UpdateStatus(uint id, [FromBody] string newStatus)
+        public async Task<IActionResult> UpdateStatus([FromBody] UpdateTVRStatusRequest request)
         {
-            var UpdatedObject = await _analyzerService.UpdateStatus(id, newStatus);
+            var UpdatedObject = await _analyzerService.UpdateStatus(request.UniqueHash, request.NewStatus);
             return Ok(UpdatedObject);
         }
-
-        // Apenas para visualização
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var receipts = await _analyzerService.GetAll();
-            //if (receipts != null && receipts.Count() != 0)
-            return Ok(receipts);
-
-            //return NotFound();
-        }
-
     }
 }

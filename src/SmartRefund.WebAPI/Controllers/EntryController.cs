@@ -30,11 +30,8 @@ namespace SmartRefund.WebAPI.Controllers
         [ProducesResponseType(typeof(ErrorResponse), 422)]
         public async Task<IActionResult> Post([Required] IFormFile file, [Required] uint employeeId)
         {
-            
             var result = await _fileValidator.Validate(file, employeeId);
-
             return Ok(result);
-
         }
     }
 }

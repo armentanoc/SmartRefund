@@ -14,7 +14,7 @@ namespace SmartRefund.Infra.Repositories
 
         public async Task<IEnumerable<InternalReceipt>> GetByStatusAsync(List<InternalReceiptStatusEnum> statuses)
         {
-            return await _context.InternalReceipt.Where(r => r.Equals(statuses)).ToListAsync();
+            return await _context.InternalReceipt.Where(r => statuses.Contains(r.Status)).ToListAsync();
         }
     }
 }

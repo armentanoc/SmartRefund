@@ -14,13 +14,16 @@ namespace SmartRefund.Domain.Models
         public InternalReceiptStatusEnum Status { get; private set; }
         public byte[] Image { get; private set; }
 
+        public string UniqueHash { get; private set; }
+
         //Recebe a imagem
 
-        public InternalReceipt(uint employeeId, byte[] image) 
+        public InternalReceipt(uint employeeId, byte[] image, string uniqueHash) 
         {
             CreationDate = DateTime.Now;
             EmployeeId = employeeId;
             Image = image;
+            UniqueHash = uniqueHash;
             Status = InternalReceiptStatusEnum.Unprocessed;
         }
         public InternalReceipt() { }
