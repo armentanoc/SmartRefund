@@ -11,7 +11,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace SmartRefund.WebAPI.Controllers
 {
     
-    [Route("api/receipts")]
+    [Route("api/receipt")]
     [ApiController]
     public class ManagementController : Controller
     {
