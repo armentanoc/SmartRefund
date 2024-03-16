@@ -22,7 +22,7 @@ namespace SmartRefund.WebAPI.Controllers
             _analyzerService = analyzerService;
         }
 
-        [HttpGet("/submitted")]
+        [HttpGet("submitted")]
         [SwaggerOperation("Visualize todas as solicitações pendentes")]
         [ProducesResponseType(typeof(IEnumerable<TranslatedReceiptResponse>), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
@@ -39,7 +39,7 @@ namespace SmartRefund.WebAPI.Controllers
    
 
         [HttpPatch]
-        [Route("/status/{id}")]
+        [Route("status/{id}")]
         [SwaggerOperation("Atualize o status da solicitação por UniqueHash.")]
         [ProducesResponseType(typeof(TranslatedReceiptResponse), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 400)]

@@ -12,7 +12,7 @@ using SmartRefund.CustomExceptions;
 
 namespace SmartRefund.WebAPI.Controllers
 {
-    [Route("api/receipts")]
+    [Route("api/receipt")]
     [ApiController]
     public class EntryController : ControllerBase
     {
