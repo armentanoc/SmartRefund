@@ -35,6 +35,13 @@ namespace SmartRefund.WebAPI.Controllers
             return Ok(eventSource);
         }
 
+        [HttpGet("front/all")]
+        public async Task<ActionResult> GetAllToFrontUsingEventSource()
+        {
+            var eventSources = await _eventSourceService.GetAllEventSourceResponseAsync(true);
+            return Ok(eventSources);
+        }
+
         [HttpGet("audit/{hash}")]
         public async Task<ActionResult> GetEventSource([FromRoute] string hash)
         {

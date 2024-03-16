@@ -32,6 +32,16 @@ namespace SmartRefund.Infra.Repositories
             return eventSource;
         }
 
+        public async Task<IEnumerable<ReceiptEventSource>> GetAllAsync()
+        {
+            return await _context.ReceiptEventSource
+                .Include(receipt => receipt.Events)
+                .Include(receipt => receipt.InternalReceipt)
+                .Include(receipt => receipt.RawVisionReceipt)
+                .Include(receipt => receipt.TranslatedVisionReceipt)
+                .ToListAsync();
+        }
+
         public Task<List<ReceiptEventSource>> GetAllByHashAsync(IEnumerable<RawVisionReceipt> rawReceipts)
         {
             var hashList = rawReceipts.ToList().Select(receipt => receipt.UniqueHash);

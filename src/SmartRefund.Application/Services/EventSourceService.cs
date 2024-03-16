@@ -20,6 +20,18 @@ namespace SmartRefund.Application.Services
             _repository = repository;
         }
 
+        public async Task<IEnumerable<ReceiptEventSourceResponse>> GetAllEventSourceResponseAsync(bool isFrontEndpoint)
+        {
+            var eventSources = await _repository.GetAllAsync();
+            var eventSourceResponses = new List<ReceiptEventSourceResponse>();
+
+            foreach (var eventSource in eventSources)
+                if(eventSource is ReceiptEventSource)
+                    eventSourceResponses.Add(new ReceiptEventSourceResponse(eventSource, isFrontEndpoint));
+
+            return eventSourceResponses;
+        }
+
         public async Task<ReceiptEventSourceResponse> GetReceiptEventSourceResponseAsync(string hash, bool isFrontEndpoint)
         {
             var eventSource = await _repository.GetByUniqueHashAsync(hash);

@@ -8,5 +8,6 @@ namespace SmartRefund.Application.Interfaces
     public interface IEventSourceService
     {
         public Task<ReceiptEventSourceResponse> GetReceiptEventSourceResponseAsync(string hash, bool isFrontEndpoint);
+        public Task<IEnumerable<ReceiptEventSourceResponse>> GetAllEventSourceResponseAsync(bool isFrontEndpoint);
     }
 }

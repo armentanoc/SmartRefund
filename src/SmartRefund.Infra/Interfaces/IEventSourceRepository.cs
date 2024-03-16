@@ -9,5 +9,6 @@ namespace SmartRefund.Infra.Interfaces
         Task<ReceiptEventSource> AddAsync(ReceiptEventSource entityToAdd);
         Task<List<ReceiptEventSource>> GetAllByHashAsync(IEnumerable<RawVisionReceipt> rawReceipts);
         Task<List<ReceiptEventSource>> GetAllByHashAsync(IEnumerable<InternalReceipt> internalReceipts);
+        Task<IEnumerable<ReceiptEventSource>> GetAllAsync();
     }
 }
