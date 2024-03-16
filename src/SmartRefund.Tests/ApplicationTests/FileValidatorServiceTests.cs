@@ -31,10 +31,11 @@ namespace SmartRefund.Tests.ApplicationTests
         public FileValidatorServiceTests()
         {
             _mockReceiptRepository = Substitute.For<IInternalReceiptRepository>();
+            var eventSourceRepository = Substitute.For<IEventSourceRepository>();
             var loggerMock = Substitute.For<ILogger<FileValidatorService>>();
             var configurationMock = Substitute.For<IConfiguration>();
             configurationMock["OpenAIVisionConfig:MinResolutionInPPI"].Returns("50"); // Mocking configuration value
-            _fileValidatorService = new FileValidatorService(_mockReceiptRepository, loggerMock, configurationMock);
+            _fileValidatorService = new FileValidatorService(_mockReceiptRepository, loggerMock, configurationMock, eventSourceRepository);
         }
 
         [Fact]

@@ -20,7 +20,7 @@ namespace SmartRefund.Application.Services
         private ILogger<FileValidatorService> _logger;
         private IEventSourceRepository _eventSourceRepository;
 
-        public FileValidatorService(IInternalReceiptRepository repository, ILogger<FileValidatorService> logger, IConfiguration configuration)
+        public FileValidatorService(IInternalReceiptRepository repository, ILogger<FileValidatorService> logger, IConfiguration configuration, IEventSourceRepository eventSourceRepository)
         {
             _repository = repository;
             _logger = logger;
@@ -57,10 +57,13 @@ namespace SmartRefund.Application.Services
                 InternalReceipt receipt = new InternalReceipt(employeeId, imageBytes, uniqueHash);
                 InternalReceiptResponse response = new InternalReceiptResponse(receipt);
 
-                ReceiptEventSource eventSource = new ReceiptEventSource(receipt, receipt.UniqueHash);
-                await _eventSourceRepository.AddEvent(eventSource.UniqueHash, new Event(eventSource.UniqueHash, EventSourceStatusEnum.InternalReceiptCreated, receipt.CreationDate, "Internal Receipt created with success"));
-
                 await _repository.AddAsync(receipt);
+
+                ReceiptEventSource eventSource = new ReceiptEventSource(receipt, receipt.UniqueHash);
+                await _eventSourceRepository.AddAsync(eventSource);
+                var newEvent = new Event(eventSource.UniqueHash, EventSourceStatusEnum.InternalReceiptCreated, receipt.CreationDate, "Internal Receipt created with success");
+                
+                await _eventSourceRepository.AddEvent(eventSource.UniqueHash, newEvent);
 
                 return response;
             }

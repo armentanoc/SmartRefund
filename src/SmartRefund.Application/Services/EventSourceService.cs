@@ -23,6 +23,8 @@ namespace SmartRefund.Application.Services
         {
             var eventSource = await _repository.GetById(idEventSource);
             Console.WriteLine($"HASHCODE: {eventSource.UniqueHash} \n");
+            Console.WriteLine($"CURRENT STATUS: {eventSource.CurrentStatus} \n");
+            Console.WriteLine($"------------------------------------------");
 
             foreach (Event evnt in eventSource.Events)
             {

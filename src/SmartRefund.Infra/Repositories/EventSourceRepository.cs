@@ -22,10 +22,18 @@ namespace SmartRefund.Infra.Repositories
             _context = context;
         }
 
+        public async Task<ReceiptEventSource> AddAsync(ReceiptEventSource entityToAdd)
+        {
+                _context.Set<ReceiptEventSource>().Add(entityToAdd);
+                await _context.SaveChangesAsync();
+                return entityToAdd;
+        }
+
         public async Task<ReceiptEventSource> AddEvent(string hashCode, Event evnt)
         {
             var eventSource = await GetByUniqueHashAsync(hashCode);
             eventSource.AddEvent(evnt);
+            eventSource.ChangeStatus(evnt.Status);
             await _context.SaveChangesAsync();
             return eventSource;
         }
@@ -39,7 +47,9 @@ namespace SmartRefund.Infra.Repositories
 
         public async Task<ReceiptEventSource> GetByUniqueHashAsync(string hash)
         {
-            var entityToReturn = await _context.ReceiptEventSource.FirstOrDefaultAsync(receiptEventSource => receiptEventSource.UniqueHash.Equals(hash));
+            var entityToReturn = await _context.ReceiptEventSource
+                .Include(receipt => receipt.Events)
+                .FirstOrDefaultAsync(receiptEventSource => receiptEventSource.UniqueHash.Equals(hash));
 
             if (entityToReturn is ReceiptEventSource)
                 return entityToReturn;
