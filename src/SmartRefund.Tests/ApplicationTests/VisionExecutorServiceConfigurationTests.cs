@@ -57,6 +57,7 @@ namespace SmartRefund.Tests.Application.Services
             configuration["OpenAIVisionConfig:Prompts:User:Image"].Returns("Image Prompt");
             configuration["OpenAIVisionConfig:Prompts:User:IsReceipt"].Returns("Is Receipt Prompt");
             configuration["OpenAIVisionConfig:Prompts:User:Total"].Returns("Total Prompt");
+            configuration["OpenAIVisionConfig:Prompts:User:IsResolutionReadable"].Returns("Is Resolution Prompt");
             configuration["OpenAIVisionConfig:Prompts:User:Category"].Returns("Category Prompt");
             configuration["OpenAIVisionConfig:Prompts:User:Description"].Returns("Description Prompt");
             var service = new VisionExecutorServiceConfiguration(configuration);

@@ -1,15 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using OpenAI_API;
+using OpenAI_API.Chat;
+using OpenAI_API.Models;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.CustomExceptions;
-using SmartRefund.Domain.Models.Enums;
 using SmartRefund.Domain.Models;
+using SmartRefund.Domain.Models.Enums;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Responses;
 using System.Text.RegularExpressions;
-using OpenAI_API.Models;
-using OpenAI_API.Chat;
-using OpenAI_API;
 
 public class VisionExecutorService : IVisionExecutorService
 {
@@ -38,15 +38,31 @@ public class VisionExecutorService : IVisionExecutorService
         if (!IsExecutableStatus(input.Status))
             throw new NonVisionExecutableStatus(input.Id, input.Status.ToString());
 
-        OpenAIAPI api = ConfigureApiKey();
-        var rawImage = input.Image;
-        var conversation = api.Chat.CreateConversation(_visionConfig.ChatRequestConfig);
-        conversation.Model = Model.GPT4_Vision;
-        var response = await ProcessVisionResponseAsync(conversation, rawImage, input);
-        var addedRawVisionReceipt = await CreateRawVisionReceiptAsync(input, response);
-        await UpdateInternalReceiptAsync(input);
+        try
+        {
+            OpenAIAPI api = ConfigureApiKey();
+            var rawImage = input.Image;
+            var conversation = api.Chat.CreateConversation(_visionConfig.ChatRequestConfig);
+            conversation.Model = Model.GPT4_Vision;
+            var response = await ProcessVisionResponseAsync(conversation, rawImage, input);
+            var addedRawVisionReceipt = await CreateRawVisionReceiptAsync(input, response);
+            await UpdateInternalReceiptAsync(input);
 
-        return addedRawVisionReceipt;
+            return addedRawVisionReceipt;
+        }
+        catch (Exception e)
+        {
+            input.SetStatus(input.Status switch
+            {
+                InternalReceiptStatusEnum.Unprocessed => InternalReceiptStatusEnum.FailedOnce,
+                InternalReceiptStatusEnum.FailedOnce => InternalReceiptStatusEnum.FailedMoreThanOnce,
+                InternalReceiptStatusEnum.FailedMoreThanOnce => InternalReceiptStatusEnum.Unsuccessful,
+                _ => input.Status
+            });
+
+            await _internalReceiptRepository.UpdateAsync(input);
+            throw;
+        }
     }
 
     public async Task<RawVisionResponse> ProcessVisionResponseAsync(Conversation conversation, byte[] rawImage, InternalReceipt input)
@@ -58,6 +74,7 @@ public class VisionExecutorService : IVisionExecutorService
         conversation.AppendUserInput(prompts.ImagePrompt, ChatMessage.ImageInput.FromImageBytes(rawImage));
 
         response.IsReceipt = await GetResponseAsync(conversation, prompts.IsReceiptPrompt, new NonReceiptException(input.Id));
+        await GetResponseAsync(conversation, prompts.IsResolutionReadable, new NonResolutionReadableException(input.Id));
         response.Total = await GetResponseAsync(conversation, prompts.TotalPrompt);
         response.Category = await GetResponseAsync(conversation, prompts.CategoryPrompt);
         response.Description = await GetResponseAsync(conversation, prompts.DescriptionPrompt);
@@ -83,7 +100,7 @@ public class VisionExecutorService : IVisionExecutorService
 
     public async Task<RawVisionReceipt> CreateRawVisionReceiptAsync(InternalReceipt receipt, RawVisionResponse response)
     {
-        var rawVisionReceipt = new RawVisionReceipt(receipt, isReceipt: response.IsReceipt, category: response.Category, total: response.Total, description: response.Description);
+        var rawVisionReceipt = new RawVisionReceipt(receipt, isReceipt: response.IsReceipt, category: response.Category, total: response.Total, description: response.Description, uniqueHash: receipt.UniqueHash) ;
         var addedRawVisionReceipt = await _rawVisionReceiptRepository.AddAsync(rawVisionReceipt);
         _logger.LogInformation($"Internal Receipt was interpreted by GPT Vision and added to repository (Id: {addedRawVisionReceipt.Id})");
         return addedRawVisionReceipt;

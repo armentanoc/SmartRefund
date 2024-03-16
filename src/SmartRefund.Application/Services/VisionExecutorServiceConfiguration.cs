@@ -35,6 +35,7 @@ namespace SmartRefund.Application.Services
                     SystemPrompt = GetPrompt("Prompts:System", "System prompt"),
                     ImagePrompt = GetPrompt("Prompts:User:Image", "Image prompt"),
                     IsReceiptPrompt = GetPrompt("Prompts:User:IsReceipt", "IsReceipt prompt"),
+                    IsResolutionReadable = GetPrompt("Prompts:User:IsResolutionReadable", "IsResolutionReadable prompt"),
                     TotalPrompt = GetPrompt("Prompts:User:Total", "Total prompt"),
                     CategoryPrompt = GetPrompt("Prompts:User:Category", "Category prompt"),
                     DescriptionPrompt = GetPrompt("Prompts:User:Description", "Description prompt")

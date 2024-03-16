@@ -1,11 +1,8 @@
-﻿using SmartRefund.Domain.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using SmartRefund.Domain.Models;
+using SmartRefund.Domain.Models.Enums;
 using SmartRefund.Infra.Context;
 using SmartRefund.Infra.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmartRefund.Infra.Repositories
 {
@@ -15,5 +12,9 @@ namespace SmartRefund.Infra.Repositories
         {
         }
 
+        public async Task<IEnumerable<InternalReceipt>> GetByStatusAsync(List<InternalReceiptStatusEnum> statuses)
+        {
+            return await _context.InternalReceipt.Where(r => statuses.Contains(r.Status)).ToListAsync();
+        }
     }
 }

@@ -25,18 +25,18 @@ namespace SmartRefund.Application.Services
 
         public async Task<TranslatedVisionReceipt> GetTranslatedVisionReceipt(RawVisionReceipt rawVisionReceipt)
         {
-            if(rawVisionReceipt.IsTranslated)
+            if (rawVisionReceipt.IsTranslated)
                 throw new ReceiptAlreadyTranslatedException(rawVisionReceipt.Id);
 
             TranslatedVisionReceipt translatedVisionReceipt =
-
                 new TranslatedVisionReceipt(
-                    rawVisionReceipt : rawVisionReceipt,
+                    rawVisionReceipt: rawVisionReceipt,
                     isReceipt: GetIsReceipt(rawVisionReceipt.IsReceipt),
                     category: GetCategory(rawVisionReceipt.Category),
                     status: TranslatedVisionReceiptStatusEnum.SUBMETIDO,
                     total: GetTotal(rawVisionReceipt.Total),
-                    description: GetDescription(rawVisionReceipt.Description)
+                    description: GetDescription(rawVisionReceipt.Description),
+                    uniqueHash: rawVisionReceipt.UniqueHash
                     );
 
             var addedReceipt = await _translatorRepository.AddAsync(translatedVisionReceipt);
@@ -73,7 +73,7 @@ namespace SmartRefund.Application.Services
                 throw new FieldIsNullOrWhitespaceException("Category", category);
 
             string cleanCategory = RemoveDiacritics(category)
-                .ToLower().Replace("ç", "c").Replace("ã", "a"); 
+                .ToLower().Replace("ç", "c").Replace("ã", "a");
             //por que é necessário se o RemoveDiacritics passa no teste???
 
             string enumCandidate = GetMatchingCategory(cleanCategory);
@@ -82,7 +82,7 @@ namespace SmartRefund.Application.Services
             {
                 LogInformation("Category", category, result.ToString());
                 return result;
-            } 
+            }
 
             throw new UnnableToTranslateException("Category", category);
         }
