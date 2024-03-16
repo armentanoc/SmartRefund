@@ -146,5 +146,36 @@ namespace SmartRefund.Tests.ApplicationTests
             await Assert.ThrowsAsync<InvalidFileTypeException>(async () => await _fileValidatorService.Validate(inputFile, employeeId));
         }
 
+        [Fact]
+        public async Task Pdf_with_png_extension_not_accepted()
+        {
+            // Arrange
+            var file = new Mock<IFormFile>();
+            var sourceImgPath = @"../../../ApplicationTests/Assets/invalidfile.png"; 
+            var sourceImgBytes = File.ReadAllBytes(sourceImgPath);
+            var ms = new MemoryStream(sourceImgBytes);
+            var fileName = "invalidfile.png"; 
+
+            file.Setup(f => f.FileName).Returns(fileName).Verifiable();
+
+            file.Setup(_ => _.CopyToAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
+                .Returns((Stream stream, CancellationToken token) => ms.CopyToAsync(stream))
+                .Callback((Stream stream, CancellationToken token) => ms.Position = 0)
+                .Verifiable();
+
+            file.Setup(_ => _.OpenReadStream())
+                .Returns(ms)
+                .Verifiable();
+
+            var inputFile = file.Object;
+            uint employeeId = 1;
+
+            // Act
+            var result = await _fileValidatorService.Validate(inputFile, employeeId);
+
+            // Assert
+            Assert.Null(result);
+        }
+
     }
 }
