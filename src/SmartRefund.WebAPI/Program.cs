@@ -69,7 +69,7 @@ namespace SmartRefund.WebAPI
             builder.Services.AddScoped<ITranslatedVisionReceiptRepository, TranslatedVisionReceiptRepository>();
             builder.Services.AddScoped<IRawVisionReceiptRepository, RawVisionReceiptRepository>();
             builder.Services.AddScoped<IInternalReceiptRepository, InternalReceiptRepository>();
-            // Add CacheService
+     
          
 
             var app = builder.Build();
@@ -83,9 +83,9 @@ namespace SmartRefund.WebAPI
 
             // Custom Logging Middleware
             app.UseMiddleware<LoggingMiddleware>();
-
+            app.UseMiddleware<AntiXSSMiddleware>();
             app.UseAuthorization();
-
+            
             app.MapControllers();
 
             app.Run();
