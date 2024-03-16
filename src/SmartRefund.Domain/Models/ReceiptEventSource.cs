@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SmartRefund.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +9,10 @@ namespace SmartRefund.Domain.Models
 {
     public class ReceiptEventSource : BaseEntity
     {
-        public InternalReceipt InternalReceipt { get; set; }
+        public InternalReceipt InternalReceipt { get; private set; }
         public string UniqueHash { get; private set; }
-        public List<Event> Events { get; set; }
+        public List<Event> Events { get; private set; }
+        public EventSourceStatusEnum CurrentStatus {  get; private set; }
 
         public ReceiptEventSource()
         { 
@@ -22,6 +24,16 @@ namespace SmartRefund.Domain.Models
             InternalReceipt = internalReceipt;
             UniqueHash = uniqueHash;
             Events = new List<Event>();
+        }
+
+        public void ChangeStatus(EventSourceStatusEnum status)
+        {
+            CurrentStatus = status;
+        }
+
+        public void AddEvent (Event evnt)
+        {
+            Events.Add(evnt);
         }
 
     }

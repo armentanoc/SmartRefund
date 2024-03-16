@@ -11,16 +11,16 @@ namespace SmartRefund.Domain.Models
 {
     public class Event : BaseEntity
     {
-        public ReceiptEventSource ReceiptEventSource { get; set; }
         public EventSourceStatusEnum Status { get; private set; }
         public DateTime EventDate { get; private set; }
         public string? Description { get; private set; }
+        public string? HashCode { get; private set; }
 
         public Event() { }
 
-        public Event(ReceiptEventSource eventSource, EventSourceStatusEnum status, DateTime eventDate, string? description)
+        public Event(string eventSourceHash, EventSourceStatusEnum status, DateTime eventDate, string? description)
         {
-            ReceiptEventSource = eventSource;
+            HashCode = eventSourceHash;
             Status = status;
             EventDate = eventDate;
             Description = description;

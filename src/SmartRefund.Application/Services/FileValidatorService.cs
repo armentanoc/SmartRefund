@@ -57,8 +57,8 @@ namespace SmartRefund.Application.Services
                 InternalReceipt receipt = new InternalReceipt(employeeId, imageBytes, uniqueHash);
                 InternalReceiptResponse response = new InternalReceiptResponse(receipt);
 
-                ReceiptEventSource eventSource = new ReceiptEventSource(receipt, "AAAAAA"); //mudar para receipt.UniqueHash
-                await _eventSourceRepository.AddEvent(eventSource.Id, new Event(eventSource, EventSourceStatusEnum.InternalReceiptCreated, receipt.CreationDate, "Internal Receipt created with success"));
+                ReceiptEventSource eventSource = new ReceiptEventSource(receipt, receipt.UniqueHash);
+                await _eventSourceRepository.AddEvent(eventSource.UniqueHash, new Event(eventSource.UniqueHash, EventSourceStatusEnum.InternalReceiptCreated, receipt.CreationDate, "Internal Receipt created with success"));
 
                 await _repository.AddAsync(receipt);
 

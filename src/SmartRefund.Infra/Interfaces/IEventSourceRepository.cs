@@ -10,6 +10,7 @@ namespace SmartRefund.Infra.Interfaces
     public interface IEventSourceRepository
     {
         public Task<ReceiptEventSource> GetById(uint id);
-        public Task<ReceiptEventSource> AddEvent(uint id, Event evnt);
+        public Task<ReceiptEventSource> AddEvent(string hashCode, Event evnt);
+        public Task<ReceiptEventSource> GetByUniqueHashAsync(string hash);
     }
 }
