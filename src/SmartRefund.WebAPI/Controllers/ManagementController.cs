@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartRefund.Application.Interfaces;
-using SmartRefund.Application.Services;
-using SmartRefund.Domain.Enums;
-using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Requests;
 using SmartRefund.WebAPI.Filters;
 using Swashbuckle.AspNetCore.Annotations;
@@ -11,7 +8,6 @@ namespace SmartRefund.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [TypeFilter(typeof(AuthorizationFilterFinance))]
     public class ManagementController : Controller
     {
         private readonly IInternalAnalyzerService _analyzerService;
@@ -35,6 +31,7 @@ namespace SmartRefund.WebAPI.Controllers
         [HttpPatch]
         [Route("update-status")]
         [SwaggerOperation("Update TranslatedVisionReceipt's Status.")]
+        [TypeFilter(typeof(AuthorizationFilterFinance))]
         public async Task<IActionResult> UpdateStatus([FromBody] UpdateTVRStatusRequest updateRequest)
         {
             var UpdatedObject = await _analyzerService.UpdateStatus(updateRequest.Id, updateRequest.NewStatus);
