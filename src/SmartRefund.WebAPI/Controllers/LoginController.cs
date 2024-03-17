@@ -1,11 +1,9 @@
-﻿using SmartRefund.WebAPI.Request;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using SmartRefund.WebAPI.Request;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Newtonsoft.Json.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SmartRefund.WebAPI.Controllers
 {
@@ -13,6 +11,14 @@ namespace SmartRefund.WebAPI.Controllers
     [Route("api/[controller]")]
     public class LoginController : ControllerBase
     {
+        private readonly ILogger<LoginController> _logger;
+
+        public LoginController(ILogger<LoginController> logger)
+        {
+            _logger = logger;
+        }
+
+
         [HttpPost]
         public IActionResult Login(LoginRequest loginRequest)
         {
@@ -29,19 +35,21 @@ namespace SmartRefund.WebAPI.Controllers
                     var signinCredentials = new SigningCredentials
                     (secretKey, SecurityAlgorithms.HmacSha256);
 
-                    //var claims = new List<Claim>()
-                    //{
-                    //    new Claim("userType", "employee"), // Tipo de usuário
-                    //    new Claim("userId", "1")           // ID do usuário
-                    //};
+                    List<Claim> claims = new List<Claim>()
+                    {
+                        new Claim("userType", "employee"), // Tipo de usuário
+                        new Claim("userId", "1")           // ID do usuário
+                    };
 
                     var jwtSecurityToken = new JwtSecurityToken(
                         issuer: "ABCXYZ",
-                        claims: new List<Claim>(),
-                        audience: "http://localhost:51398",
+                        claims: claims,
+                        audience: "http://localhost:5029",
                         expires: DateTime.Now.AddDays(15),
                         signingCredentials: signinCredentials
                     );
+
+                    _logger.LogInformation(jwtSecurityToken.ToString());
 
                     return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken), userType = "employee" });
                 }

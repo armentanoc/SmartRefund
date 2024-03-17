@@ -1,9 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Internal;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SmartRefund.Application.Interfaces;
@@ -12,7 +8,6 @@ using SmartRefund.Infra.Context;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.Infra.Repositories;
 using SmartRefund.WebAPI.Middlewares;
-using SmartRefund.WorkerService;
 using System.Text;
 
 namespace SmartRefund.WebAPI
@@ -115,10 +110,10 @@ namespace SmartRefund.WebAPI
             builder.Services.AddScoped<IRawVisionReceiptRepository, RawVisionReceiptRepository>();
             builder.Services.AddScoped<IInternalReceiptRepository, InternalReceiptRepository>();
             // Add CacheService
-         
 
 
-            builder.Services.AddHostedService<VisionProcessingWorker>();
+
+            //builder.Services.AddHostedService<VisionProcessingWorker>();
 
             var app = builder.Build();
 

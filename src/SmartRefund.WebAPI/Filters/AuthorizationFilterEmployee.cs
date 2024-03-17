@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace SmartRefund.WebAPI.Filters
 {
@@ -14,17 +14,17 @@ namespace SmartRefund.WebAPI.Filters
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            if (!context.HttpContext.User.Identity.IsAuthenticated)
-            {
-                context.Result = new UnauthorizedObjectResult(new { Message = "Unauthorized access. Authentication is required. Please authenticate at the /api/login route and copy the generated token to paste in the authorization." });
-                return;
-            }
+            //if (!context.HttpContext.User.Identity.IsAuthenticated)
+            //{
+            //    context.Result = new UnauthorizedObjectResult(new { Message = "Unauthorized access. Authentication is required. Please authenticate at the /api/login route and copy the generated token to paste in the authorization." });
+            //    return;
+            //}
 
             var userTypeClaim = context.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "userType")?.Value;
 
             _logger.LogInformation($"Employee Type: {userTypeClaim}");
 
-            if (userTypeClaim == "employee")
+            if (userTypeClaim.Equals("employee"))
             {
                 return;
             }
