@@ -16,13 +16,9 @@ namespace SmartRefund.WebAPI.Filters
             var userTypeClaim = context.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "userType")?.Value;
 
             if (userTypeClaim.Equals("finance"))
-            {
                 return;
-            }
-            else
-            {
-                context.Result = new ForbidResult();
-            }
+
+            context.Result = new ForbidResult();
             return;
         }
     }

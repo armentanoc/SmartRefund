@@ -14,24 +14,20 @@ namespace SmartRefund.WebAPI.Filters
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            //if (!context.HttpContext.User.Identity.IsAuthenticated)
-            //{
-            //    context.Result = new UnauthorizedObjectResult(new { Message = "Unauthorized access. Authentication is required. Please authenticate at the /api/login route and copy the generated token to paste in the authorization." });
-            //    return;
-            //}
+            _logger.LogInformation(context.ToString());
+
+            if (!context.HttpContext.User.Identity.IsAuthenticated)
+            {
+                context.Result = new UnauthorizedObjectResult(new { Message = "Unauthorized access. Authentication is required. Please authenticate at the /api/login route and copy the generated token to paste in the authorization." });
+                return;
+            }
 
             var userTypeClaim = context.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "userType")?.Value;
 
-            _logger.LogInformation($"Employee Type: {userTypeClaim}");
-
             if (userTypeClaim.Equals("employee"))
-            {
                 return;
-            }
-            else
-            {
-                context.Result = new ForbidResult();
-            }
+
+            context.Result = new ForbidResult();
             return;
         }
     }
