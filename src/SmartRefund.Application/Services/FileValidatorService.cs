@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SmartRefund.Application.Handlers.Requests;
 using SixLabors.ImageSharp;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.CustomExceptions;
@@ -16,17 +18,19 @@ namespace SmartRefund.Application.Services
     {
         private double _minPPI;
         private readonly IConfiguration _configuration;
+        private readonly IMediator _mediator;
         private IInternalReceiptRepository _repository;
         private ILogger<FileValidatorService> _logger;
         private IEventSourceRepository _eventSourceRepository;
 
-        public FileValidatorService(IInternalReceiptRepository repository, ILogger<FileValidatorService> logger, IConfiguration configuration, IEventSourceRepository eventSourceRepository)
+        public FileValidatorService(IInternalReceiptRepository repository, ILogger<FileValidatorService> logger, IConfiguration configuration, IMediator mediator)
         {
             _repository = repository;
             _logger = logger;
             _configuration = configuration;
             GetPPIConfiguration();
             _eventSourceRepository = eventSourceRepository;
+            _mediator = mediator;
         }
 
         public void GetPPIConfiguration()
@@ -60,6 +64,9 @@ namespace SmartRefund.Application.Services
 
                 ReceiptEventSource eventSource = new ReceiptEventSource(uniqueHash, EventSourceStatusEnum.EventSourceInitialized, addedReceipt);
                 var addedEventSource = await _eventSourceRepository.AddAsync(eventSource);
+
+                if (addedReceipt is InternalReceipt)
+                    await _mediator.Send(new SaveDataCommandRequest(internalReceipt));
 
                 var newEvent = new Event(addedEventSource.UniqueHash, EventSourceStatusEnum.InternalReceiptCreated, addedReceipt.CreationDate, "Internal Receipt created with success");
                 await _eventSourceRepository.AddEvent(eventSource, addedEventSource.UniqueHash, newEvent);

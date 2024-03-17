@@ -1,9 +1,13 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using SmartRefund.Application.Handlers;
+using SmartRefund.Application.Handlers.Requests;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.Application.Services;
 using SmartRefund.Infra.Context;
@@ -66,6 +70,7 @@ namespace SmartRefund.WebAPI
             builder.Services.AddScoped<ICacheService, CacheService>();
             builder.Services.AddScoped<IInternalAnalyzerService, InternalAnalyzerService>();
             builder.Services.AddScoped<IEventSourceService, EventSourceService>();
+            builder.Services.AddScoped<IVisionProcessingWorkerService, VisionProcessingWorker>();
 
 
             // Repositories
@@ -76,6 +81,11 @@ namespace SmartRefund.WebAPI
             builder.Services.AddHostedService<VisionProcessingWorker>();
             // Add CacheService
 
+            // MediatR
+            builder.Services.AddMediatR(cfg => {
+                cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+            });
+            builder.Services.AddTransient(typeof(IRequestHandler<SaveDataCommandRequest, Unit>), typeof(SaveDataCommandHandler));
 
 
 

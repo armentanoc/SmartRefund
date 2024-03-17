@@ -9,7 +9,7 @@ using System.Security.Authentication;
 namespace SmartRefund.WorkerService
 {
     [ExcludeFromCodeCoverage]
-    public class VisionProcessingWorker : BackgroundService
+    public class VisionProcessingWorker : BackgroundService, IVisionProcessingWorkerService 
     {
         private readonly ILogger<VisionProcessingWorker> _logger;
         public IServiceProvider Services { get; }
@@ -33,7 +33,7 @@ namespace SmartRefund.WorkerService
             }
         }
 
-        private async Task ProcessChangesAsync(CancellationToken stoppingToken)
+        public async Task ProcessChangesAsync(CancellationToken stoppingToken)
         {
             using (var scope = Services.CreateScope())
             {

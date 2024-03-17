@@ -1,5 +1,6 @@
 ﻿using Castle.Core.Logging;
 using FluentAssertions;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -34,8 +35,9 @@ namespace SmartRefund.Tests.ApplicationTests
             var eventSourceRepository = Substitute.For<IEventSourceRepository>();
             var loggerMock = Substitute.For<ILogger<FileValidatorService>>();
             var configurationMock = Substitute.For<IConfiguration>();
+            var mediatorMock = Substitute.For<IMediator>();
             configurationMock["OpenAIVisionConfig:MinResolutionInPPI"].Returns("50"); // Mocking configuration value
-            _fileValidatorService = new FileValidatorService(_mockReceiptRepository, loggerMock, configurationMock, eventSourceRepository);
+            _fileValidatorService = new FileValidatorService(_mockReceiptRepository, loggerMock, configurationMock, eventSourceRepository, mediatorMock);
         }
 
         [Fact]
