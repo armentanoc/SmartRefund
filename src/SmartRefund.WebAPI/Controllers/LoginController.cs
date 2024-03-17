@@ -64,6 +64,7 @@ namespace SmartRefund.WebAPI.Controllers
             var jwtSecurityToken = new JwtSecurityToken(
                 issuer: "ABCXYZ",
                 claims: claims,
+                audience: "http://localhost:7088",
                 expires: DateTime.Now.AddDays(15),
                 signingCredentials: signinCredentials
             );

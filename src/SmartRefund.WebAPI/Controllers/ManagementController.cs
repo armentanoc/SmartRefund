@@ -8,6 +8,7 @@ namespace SmartRefund.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [TypeFilter(typeof(AuthorizationFilterEmployee))]
     public class ManagementController : Controller
     {
         private readonly IInternalAnalyzerService _analyzerService;
