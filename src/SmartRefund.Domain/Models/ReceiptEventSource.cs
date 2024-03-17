@@ -38,21 +38,29 @@ namespace SmartRefund.Domain.Models
 
         public void AddEvent (Event evnt)
         {
+            if(Events is null)
+                Events = new List<Event>();
             Events.Add(evnt);
         }
 
         public bool SetTranslatedVisionReceipt(TranslatedVisionReceipt translatedVisionReceipt)
         {
             if (translatedVisionReceipt is TranslatedVisionReceipt)
+            {
                 TranslatedVisionReceipt = translatedVisionReceipt;
-            throw new ArgumentNullException(nameof(translatedVisionReceipt));
+                return true;
+            }
+            return false;
         }
 
         public bool SetRawVisionReceipt(RawVisionReceipt rawVisionReceipt)
         {
             if (rawVisionReceipt is RawVisionReceipt)
+            {
                 RawVisionReceipt = rawVisionReceipt;
-            throw new ArgumentNullException(nameof(rawVisionReceipt));
+                return true;
+            }
+            return false;
         }
     }
 }

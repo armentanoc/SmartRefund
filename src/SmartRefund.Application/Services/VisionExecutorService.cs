@@ -5,10 +5,14 @@ using OpenAI_API.Chat;
 using OpenAI_API.Models;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.CustomExceptions;
+using SmartRefund.Domain.Enums;
 using SmartRefund.Domain.Models;
 using SmartRefund.Domain.Models.Enums;
 using SmartRefund.Infra.Interfaces;
+using SmartRefund.Infra.Repositories;
 using SmartRefund.ViewModels.Responses;
+using System.Diagnostics.Tracing;
+using System.Security.Authentication;
 using System.Text.RegularExpressions;
 
 public class VisionExecutorService : IVisionExecutorService
@@ -50,6 +54,12 @@ public class VisionExecutorService : IVisionExecutorService
 
             return addedRawVisionReceipt;
         }
+        catch (AuthenticationException authEx)
+        {
+            input.SetStatus(InternalReceiptStatusEnum.VisionAuthenticationFailed);
+            await _internalReceiptRepository.UpdateAsync(input);
+            throw;
+        }
         catch (Exception e)
         {
             input.SetStatus(input.Status switch
@@ -59,7 +69,6 @@ public class VisionExecutorService : IVisionExecutorService
                 InternalReceiptStatusEnum.FailedMoreThanOnce => InternalReceiptStatusEnum.Unsuccessful,
                 _ => input.Status
             });
-
             await _internalReceiptRepository.UpdateAsync(input);
             throw;
         }

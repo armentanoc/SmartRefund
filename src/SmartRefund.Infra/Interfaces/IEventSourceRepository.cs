@@ -4,7 +4,7 @@ namespace SmartRefund.Infra.Interfaces
 {
     public interface IEventSourceRepository
     {
-        Task<ReceiptEventSource> AddEvent(string hashCode, Event evnt);
+        Task<ReceiptEventSource> AddEvent(ReceiptEventSource eventSource, string hashCode, Event evnt);
         Task<ReceiptEventSource> GetByUniqueHashAsync(string hash);
         Task<ReceiptEventSource> AddAsync(ReceiptEventSource entityToAdd);
         Task<List<ReceiptEventSource>> GetAllByHashAsync(IEnumerable<RawVisionReceipt> rawReceipts);

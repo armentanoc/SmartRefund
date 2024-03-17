@@ -23,9 +23,10 @@ namespace SmartRefund.Infra.Repositories
                 return entityToAdd;
         }
 
-        public async Task<ReceiptEventSource> AddEvent(string hashCode, Event evnt)
+        public async Task<ReceiptEventSource> AddEvent(ReceiptEventSource eventSource, string hashCode, Event evnt)
         {
-            var eventSource = await GetByUniqueHashAsync(hashCode);
+            eventSource.SetRawVisionReceipt(eventSource.RawVisionReceipt);
+            eventSource.SetTranslatedVisionReceipt(eventSource.TranslatedVisionReceipt);
             eventSource.AddEvent(evnt);
             eventSource.ChangeStatus(evnt.Status);
             await _context.SaveChangesAsync();

@@ -17,5 +17,6 @@ namespace SmartRefund.Domain.Enums
         FileTranslated,
         PaymentAccepted,
         PaymentDenied,
+        WaitingForAuthenticationSolution
     }
 }
