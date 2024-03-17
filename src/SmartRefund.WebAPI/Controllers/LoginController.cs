@@ -20,9 +20,9 @@ namespace SmartRefund.WebAPI.Controllers
             _logger = logger;
             _users = new List<User>()
             {
-                new User("1", "employee1", "employee123", "employee"),
-                new User("2", "employee2", "employee123", "employee"),
-                new User("3", "finance", "finance123", "finance"),
+                new User(1, "employee1", "employee123", "employee"),
+                new User(2, "employee2", "employee123", "employee"),
+                new User(3, "finance", "finance123", "finance"),
             };
         }
 
@@ -50,7 +50,7 @@ namespace SmartRefund.WebAPI.Controllers
             return user;
         }
 
-        private string GenerateJwtToken(string userId, string userType)
+        private string GenerateJwtToken(uint userId, string userType)
         {
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("thisisasecretkey@12345678901234567890"));
             var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
@@ -58,7 +58,7 @@ namespace SmartRefund.WebAPI.Controllers
             var claims = new[]
             {
                 new Claim("userType", userType),
-                new Claim("userId", userId)
+                new Claim("userId", userId.ToString())
             };
 
             var jwtSecurityToken = new JwtSecurityToken(

@@ -107,6 +107,8 @@ namespace SmartRefund.WebAPI
                 builder.Configuration.GetSection("OpenAIVisionConfig:EnvVariable").Value
                 );
 
+            builder.Services.AddHttpContextAccessor();
+
             // Services
             builder.Services.AddScoped<IFileValidatorService, FileValidatorService>();
             builder.Services.AddScoped<IVisionExecutorServiceConfiguration, VisionExecutorServiceConfiguration>();

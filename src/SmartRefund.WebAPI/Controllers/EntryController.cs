@@ -23,7 +23,7 @@ namespace SmartRefund.WebAPI.Controllers
             var userIdClaim = httpContextAccessor.HttpContext.User.FindFirst("userId");
             var userTypeClaim = httpContextAccessor.HttpContext.User.FindFirst("userType");
 
-            if (userIdClaim != null && userTypeClaim.Equals("employee") && uint.TryParse(userIdClaim.Value, out uint userId))
+            if (userIdClaim != null && userTypeClaim.Value.Equals("employee") && uint.TryParse(userIdClaim.Value, out uint userId))
             {
                 var result = await _fileValidator.Validate(file, userId);
                 return Ok(result);
