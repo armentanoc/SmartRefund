@@ -4,7 +4,6 @@ using SmartRefund.Domain.Models;
 using SmartRefund.Domain.Models.Enums;
 using SmartRefund.Infra.Interfaces;
 using System.Diagnostics.CodeAnalysis;
-using System.Net;
 using System.Security.Authentication;
 
 namespace SmartRefund.WorkerService
@@ -25,8 +24,7 @@ namespace SmartRefund.WorkerService
         {
             await Task.Delay(TimeSpan.FromSeconds(40), stoppingToken);
 
-            _logger.LogInformation(
-            "Worker Background Service is now running.");
+            _logger.LogInformation("[BACKGROUND SERVICE STARTED] Worker Background Service is now running.");
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -75,15 +73,25 @@ namespace SmartRefund.WorkerService
                 {
                     var rawVisionReceipt = await visionExecutorService.ExecuteRequestAsync(receipt);
                     eventSource.SetRawVisionReceipt(rawVisionReceipt);
-                    var successEvent = new Event(eventSource.UniqueHash, EventSourceStatusEnum.VisionExecutorSuccessful, DateTime.Now, "Internal Receipt created with success");
+
+                    var message = $"InternalReceipt with ID: {receipt.Id} processed with succes | RawVisionReceipt with ID: {rawVisionReceipt.Id} was created | Details: {rawVisionReceipt}";
+                    var successEvent = new Event(eventSource.UniqueHash, EventSourceStatusEnum.VisionExecutorSuccessful, DateTime.Now, message);
                     await eventSourceRepository.AddEvent(eventSource, eventSource.UniqueHash, successEvent);
-                    _logger.LogInformation($"InternalReceipt with ID: {receipt.Id} processed with success. | {successEvent}");
+
+                    _logger.LogInformation($"[VISION EXECUTOR SUCCESS] InternalReceipt with ID: {receipt.Id} processed with succes " +
+                        $"\n       RawVisionReceipt with ID: {rawVisionReceipt.Id} was created " +
+                        $"\n       Details: {rawVisionReceipt}");
                 }
                 catch (AuthenticationException authEx)
                 {
-                    var eventToAdd = new Event(eventSource.UniqueHash, EventSourceStatusEnum.WaitingForAuthenticationSolution, DateTime.Now, $"Authentication in Vision Executor process failed, trying again... | Exception: {authEx.Message}");
+                    var message = $"Failed to process InternalReceipt with ID: {receipt.Id} through GPT Vision  | Error {authEx.GetBaseException().GetType()} | Details: {authEx.Message}";
+
+                    var eventToAdd = new Event(eventSource.UniqueHash, EventSourceStatusEnum.WaitingForAuthenticationSolution, DateTime.Now, message);
                     await eventSourceRepository.AddEvent(eventSource, eventSource.UniqueHash, eventToAdd);
-                    _logger.LogError(authEx, $"Authentication in Vision Executor process failed, trying again... | Exception: {authEx.Message}");
+
+                    _logger.LogError($"[VISION EXECUTOR ERROR] Failed to process InternalReceipt with ID: {receipt.Id} through GPT Vision " +
+                        $"\n      Error {authEx.GetBaseException().GetType()}" +
+                        $"\n      Details: {authEx.Message}");
                 }
                 catch (Exception ex)
                 {
@@ -91,16 +99,18 @@ namespace SmartRefund.WorkerService
 
                     if (receipt.Status.Equals(InternalReceiptStatusEnum.Unsuccessful))
                     {
-                        eventToAdd = new Event(eventSource.UniqueHash, EventSourceStatusEnum.VisionExecutorUnsuccessful, DateTime.Now, $"Vision Executor process failed. A person in charge will process this receipt. | Exception: {ex.Message}"); ;
+                        eventToAdd = new Event(eventSource.UniqueHash, EventSourceStatusEnum.VisionExecutorUnsuccessful, DateTime.Now, $"Vision Executor process failed. A person in charge will process this receipt. | Error {ex.GetBaseException().GetType()} | Details: {ex.Message}"); ;
                         await eventSourceRepository.AddEvent(eventSource, eventSource.UniqueHash, eventToAdd);
                     }
                     else
                     {
-                        eventToAdd = new Event(eventSource.UniqueHash, EventSourceStatusEnum.VisionExecutorFailed, DateTime.Now, $"Vision Executor process failed, trying again... | Exception: {ex.Message}");
+                        eventToAdd = new Event(eventSource.UniqueHash, EventSourceStatusEnum.VisionExecutorFailed, DateTime.Now, $"Vision Executor process failed, trying again... | Error {ex.GetBaseException().GetType()} | Details: {ex.Message}");
                         await eventSourceRepository.AddEvent(eventSource, eventSource.UniqueHash, eventToAdd);
                     }
 
-                    _logger.LogError(ex, $"Error processing InternalReceipt with ID: {receipt.Id} | {eventToAdd}");
+                    _logger.LogError($"[VISION EXECUTOR ERROR] Failed to process InternalReceipt with ID: {receipt.Id} through GPT Vision" +
+                        $"\n      Error {ex.GetBaseException().GetType()}" +
+                        $"\n      Details: {ex.Message}");
                 }
             }
         }
@@ -122,15 +132,23 @@ namespace SmartRefund.WorkerService
                     {
                         var updatedReceipt = await visionTranslatorService.GetTranslatedVisionReceipt(receipt);
                         eventSource.SetTranslatedVisionReceipt(updatedReceipt);
-                        var successEvent = new Event(eventSource.UniqueHash, EventSourceStatusEnum.FileTranslated, DateTime.Now, "The translation process succed. Ready to be analized.");
+                        var message = $"The translation process succed. Ready to be analized. | RawVisionReceipt with ID: {receipt.Id} translated with succes | TranslatedVisionReceipt with ID: {updatedReceipt.Id} was created | Details: {updatedReceipt}";
+                        var successEvent = new Event(eventSource.UniqueHash, EventSourceStatusEnum.FileTranslated, DateTime.Now, message);
                         await eventSourceRepository.AddEvent(eventSource, eventSource.UniqueHash, successEvent);
-                        _logger.LogInformation($"RawReceipt with ID: {receipt.Id} translated with success. | {successEvent}");
+
+                        _logger.LogInformation($"[TRANSLATION SUCCESS] The translation process succed. Ready to be analized." +
+                            $"\n      RawVisionReceipt with ID: {receipt.Id} translated with succes" +
+                            $"\n      TranslatedVisionReceipt with ID: {updatedReceipt.Id} was created" +
+                            $"\n      Details: {updatedReceipt}");
                     }
                     catch (Exception ex)
                     {
-                        var eventToAdd = new Event(eventSource.UniqueHash, EventSourceStatusEnum.FileTranslationFailed, DateTime.Now, $"The translation process failed. A person in charge will process this receipt | Exception: {ex.Message}");
+                        var eventToAdd = new Event(eventSource.UniqueHash, EventSourceStatusEnum.FileTranslationFailed, DateTime.Now, $"The translation process failed. A person in charge will process this receipt | Error {ex.GetBaseException().GetType()} | Details: {ex.Message}");
                         await eventSourceRepository.AddEvent(eventSource, eventSource.UniqueHash, eventToAdd);
-                        _logger.LogError(ex, $"Error processing InternalReceipt with ID: {receipt.Id} | {eventToAdd}");
+
+                        _logger.LogError($"[TRANSLATION ERROR] Failed to process RawVisionReceipt with ID: {receipt.Id} through Translation Service" +
+                            $"\n      Error {ex.GetBaseException().GetType()}" +
+                            $"\n      Details: {ex.Message}");
                     }
                 }
             }
@@ -138,9 +156,7 @@ namespace SmartRefund.WorkerService
 
         public override async Task StopAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation(
-                "Consume Scoped Service Hosted Service is stopping.");
-
+            _logger.LogInformation("[BACKGROUND SERVICE STOPPED] Consume Scoped Service Hosted Service is stopping.");
             await base.StopAsync(stoppingToken);
         }
     }
