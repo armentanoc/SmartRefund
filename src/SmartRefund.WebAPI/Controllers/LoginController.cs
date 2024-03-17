@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using SmartRefund.Domain.Models;
 using SmartRefund.WebAPI.Request;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -12,78 +13,62 @@ namespace SmartRefund.WebAPI.Controllers
     public class LoginController : ControllerBase
     {
         private readonly ILogger<LoginController> _logger;
+        private readonly List<User> _users;
 
         public LoginController(ILogger<LoginController> logger)
         {
             _logger = logger;
+            _users = new List<User>()
+            {
+                new User("1", "employee1", "employee123", "employee"),
+                new User("2", "employee2", "employee123", "employee"),
+                new User("3", "finance", "finance123", "finance"),
+            };
         }
 
 
         [HttpPost]
         public IActionResult Login(LoginRequest loginRequest)
         {
-            try
+            if (string.IsNullOrEmpty(loginRequest.UserName) || string.IsNullOrEmpty(loginRequest.Password))
+                return BadRequest("Username and/or Password not specified");
+
+            var user = ValidateUser(loginRequest.UserName, loginRequest.Password);
+
+            if (user != null)
             {
-                if (string.IsNullOrEmpty(loginRequest.UserName) ||
-                string.IsNullOrEmpty(loginRequest.Password))
-                    return BadRequest("Username and/or Password not specified");
-                if (loginRequest.UserName.Equals("employee") &&
-                loginRequest.Password.Equals("employee123"))
-                {
-                    var secretKey = new SymmetricSecurityKey
-                    (Encoding.UTF8.GetBytes("thisisasecretkey@12345678901234567890"));
-                    var signinCredentials = new SigningCredentials
-                    (secretKey, SecurityAlgorithms.HmacSha256);
-
-                    List<Claim> claims = new List<Claim>()
-                    {
-                        new Claim("userType", "employee"), // Tipo de usuário
-                        new Claim("userId", "1")           // ID do usuário
-                    };
-
-                    var jwtSecurityToken = new JwtSecurityToken(
-                        issuer: "ABCXYZ",
-                        claims: claims,
-                        audience: "http://localhost:7088",
-                        expires: DateTime.Now.AddDays(15),
-                        signingCredentials: signinCredentials
-                    );
-
-                    _logger.LogInformation(jwtSecurityToken.ToString());
-
-                    return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken), userType = "employee" });
-                }
-
-                if (loginRequest.UserName.Equals("finance") &&
-                loginRequest.Password.Equals("finance123"))
-                {
-                    var secretKey = new SymmetricSecurityKey
-                   (Encoding.UTF8.GetBytes("thisisasecretkey@12345678901234567890"));
-                    var signinCredentials = new SigningCredentials
-                    (secretKey, SecurityAlgorithms.HmacSha256);
-
-                    var claims = new List<Claim>()
-                    {
-                        new Claim("userType", "finance"), // Tipo de usuário
-                        new Claim("userId", "2")      // ID do usuário
-                    };
-
-                    var jwtSecurityToken = new JwtSecurityToken(
-                        issuer: "ABCXYZ",
-                        claims: claims,
-                        audience: "http://localhost:51398",
-                        expires: DateTime.Now.AddDays(15),
-                        signingCredentials: signinCredentials
-                    );
-
-                    return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken), userType = "finance" });
-                }
+                var token = GenerateJwtToken(user.Id, user.UserType);
+                return Ok(new { token, userType = user.UserType });
             }
-            catch (Exception ex)
+
+            return Unauthorized(new { errorMessage = "Invalid username or password" });
+        }
+
+        private User ValidateUser(string userName, string password)
+        {
+            var user = _users.FirstOrDefault(u => u.UserName == userName && u.Password == password);
+            return user;
+        }
+
+        private string GenerateJwtToken(string userId, string userType)
+        {
+            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("thisisasecretkey@12345678901234567890"));
+            var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
             {
-                return BadRequest($"An error occurred in generating the token: {ex}");
-            }
-            return Unauthorized();
+                new Claim("userType", userType),
+                new Claim("userId", userId)
+            };
+
+            var jwtSecurityToken = new JwtSecurityToken(
+                issuer: "ABCXYZ",
+                claims: claims,
+                expires: DateTime.Now.AddDays(15),
+                signingCredentials: signinCredentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
         }
     }
 }
