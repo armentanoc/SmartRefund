@@ -31,6 +31,17 @@ namespace SmartRefund.WebAPI
             }
             );
 
+            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                                  policy =>
+                                  {
+                                      policy.WithOrigins("http://localhost:3000",
+                                                          "http://localhost:7088").AllowAnyHeader().AllowAnyMethod();
+                                  });
+            });
+
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
@@ -41,7 +52,7 @@ namespace SmartRefund.WebAPI
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = "ABCXYZ",
-                    ValidAudience = "http://localhost:5029",
+                    ValidAudience = "http://localhost:7088",
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("thisisasecretkey@12345678901234567890"))
                 };
             });
@@ -122,6 +133,7 @@ namespace SmartRefund.WebAPI
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+                app.UseCors(MyAllowSpecificOrigins);
             }
 
             // Custom Logging Middleware
