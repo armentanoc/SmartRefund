@@ -46,7 +46,7 @@ public class VisionExecutorService : IVisionExecutorService
         {
             OpenAIAPI api = ConfigureApiKey();
             var rawImage = input.Image;
-            var conversation = api.Chat.CreateConversation();
+            var conversation = api.Chat.CreateConversation(_visionConfig.ChatRequestConfig);
             conversation.Model = Model.GPT4_Vision;
             var response = await ProcessVisionResponseAsync(conversation, rawImage, input);
             var addedRawVisionReceipt = await CreateRawVisionReceiptAsync(input, response);

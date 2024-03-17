@@ -11,11 +11,11 @@ namespace SmartRefund.CustomExceptions
     [Serializable]
     public class UnableToParseException : Exception
     {
-        public string WrongStatus { get; private set; }
-        public UnableToParseException( string wrongStatus)
-           : base($"Invalid status. Unable to parse: {wrongStatus}")
+        public string Value { get; private set; }
+        public UnableToParseException(string value)
+           : base($"Invalid value. Unable to parse: '{value}'")
         {
-            WrongStatus = wrongStatus;
+            Value = value;
         }
     }
 }
