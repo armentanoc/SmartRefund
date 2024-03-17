@@ -12,7 +12,7 @@ using System.Text;
 namespace SmartRefund.WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/login")]
     public class LoginController : ControllerBase
     {
         private readonly ILogger<LoginController> _logger;

@@ -3,6 +3,7 @@ using SmartRefund.Domain.Models;
 using SmartRefund.ViewModels.Responses;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.CustomExceptions;
+using SmartRefund.ViewModels.Requests;
 
 namespace SmartRefund.Application.Services
 {
@@ -15,14 +16,14 @@ namespace SmartRefund.Application.Services
             _repository = repository;
         }
 
-        public async Task<IEnumerable<ReceiptEventSourceResponse>> GetAllEventSourceResponseAsync(bool isFrontEndpoint, uint userId, string userType)
+        public async Task<IEnumerable<ReceiptEventSourceResponse>> GetAllEventSourceResponseAsync(bool isFrontEndpoint, uint userId, string userType, FrontFilter frontFilter)
         {
             IEnumerable<ReceiptEventSource> eventSources;
 
             if(userType.Equals("employee"))
-                eventSources = await _repository.GetAllByEmployeeIdAsync(userId);
+                eventSources = await _repository.GetAllByEmployeeIdAsync(userId, frontFilter);
             else
-                eventSources = await _repository.GetAllAsync();
+                eventSources = await _repository.GetAllWithFrontFilterAsync(frontFilter);
 
             var eventSourceResponses = new List<ReceiptEventSourceResponse>();
 
