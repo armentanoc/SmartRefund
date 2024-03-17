@@ -11,8 +11,8 @@ using SmartRefund.Infra.Context;
 namespace SmartRefund.Infra.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240316204408_createDatabase")]
-    partial class createDatabase
+    [Migration("20240317135348_CreateDatabaseInitial")]
+    partial class CreateDatabaseInitial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -127,10 +127,10 @@ namespace SmartRefund.Infra.Migrations
                     b.Property<uint>("InternalReceiptId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<uint>("RawVisionReceiptId")
+                    b.Property<uint?>("RawVisionReceiptId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<uint>("TranslatedVisionReceiptId")
+                    b.Property<uint?>("TranslatedVisionReceiptId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("UniqueHash")
@@ -212,15 +212,11 @@ namespace SmartRefund.Infra.Migrations
 
                     b.HasOne("SmartRefund.Domain.Models.RawVisionReceipt", "RawVisionReceipt")
                         .WithMany()
-                        .HasForeignKey("RawVisionReceiptId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RawVisionReceiptId");
 
                     b.HasOne("SmartRefund.Domain.Models.TranslatedVisionReceipt", "TranslatedVisionReceipt")
                         .WithMany()
-                        .HasForeignKey("TranslatedVisionReceiptId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TranslatedVisionReceiptId");
 
                     b.Navigation("InternalReceipt");
 

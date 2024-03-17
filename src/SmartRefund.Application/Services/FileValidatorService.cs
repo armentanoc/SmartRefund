@@ -23,7 +23,7 @@ namespace SmartRefund.Application.Services
         private ILogger<FileValidatorService> _logger;
         private IEventSourceRepository _eventSourceRepository;
 
-        public FileValidatorService(IInternalReceiptRepository repository, ILogger<FileValidatorService> logger, IConfiguration configuration, IMediator mediator)
+        public FileValidatorService(IInternalReceiptRepository repository, ILogger<FileValidatorService> logger, IConfiguration configuration, IEventSourceRepository eventSourceRepository, IMediator mediator)
         {
             _repository = repository;
             _logger = logger;
@@ -63,14 +63,21 @@ namespace SmartRefund.Application.Services
                 var addedReceipt = await _repository.AddAsync(receipt);
 
                 ReceiptEventSource eventSource = new ReceiptEventSource(uniqueHash, EventSourceStatusEnum.EventSourceInitialized, addedReceipt);
+                
                 var addedEventSource = await _eventSourceRepository.AddAsync(eventSource);
-
-                if (addedReceipt is InternalReceipt)
-                    await _mediator.Send(new SaveDataCommandRequest(internalReceipt));
 
                 var newEvent = new Event(addedEventSource.UniqueHash, EventSourceStatusEnum.InternalReceiptCreated, addedReceipt.CreationDate, "Internal Receipt created with success");
                 await _eventSourceRepository.AddEvent(eventSource, addedEventSource.UniqueHash, newEvent);
 
+                if (addedReceipt is InternalReceipt)
+                {
+                    _ = Task.Run(async () =>
+                    {
+                        await _mediator.Send(new SaveDataCommandRequest(addedReceipt));
+                    });
+                }
+
+                _logger.LogInformation("[FILE VALIDATOR SERVICE] File validated and followup response with unique hash returned to user");
                 return new InternalReceiptResponse(receipt);
             }
             throw new InvalidOperationException("File validation failed");
