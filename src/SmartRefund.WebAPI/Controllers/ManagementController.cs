@@ -39,7 +39,7 @@ namespace SmartRefund.WebAPI.Controllers
    
 
         [HttpPatch]
-        [Route("status/{id}")]
+        [Route("status")]
         [SwaggerOperation("Atualize o status da solicitação por UniqueHash.")]
         [ProducesResponseType(typeof(TranslatedReceiptResponse), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 400)]
