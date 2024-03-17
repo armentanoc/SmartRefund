@@ -12,6 +12,7 @@ namespace SmartRefund.Domain.Models.Enums
         Successful = 2,
         FailedOnce = 3,
         FailedMoreThanOnce = 4,
-        Unsuccessful = 5
+        Unsuccessful = 5,
+        VisionAuthenticationFailed = 6
     }
 }

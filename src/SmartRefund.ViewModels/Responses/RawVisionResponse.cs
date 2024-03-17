@@ -1,4 +1,6 @@
 ﻿
+using SmartRefund.Domain.Models;
+
 namespace SmartRefund.ViewModels.Responses
 {
     public class RawVisionResponse
@@ -11,6 +13,16 @@ namespace SmartRefund.ViewModels.Responses
         public RawVisionResponse()
         {
             
+        }
+        public RawVisionResponse(RawVisionReceipt rawVisionReceipt)
+        {
+            if(rawVisionReceipt is RawVisionReceipt)
+            {
+                IsReceipt = rawVisionReceipt.IsReceipt;
+                Total = rawVisionReceipt.Total;
+                Category = rawVisionReceipt.Category;
+                Description = rawVisionReceipt.Description;
+            }
         }
     }
 }

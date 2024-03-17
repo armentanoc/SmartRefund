@@ -9,6 +9,7 @@
    
   <ItemGroup>
     <ProjectReference Include="..\SmartRefund.Domain\SmartRefund.Domain.csproj" />
+    <ProjectReference Include="..\SmartRefund.Infra\SmartRefund.Infra.csproj" />
   </ItemGroup>
 
 </Project>
