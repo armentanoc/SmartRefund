@@ -8,7 +8,7 @@ namespace SmartRefund.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [TypeFilter(typeof(AuthorizationFilterEmployee))]
+    [TypeFilter(typeof(CombinedAuthorizationFilter))]
     public class ManagementController : Controller
     {
         private readonly IInternalAnalyzerService _analyzerService;
@@ -29,15 +29,14 @@ namespace SmartRefund.WebAPI.Controllers
             return NotFound();
         }
 
-        [HttpPatch]
+        /*[HttpPatch]
         [Route("update-status")]
         [SwaggerOperation("Update TranslatedVisionReceipt's Status.")]
-        [TypeFilter(typeof(AuthorizationFilterFinance))]
         public async Task<IActionResult> UpdateStatus([FromBody] UpdateTVRStatusRequest updateRequest)
         {
             var UpdatedObject = await _analyzerService.UpdateStatus(updateRequest.Id, updateRequest.NewStatus);
             return Ok(UpdatedObject);
-        }
+        }*/
 
         // Apenas para visualização
         [HttpGet("receipts")]

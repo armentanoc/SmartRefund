@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SmartRefund.WebAPI.Filters
 {
-    public class AuthorizationFilterFinance : IAuthorizationFilter
+    public class CombinedAuthorizationFilter : IAuthorizationFilter
     {
-        private readonly ILogger<AuthorizationFilterFinance> _logger;
+        private readonly ILogger<AuthorizationFilterEmployee> _logger;
 
-        public AuthorizationFilterFinance(ILogger<AuthorizationFilterFinance> logger)
+        public CombinedAuthorizationFilter(ILogger<AuthorizationFilterEmployee> logger)
         {
             _logger = logger;
         }
@@ -24,7 +24,7 @@ namespace SmartRefund.WebAPI.Filters
 
             var userTypeClaim = context.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "userType")?.Value;
 
-            if (userTypeClaim.Equals("finance"))
+            if (userTypeClaim.Equals("employee") || userTypeClaim.Equals("finance"))
                 return;
 
             context.Result = new ForbidResult();

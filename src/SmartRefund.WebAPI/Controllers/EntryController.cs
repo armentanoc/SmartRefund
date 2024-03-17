@@ -29,7 +29,7 @@ namespace SmartRefund.WebAPI.Controllers
                 return Ok(result);
             }
 
-            return Unauthorized(new { errorMessage = "Usuário não autorizado" });
+            return Unauthorized(new { errorMessage = "User not authorized." });
         }
     }
 }
