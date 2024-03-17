@@ -1,10 +1,14 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
+using SmartRefund.ViewModels.Requests;
 using SmartRefund.ViewModels.Responses;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Text.Json.Nodes;
 
 namespace SmartRefund.WebAPI.Controllers
 {
@@ -35,9 +39,26 @@ namespace SmartRefund.WebAPI.Controllers
         [ProducesResponseType(typeof(ReceiptEventSourceResponse), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult> GetToFrontUsingEventSource([FromRoute] string hash)
+        public async Task<ActionResult> GetToFrontUsingEventSource([FromRoute] string hash, [FromServices] IHttpContextAccessor httpContextAccessor)
         {
-            var eventSource = await _eventSourceService.GetReceiptEventSourceResponseAsync(hash, true);
+            var userId = httpContextAccessor.HttpContext.User.FindFirst("userId").Value;
+            var userType = httpContextAccessor.HttpContext.User.FindFirst("userType").Value;
+
+            ReceiptEventSourceResponse eventSource;
+
+            if(userType.Equals("employee"))
+            {
+                if (uint.TryParse(userId, out uint parsedUserId))
+                {
+                    eventSource = await _eventSourceService.GetEmployeeReceiptEventSourceResponseAsync(hash, true, parsedUserId);
+                    return Ok(eventSource);
+                }
+                return BadRequest(new { errorMessage = $"User ID inconsistente ({userId})." });
+            } 
+            else
+            {
+                eventSource = await _eventSourceService.GetReceiptEventSourceResponseAsync(hash, true);
+            }
             return Ok(eventSource);
         }
 
@@ -46,10 +67,17 @@ namespace SmartRefund.WebAPI.Controllers
         [ProducesResponseType(typeof(IEnumerable<ReceiptEventSourceResponse>), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult> GetAllToFrontUsingEventSource()
+        public async Task<ActionResult> GetAllToFrontUsingEventSource([FromServices] IHttpContextAccessor httpContextAccessor)
         {
-            var eventSources = await _eventSourceService.GetAllEventSourceResponseAsync(true);
-            return Ok(eventSources);
+            var userId = httpContextAccessor.HttpContext.User.FindFirst("userId").Value;
+            var userType = httpContextAccessor.HttpContext.User.FindFirst("userType").Value;
+
+            if(uint.TryParse(userId, out uint parsedUserId))
+            {
+                var eventSources = await _eventSourceService.GetAllEventSourceResponseAsync(true, parsedUserId, userType);
+                return Ok(eventSources);
+            }
+            return BadRequest(new { errorMessage = $"User ID inconsistente ({userId})." });
         }
 
         [HttpGet("{hash}/audit")]

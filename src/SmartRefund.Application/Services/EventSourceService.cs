@@ -1,10 +1,5 @@
 ﻿using SmartRefund.Infra.Interfaces;
 using SmartRefund.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SmartRefund.ViewModels.Responses;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.CustomExceptions;
@@ -20,9 +15,15 @@ namespace SmartRefund.Application.Services
             _repository = repository;
         }
 
-        public async Task<IEnumerable<ReceiptEventSourceResponse>> GetAllEventSourceResponseAsync(bool isFrontEndpoint)
+        public async Task<IEnumerable<ReceiptEventSourceResponse>> GetAllEventSourceResponseAsync(bool isFrontEndpoint, uint userId, string userType)
         {
-            var eventSources = await _repository.GetAllAsync();
+            IEnumerable<ReceiptEventSource> eventSources;
+
+            if(userType.Equals("employee"))
+                eventSources = await _repository.GetAllByEmployeeIdAsync(userId);
+            else
+                eventSources = await _repository.GetAllAsync();
+
             var eventSourceResponses = new List<ReceiptEventSourceResponse>();
 
             foreach (var eventSource in eventSources)
@@ -48,6 +49,16 @@ namespace SmartRefund.Application.Services
 
             if (eventSource is ReceiptEventSource)
                 return new AuditReceiptEventSourceResponse(eventSource);
+
+            throw new EntityNotFoundException(hash);
+        }
+
+        public async Task<ReceiptEventSourceResponse> GetEmployeeReceiptEventSourceResponseAsync(string hash, bool isFrontEndpoint, uint parsedUserId)
+        {
+            var eventSource = await _repository.GetEmployeeByUniqueHashAsync(hash, parsedUserId);
+
+            if (eventSource is ReceiptEventSource)
+                return new ReceiptEventSourceResponse(eventSource, isFrontEndpoint);
 
             throw new EntityNotFoundException(hash);
         }

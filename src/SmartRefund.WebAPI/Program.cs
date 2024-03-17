@@ -2,11 +2,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Internal;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using SmartRefund.Application.Handlers;
 using SmartRefund.Application.Handlers.Requests;
@@ -30,6 +25,8 @@ namespace SmartRefund.WebAPI
 
             // Add Logging
             builder.Services.AddLogging();
+
+            // Add CacheService
             builder.Services.AddMemoryCache();
 
             // Controllers
@@ -46,8 +43,12 @@ namespace SmartRefund.WebAPI
                 options.AddPolicy(name: MyAllowSpecificOrigins,
                                   policy =>
                                   {
-                                      policy.WithOrigins("http://localhost:3000",
-                                                          "http://localhost:7088").AllowAnyHeader().AllowAnyMethod();
+                                      policy
+                                      .WithOrigins(
+                                          "http://localhost:3000",
+                                          "http://localhost:7088")
+                                      .AllowAnyHeader()
+                                      .AllowAnyMethod();
                                   });
             });
 
@@ -135,16 +136,13 @@ namespace SmartRefund.WebAPI
             builder.Services.AddScoped<IInternalReceiptRepository, InternalReceiptRepository>();
             builder.Services.AddScoped<IEventSourceRepository, EventSourceRepository>();
             builder.Services.AddHostedService<VisionProcessingWorker>();
-            // Add CacheService
 
             // MediatR
-            builder.Services.AddMediatR(cfg => {
+            builder.Services.AddMediatR(cfg =>
+            {
                 cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
             });
             builder.Services.AddTransient(typeof(IRequestHandler<SaveDataCommandRequest, Unit>), typeof(SaveDataCommandHandler));
-
-
-
 
             var app = builder.Build();
 
@@ -162,7 +160,7 @@ namespace SmartRefund.WebAPI
             app.UseAuthentication();
             //app.UseMiddleware<AntiXSSMiddleware>();
             app.UseAuthorization();
-            
+
             app.MapControllers();
 
             app.Run();

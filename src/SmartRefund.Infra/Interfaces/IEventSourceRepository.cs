@@ -10,5 +10,7 @@ namespace SmartRefund.Infra.Interfaces
         Task<List<ReceiptEventSource>> GetAllByHashAsync(IEnumerable<RawVisionReceipt> rawReceipts);
         Task<List<ReceiptEventSource>> GetAllByHashAsync(IEnumerable<InternalReceipt> internalReceipts);
         Task<IEnumerable<ReceiptEventSource>> GetAllAsync();
+        Task<IEnumerable<ReceiptEventSource>> GetAllByEmployeeIdAsync(uint userId);
+        Task<ReceiptEventSource> GetEmployeeByUniqueHashAsync(string hash, uint parsedUserId);
     }
 }

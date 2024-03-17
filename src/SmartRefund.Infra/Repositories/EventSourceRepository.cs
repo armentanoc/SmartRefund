@@ -43,6 +43,17 @@ namespace SmartRefund.Infra.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<ReceiptEventSource>> GetAllByEmployeeIdAsync(uint userId)
+        {
+            return await _context.ReceiptEventSource
+                .Where(receipt => receipt.InternalReceipt.EmployeeId == userId)
+                .Include(receipt => receipt.Events)
+                .Include(receipt => receipt.InternalReceipt)
+                .Include(receipt => receipt.RawVisionReceipt)
+                .Include(receipt => receipt.TranslatedVisionReceipt)
+                .ToListAsync();
+        }
+
         public Task<List<ReceiptEventSource>> GetAllByHashAsync(IEnumerable<RawVisionReceipt> rawReceipts)
         {
             var hashList = rawReceipts.ToList().Select(receipt => receipt.UniqueHash);
@@ -67,6 +78,22 @@ namespace SmartRefund.Infra.Repositories
         public async Task<ReceiptEventSource> GetByUniqueHashAsync(string hash)
         {
             var entityToReturn = await _context.ReceiptEventSource
+                .Include(receipt => receipt.Events)
+                .Include(receipt => receipt.InternalReceipt)
+                .Include(receipt => receipt.RawVisionReceipt)
+                .Include(receipt => receipt.TranslatedVisionReceipt)
+                .FirstOrDefaultAsync(receiptEventSource => receiptEventSource.UniqueHash.Equals(hash));
+
+            if (entityToReturn is ReceiptEventSource)
+                return entityToReturn;
+
+            throw new EntityNotFoundException(_specificEntity, hash);
+        }
+
+        public async Task<ReceiptEventSource> GetEmployeeByUniqueHashAsync(string hash, uint parsedUserId)
+        {
+            var entityToReturn = await _context.ReceiptEventSource
+                .Where(receipt => receipt.InternalReceipt.EmployeeId == parsedUserId)
                 .Include(receipt => receipt.Events)
                 .Include(receipt => receipt.InternalReceipt)
                 .Include(receipt => receipt.RawVisionReceipt)
