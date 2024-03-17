@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace SmartRefund.WebAPI.Filters
 {
@@ -15,7 +15,7 @@ namespace SmartRefund.WebAPI.Filters
 
             var userTypeClaim = context.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "userType")?.Value;
 
-            if (userTypeClaim == "finance")
+            if (userTypeClaim.Equals("finance"))
             {
                 return;
             }
