@@ -45,7 +45,7 @@ namespace SmartRefund.WebAPI.Controllers
         [HttpGet("audit/{hash}")]
         public async Task<ActionResult> GetEventSource([FromRoute] string hash)
         {
-            var eventSource = await _eventSourceService.GetReceiptEventSourceResponseAsync(hash, false);
+            var eventSource = await _eventSourceService.GetAuditReceiptEventSourceResponseAsync(hash);
             return Ok(eventSource);
         }
     }

@@ -41,5 +41,15 @@ namespace SmartRefund.Application.Services
 
             throw new EntityNotFoundException(hash);
         }
+
+        public async Task<AuditReceiptEventSourceResponse> GetAuditReceiptEventSourceResponseAsync(string hash)
+        {
+            var eventSource = await _repository.GetByUniqueHashAsync(hash);
+
+            if (eventSource is ReceiptEventSource)
+                return new AuditReceiptEventSourceResponse(eventSource);
+
+            throw new EntityNotFoundException(hash);
+        }
     }
 }
