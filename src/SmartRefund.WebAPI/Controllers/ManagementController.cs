@@ -6,6 +6,7 @@ using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Requests;
 using SmartRefund.ViewModels.Responses;
+using SmartRefund.WebAPI.Filters;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace SmartRefund.WebAPI.Controllers
@@ -27,6 +28,7 @@ namespace SmartRefund.WebAPI.Controllers
         [ProducesResponseType(typeof(IEnumerable<TranslatedReceiptResponse>), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
+        [TypeFilter(typeof(CombinedAuthorizationFilter))]
         public async Task<IActionResult> GetAllByStatus()
         {
             var receipts = await _analyzerService.GetAllByStatus();
@@ -46,6 +48,7 @@ namespace SmartRefund.WebAPI.Controllers
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(string), 405)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
+        [TypeFilter(typeof(AuthorizationFilterFinance))]
         public async Task<IActionResult> UpdateStatus([FromBody] UpdateTVRStatusRequest request)
         {
             var UpdatedObject = await _analyzerService.UpdateStatus(request.UniqueHash, request.NewStatus);

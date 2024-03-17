@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +17,7 @@ using SmartRefund.Infra.Interfaces;
 using SmartRefund.Infra.Repositories;
 using SmartRefund.WebAPI.Middlewares;
 using SmartRefund.WorkerService;
+using System.Text;
 
 namespace SmartRefund.WebAPI
 {
@@ -37,6 +40,32 @@ namespace SmartRefund.WebAPI
             }
             );
 
+            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                                  policy =>
+                                  {
+                                      policy.WithOrigins("http://localhost:3000",
+                                                          "http://localhost:7088").AllowAnyHeader().AllowAnyMethod();
+                                  });
+            });
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = "ABCXYZ",
+                    ValidAudience = "http://localhost:7088",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("thisisasecretkey@12345678901234567890"))
+                };
+            });
+
             // Remove os provedores de log padr?o**
             builder.Logging.ClearProviders();
 
@@ -50,6 +79,31 @@ namespace SmartRefund.WebAPI
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = apiName, Version = "v1" });
                 c.EnableAnnotations();
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Please enter a valid token",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type=ReferenceType.SecurityScheme,
+                                Id="Bearer"
+                            }
+                        },
+                        new string[]{}
+                    }
+                });
             });
 
             builder.Services.AddDbContext<AppDbContext>(options =>
@@ -61,6 +115,8 @@ namespace SmartRefund.WebAPI
             builder.Configuration.AddEnvironmentVariables(
                 builder.Configuration.GetSection("OpenAIVisionConfig:EnvVariable").Value
                 );
+
+            builder.Services.AddHttpContextAccessor();
 
             // Services
             builder.Services.AddScoped<IFileValidatorService, FileValidatorService>();
@@ -97,11 +153,14 @@ namespace SmartRefund.WebAPI
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+                app.UseCors(MyAllowSpecificOrigins);
             }
 
             // Custom Logging Middleware
             app.UseMiddleware<LoggingMiddleware>();
-            app.UseMiddleware<AntiXSSMiddleware>();
+
+            app.UseAuthentication();
+            //app.UseMiddleware<AntiXSSMiddleware>();
             app.UseAuthorization();
             
             app.MapControllers();
