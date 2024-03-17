@@ -27,7 +27,10 @@ namespace SmartRefund.WebAPI.Filters
             if (userTypeClaim.Equals("finance"))
                 return;
 
-            context.Result = new ForbidResult();
+            context.Result = new UnauthorizedObjectResult(new
+            {
+                Message = "Unauthorized access."
+            });
             return;
         }
     }
