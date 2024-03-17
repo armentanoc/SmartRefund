@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using SmartRefund.Domain.Models;
+using SmartRefund.ViewModels.Responses;
 using SmartRefund.WebAPI.Request;
+using Swashbuckle.AspNetCore.Annotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -28,6 +31,10 @@ namespace SmartRefund.WebAPI.Controllers
 
 
         [HttpPost]
+        [SwaggerOperation("Realize a autenticação do sistema.")]
+        [ProducesResponseType(typeof(ErrorResponse), 401)]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(typeof(ErrorResponse), 400)]
         public IActionResult Login(LoginRequest loginRequest)
         {
             if (string.IsNullOrEmpty(loginRequest.UserName) || string.IsNullOrEmpty(loginRequest.Password))

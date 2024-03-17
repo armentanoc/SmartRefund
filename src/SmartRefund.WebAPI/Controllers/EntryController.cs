@@ -22,12 +22,11 @@ namespace SmartRefund.WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([Required] IFormFile file, [FromServices] IHttpContextAccessor httpContextAccessor)
         [SwaggerOperation("Envie o seu comprovante fiscal para análise")]
         [ProducesResponseType(typeof(InternalReceiptResponse), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 413)]
         [ProducesResponseType(typeof(ErrorResponse), 422)]
-        public async Task<IActionResult> Post([Required] IFormFile file, [Required] uint employeeId)
+        public async Task<IActionResult> Post([Required] IFormFile file, [FromServices] IHttpContextAccessor httpContextAccessor)
         {
             var userIdClaim = httpContextAccessor.HttpContext.User.FindFirst("userId");
             var userTypeClaim = httpContextAccessor.HttpContext.User.FindFirst("userType");
