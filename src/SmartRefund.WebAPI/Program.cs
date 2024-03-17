@@ -101,9 +101,9 @@ namespace SmartRefund.WebAPI
 
             // Custom Logging Middleware
             app.UseMiddleware<LoggingMiddleware>();
-
+            app.UseMiddleware<AntiXSSMiddleware>();
             app.UseAuthorization();
-
+            
             app.MapControllers();
 
             app.Run();

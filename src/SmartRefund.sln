@@ -17,7 +17,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartRefund.CustomException
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartRefund.Tests", "SmartRefund.Tests\SmartRefund.Tests.csproj", "{011480C6-00B7-4161-9B03-A16EED25C510}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartRefund.WorkerService", "SmartRefund.WorkerService\SmartRefund.WorkerService.csproj", "{8A28EF9D-2232-4C42-BF4A-F057CD6F1F29}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartRefund.WorkerService", "SmartRefund.WorkerService\SmartRefund.WorkerService.csproj", "{8A28EF9D-2232-4C42-BF4A-F057CD6F1F29}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{22292E0B-13FB-4452-B13B-FD0C02EEF300}"
+	ProjectSection(SolutionItems) = preProject
+		basic-test.js = basic-test.js
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

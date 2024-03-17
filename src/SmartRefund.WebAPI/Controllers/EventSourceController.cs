@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
+using SmartRefund.ViewModels.Responses;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace SmartRefund.WebAPI.Controllers
 {
@@ -28,21 +30,33 @@ namespace SmartRefund.WebAPI.Controllers
             _eventSourceService = eventSourceService;
         }
 
-        [HttpGet("front/{hash}")]
+        [HttpGet("{hash}/front")]
+        [SwaggerOperation("Busque um evento e as entidades vinculadas pelo UniqueHash")]
+        [ProducesResponseType(typeof(ReceiptEventSourceResponse), 200)]
+        [ProducesResponseType(typeof(ErrorResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
         public async Task<ActionResult> GetToFrontUsingEventSource([FromRoute] string hash)
         {
             var eventSource = await _eventSourceService.GetReceiptEventSourceResponseAsync(hash, true);
             return Ok(eventSource);
         }
 
-        [HttpGet("front/all")]
+        [HttpGet("front/")]
+        [SwaggerOperation("Busque todos os eventos e as entidades vinculadas")]
+        [ProducesResponseType(typeof(IEnumerable<ReceiptEventSourceResponse>), 200)]
+        [ProducesResponseType(typeof(ErrorResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
         public async Task<ActionResult> GetAllToFrontUsingEventSource()
         {
             var eventSources = await _eventSourceService.GetAllEventSourceResponseAsync(true);
             return Ok(eventSources);
         }
 
-        [HttpGet("audit/{hash}")]
+        [HttpGet("{hash}/audit")]
+        [SwaggerOperation("Busque um evento pelo UniqueHash")]
+        [ProducesResponseType(typeof(ReceiptEventSourceResponse), 200)]
+        [ProducesResponseType(typeof(ErrorResponse), 404)]
+        [ProducesResponseType(typeof(ErrorResponse), 500)]
         public async Task<ActionResult> GetEventSource([FromRoute] string hash)
         {
             var eventSource = await _eventSourceService.GetReceiptEventSourceResponseAsync(hash, false);
