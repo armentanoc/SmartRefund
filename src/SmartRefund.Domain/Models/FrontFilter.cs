@@ -1,6 +1,8 @@
-﻿
+﻿using System.Diagnostics.CodeAnalysis;
+
 namespace SmartRefund.ViewModels.Requests
 {
+    [ExcludeFromCodeCoverage]
     public class FrontFilter
     {
         public int[] OptionsStatusRefund { get; set; }

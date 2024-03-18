@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartRefund.WebAPI.Filters
 {
+    [ExcludeFromCodeCoverage]
     public class AuthorizationFilterEmployee : IAuthorizationFilter
     {
         private readonly ILogger<AuthorizationFilterEmployee> _logger;

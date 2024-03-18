@@ -1,6 +1,5 @@
 ﻿
 using SmartRefund.Domain.Models;
-using System.Diagnostics.CodeAnalysis;
 
 namespace SmartRefund.Infra.Interfaces
 {

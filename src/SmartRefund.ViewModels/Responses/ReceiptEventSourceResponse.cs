@@ -2,9 +2,11 @@
 using SmartRefund.Domain.Enums;
 using SmartRefund.Domain.Models;
 using System.Buffers.Text;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartRefund.ViewModels.Responses
 {
+    [ExcludeFromCodeCoverage]
     public class ReceiptEventSourceResponse
     {
         public InternalReceiptResponse InternalReceipt { get; private set; }

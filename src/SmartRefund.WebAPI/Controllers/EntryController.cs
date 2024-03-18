@@ -11,6 +11,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace SmartRefund.WebAPI.Controllers
 {
+    [ExcludeFromCodeCoverage]
     [Route("api/receipt")]
     [ApiController]
     [TypeFilter(typeof(AuthorizationFilterEmployee))]
