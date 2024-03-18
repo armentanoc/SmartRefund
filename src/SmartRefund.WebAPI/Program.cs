@@ -39,14 +39,15 @@ namespace SmartRefund.WebAPI
             }
             );
 
-            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+            var DevEnvPolicy = "DevEnvPolicy";
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy(name: MyAllowSpecificOrigins,
+                options.AddPolicy(name: DevEnvPolicy,
                                   policy =>
                                   {
                                       policy
                                       .WithOrigins(
+                                          "https://smart-refund-front.vercel.app",
                                           "http://localhost:3000",
                                           "http://localhost:7088")
                                       .AllowAnyHeader()
@@ -153,7 +154,7 @@ namespace SmartRefund.WebAPI
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
-                app.UseCors(MyAllowSpecificOrigins);
+                app.UseCors(DevEnvPolicy);
             }
 
             // Custom Logging Middleware
