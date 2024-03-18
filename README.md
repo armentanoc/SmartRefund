@@ -90,7 +90,7 @@ GET {hash}/audit: Busca um evento pelo UniqueHash.
 <img src="" height="500px">
 </div>
 
-## Authentication 🔗
+## Autenticação 🔗
 A API utiliza um filtro de Autorização para validar o login de funcionários. Os seguintes cargos estão disponíveis:
 
 ```
@@ -202,6 +202,69 @@ Através do `Middlewares/LoggingMiddleware` é realizado o logging sempre no com
 
 </div>
 
+## Especificação de testes 📋
+
+### Teste de carga
+Foram realizados testes de carga para verificar o desempenho da aplicação, utilizando um escopo que varia de 5 a 30 usuários virtuais simultâneos.
+
+![Teste de Carga](https://drive.google.com/uc?id=1yXhp445NGhlrA8Gz71cs9UxGUXzv8fzT) <br/><br/>
+**Data Received / Data Sent:** Durante o teste, o servidor recebeu um total de 1.0 MB de dados a uma taxa média de 9.2 kB/s. Além disso, foram enviados 144 kB de dados a uma taxa média de 1.3 kB/s.<br/>
+**HTTP Request Blocked:** Esta métrica mostra o tempo médio que uma solicitação HTTP ficou bloqueada antes de ser enviada. O tempo médio foi de 25.58 µs, com 95% das solicitações sendo bloqueadas por menos de 0.01 ms.<br/>
+**HTTP Request Connecting:** Mostra o tempo médio necessário para estabelecer a conexão TCP. O tempo médio foi de 16.88 µs, com 95% das conexões sendo estabelecidas em menos de 2.95 ms.<br/>
+**HTTP Request Duration:** Esta métrica indica a duração média de uma solicitação HTTP, desde o início da requisição até o recebimento da resposta. A duração média foi de 2.35 ms, com 95% das solicitações completadas em menos de 5.77 ms.<br/>
+**HTTP Request Failed:** Nenhuma solicitação falhou durante o teste, o que é um bom sinal. Todas as 1421 solicitações foram concluídas com sucesso.<br/>
+**HTTP Request Receiving:** Indica o tempo médio que o k6 esperou pela resposta do servidor. O tempo médio foi de 73.23 µs, com 95% das respostas sendo recebidas em menos de 505.8 µs.<br/>
+**HTTP Request Sending:** Indica o tempo médio gasto para enviar a requisição ao servidor. O tempo médio foi de 11.14 µs, com 95% das solicitações sendo enviadas em menos de 0 µs.<br/>
+**HTTP Request Waiting:** Indica o tempo médio que o k6 esperou entre o envio da requisição e o recebimento da primeira resposta do servidor. O tempo médio foi de 2.27 ms, com 95% das solicitações sendo atendidas em menos de 5.66 ms.<br/>
+**HTTP Requests:** Durante o teste, foram feitas 1421 solicitações HTTP, com uma taxa média de 12.89 solicitações por segundo.<br/>
+**Iteration Duration:** Cada iteração do teste (um ciclo completo de todas as solicitações) teve uma duração média de 1.01 segundos, com 95% das iterações durando menos de 1.01 segundos.
+
+### Teste de Stress
+
+Foram realizados testes de stress, utilizando um escopo de 5 a 300 usuários simultâneos.
+
+![Teste de Stress](https://drive.google.com/uc?id=1XqkGjdN6Vmnx4qFknsZSVJFDjFrG6lzh) <br/><br/>
+
+**Data Received / Data Sent:** Durante o teste, o servidor recebeu um total de 12 MB de dados a uma taxa média de 83 kB/s. Além disso, foram enviados 1.7 MB de dados a uma taxa média de 12 kB/s. Isso indica um volume significativo de comunicação de dados entre o cliente e o servidor. <br/>
+**HTTP Request Blocked:** O tempo médio que uma solicitação HTTP ficou bloqueada antes de ser enviada foi de 20.67 µs, com 95% das solicitações sendo bloqueadas por menos de 0.01 ms. Isso mostra uma eficiência na preparação das solicitações para envio. <br/>
+**HTTP Request Connecting:** O tempo médio necessário para estabelecer a conexão TCP foi de 18.11 µs, com 95% das conexões sendo estabelecidas em menos de 0.01 ms. Isso indica uma rápida conexão e preparação para o envio das solicitações. <br/>
+**HTTP Request Duration:** A duração média de uma solicitação HTTP, desde o início até o recebimento da resposta, foi de 1.81 ms. A maioria das solicitações (95%) foi concluída em menos de 4.93 ms. Isso sugere um desempenho relativamente estável do servidor, mesmo sob carga elevada. <br/>
+**HTTP Request Failed:** Durante o teste, nenhuma solicitação falhou, o que é um ótimo sinal. <br/>
+**HTTP Request Receiving:** O tempo médio que o k6 esperou pela resposta do servidor foi de 37.23 µs, com 95% das respostas sendo recebidas em menos de 0.39 ms. <br/>
+**HTTP Request Sending:** O tempo médio gasto para enviar a solicitação ao servidor foi de 9.94 µs, com 95% das solicitações sendo enviadas em menos de 0 ms.<br/>
+**HTTP Request Waiting:** O tempo médio que o k6 esperou entre o envio da solicitação e o recebimento da primeira resposta do servidor foi de 1.77 ms, com 95% das solicitações sendo atendidas em menos de 4.91 ms.<br/>
+**HTTP Requests:** Durante o teste, foram feitas 17039 solicitações HTTP, com uma taxa média de 116.73 solicitações por segundo. Isso mostra uma alta carga de solicitações durante o teste.<br/>
+**Iteration Duration:** Cada iteração do teste (um ciclo completo de todas as solicitações) teve uma duração média de 1.01 segundos, com 95% das iterações durando menos de 1.01 segundos.
+
+### Teste de Imersão/Soak Test
+
+Foram realizados testes de imersão, o teste durou 1 hora e 16 minutos, utilizando de 0 a 10 usuários virtuais simultâneos.
+
+![Teste de Imersão](https://drive.google.com/uc?id=1x7aR7kLNEVtnNy6iVt_hnAuFdEstId6-)
+
+**Data Received / Data Sent:** Durante o teste, o servidor recebeu um total de 24 MB de dados a uma taxa média de 5.3 kB/s. Além disso, foram enviados 3.4 MB de dados a uma taxa média de 751 B/s. <br/>
+**HTTP Request Blocked:** O tempo médio que uma solicitação HTTP ficou bloqueada antes de ser enviada foi de 1.73 µs, com 95% das solicitações sendo bloqueadas por menos de 0.01 ms.<br/>
+**HTTP Request Connecting:** O tempo médio necessário para estabelecer a conexão TCP foi de 187 ns, com 95% das conexões sendo estabelecidas em menos de 0.01 ms.<br/>
+**HTTP Request Duration:** A duração média de uma solicitação HTTP, desde o início até o recebimento da resposta, foi de 1.67 ms. A maioria das solicitações (95%) foi concluída em menos de 9.37 ms.<br/>
+**HTTP Request Failed:** Durante o teste, nenhuma solicitação falhou, o que é um ótimo sinal. Todas as 33908 solicitações foram concluídas com sucesso.<br/>
+**HTTP Request Receiving:** O tempo médio que o k6 esperou pela resposta do servidor foi de 59.32 µs, com 95% das respostas sendo recebidas em menos de 378.1 µs.<br/>
+**HTTP Request Sending:** O tempo médio gasto para enviar a solicitação ao servidor foi de 4.26 µs, com 95% das solicitações sendo enviadas em menos de 0 µs.<br/>
+**HTTP Request Waiting:** O tempo médio que o k6 esperou entre o envio da solicitação e o recebimento da primeira resposta do servidor foi de 1.61 ms, com 95% das solicitações sendo atendidas em menos de 9.28 ms.<br/>
+**HTTP Requests:** Durante o teste, foram feitas 33908 solicitações HTTP, com uma taxa média de 7.44 solicitações por segundo.<br/>
+**Iteration Duration:** Cada iteração do teste (um ciclo completo de todas as solicitações) teve uma duração média de 1 segundo.<br/>
+**Iterations:** Durante o teste, ocorreram 33908 iterações, com uma taxa média de 7.44 iterações por segundo.<br/>
+
+Este teste de imersão mostra como o servidor se comporta sob uma carga sustentada por um longo período. Todos os indicadores estão dentro dos limites desejados, sem falhas e com tempos de resposta aceitáveis. Isso sugere que o servidor é capaz de lidar com a carga esperada e permanecer estável ao longo do tempo.
+
+### Teste de cobertura
+
+```
+dotnet test --collect:"XPlat Code Coverage"
+
+reportgenerator "-reports:.\**\coverage.cobertura.xml" -reporttypes:Html -targetdir:output
+
+dotnet-stryker
+```
 
 ## Configuração do Banco de Dados 🛢️
 
@@ -218,7 +281,7 @@ O projeto utiliza o SQLite como banco de dados, e as configurações podem ser e
 -->
 
 ## Execução do Projeto ▶️
-<!-- Baixar o arquivo para executar o front-->
+
 1. Clone e abra a solução no Visual Studio.
 2. Configure o projeto `SmartRefund.Infra` como o projeto de inicialização no `Package Manager Console`.
 3. Certifique-se de que as migrações do banco de dados foram realizadas pelo Entity Framework. Se não, execute os seguintes comandos:
@@ -226,7 +289,8 @@ O projeto utiliza o SQLite como banco de dados, e as configurações podem ser e
 Add-Migration CreateDatabaseInitial
 Update-Database
 ```
-4. Execute o projeto.
+4. Execute o projeto na sua máquina.
+5. Abra o link da interface para [login](https://smart-refund-front.vercel.app/login).
 
 ## Documentação da API 📚
 A API está documentada usando Swagger. Após a execução do projeto, acesse a documentação em:
