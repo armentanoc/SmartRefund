@@ -365,3 +365,6 @@ FodyWeavers.xsd
 # Database memory file
 *.db-shm
 *.db-wal
+
+# Report Generator
+src/output/
