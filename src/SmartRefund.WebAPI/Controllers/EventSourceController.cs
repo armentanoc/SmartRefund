@@ -70,11 +70,17 @@ namespace SmartRefund.WebAPI.Controllers
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
         [TypeFilter(typeof(CombinedAuthorizationFilter))]
-        public async Task<ActionResult> GetAllToFrontUsingEventSource([FromQuery] FrontFilter frontFilter, [FromServices] IHttpContextAccessor httpContextAccessor)
+        public async Task<ActionResult> GetAllToFrontUsingEventSource(
+            [FromQuery] int[] optionsStatusRefund,
+            [FromQuery] int[] optionsStatusTranslate,
+            [FromQuery] int[] optionsStatusGPT,
+            [FromServices] IHttpContextAccessor httpContextAccessor
+            )
         {
             var userId = httpContextAccessor.HttpContext.User.FindFirst("userId").Value;
             var userType = httpContextAccessor.HttpContext.User.FindFirst("userType").Value;
 
+            var frontFilter = new FrontFilter(optionsStatusRefund, optionsStatusTranslate, optionsStatusGPT);
             frontFilter = InterpretFrontFilter(frontFilter);
 
             if (uint.TryParse(userId, out uint parsedUserId))
