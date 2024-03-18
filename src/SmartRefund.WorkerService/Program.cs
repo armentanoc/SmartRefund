@@ -1,7 +1,18 @@
-using SmartRefund.WorkerService;
+using System.Diagnostics.CodeAnalysis;
 
-var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddHostedService<VisionProcessingWorker>();
+namespace SmartRefund.WorkerService
+{
+    [ExcludeFromCodeCoverage]
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var builder = Host.CreateApplicationBuilder(args);
+            builder.Services.AddHostedService<VisionProcessingWorker>();
 
-var host = builder.Build();
-host.Run();
+            var host = builder.Build();
+            host.Run();
+
+        }
+    }
+}
