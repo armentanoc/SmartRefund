@@ -3,7 +3,6 @@ using SmartRefund.Application.Services;
 using SmartRefund.CustomExceptions;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
-using SmartRefund.ViewModels.Responses;
 using NSubstitute;
 using SmartRefund.ViewModels.Requests;
 using SmartRefund.Domain.Enums;

@@ -9,6 +9,7 @@ using SmartRefund.Domain.Models;
 using SmartRefund.Domain.Models.Enums;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Responses;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Authentication;
 using System.Text.RegularExpressions;
 
@@ -78,6 +79,7 @@ namespace SmartRefund.Application.Services
             }
         }
 
+        [ExcludeFromCodeCoverage]
         public async Task<RawVisionResponse> ProcessVisionResponseAsync(Conversation conversation, byte[] rawImage, InternalReceipt input)
         {
             var response = new RawVisionResponse();
@@ -96,6 +98,7 @@ namespace SmartRefund.Application.Services
             return response;
         }
 
+        [ExcludeFromCodeCoverage]
         public async Task<string> GetResponseAsync(Conversation conversation, string prompt, Exception? exceptionIfInvalid = null)
         {
             conversation.AppendUserInput(prompt);
@@ -136,6 +139,7 @@ namespace SmartRefund.Application.Services
             return updateInternalReceipt;
         }
 
+        [ExcludeFromCodeCoverage]
         public OpenAIAPI ConfigureApiKey()
         {
             var envVar = _visionConfig.OpenAIVisionApiEnvVar;

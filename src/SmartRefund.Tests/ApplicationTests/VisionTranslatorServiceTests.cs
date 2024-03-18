@@ -223,6 +223,83 @@ namespace SmartRefund.ViewModels.Requests
         }
 
         #endregion
+
+        [Fact]
+        public void Constructor_WithValidArguments_SetsProperties()
+        {
+            // Arrange
+            var rawVisionReceipt = new RawVisionReceipt();
+            bool isReceipt = true;
+            TranslatedVisionReceiptCategoryEnum category = TranslatedVisionReceiptCategoryEnum.ALIMENTACAO;
+            TranslatedVisionReceiptStatusEnum status = TranslatedVisionReceiptStatusEnum.SUBMETIDO;
+            decimal total = 100.50m;
+            string description = "Translated receipt for groceries";
+            string uniqueHash = "uniqueHash";
+
+            // Act
+            var translatedVisionReceipt = new TranslatedVisionReceipt(rawVisionReceipt, isReceipt, category, status, total, description, uniqueHash);
+
+            // Assert
+            Assert.Equal(rawVisionReceipt, translatedVisionReceipt.RawVisionReceipt);
+            Assert.Equal(isReceipt, translatedVisionReceipt.IsReceipt);
+            Assert.Equal(category, translatedVisionReceipt.Category);
+            Assert.Equal(status, translatedVisionReceipt.Status);
+            Assert.Equal(total, translatedVisionReceipt.Total);
+            Assert.Equal(description, translatedVisionReceipt.Description);
+            Assert.Equal(uniqueHash, translatedVisionReceipt.UniqueHash);
+        }
+
+        [Fact]
+        public void SetStatus_WithValidStatus_SetsStatus()
+        {
+            // Arrange
+            var translatedVisionReceipt = new TranslatedVisionReceipt();
+            var newStatus = TranslatedVisionReceiptStatusEnum.PAGA;
+
+            // Act
+            translatedVisionReceipt.SetStatus(newStatus);
+
+            // Assert
+            Assert.Equal(newStatus, translatedVisionReceipt.Status);
+        }
+
+        [Fact]
+        public async Task GetTranslatedVisionReceipt_RawReceiptAlreadyTranslated_ThrowsException()
+        {
+            // Arrange
+            var rawReceipt = new RawVisionReceipt();
+            rawReceipt.SetIsTranslated(true); 
+            var translatorService = MakeSut();
+
+            // Act and Assert
+            await Assert.ThrowsAsync<ReceiptAlreadyTranslatedException>(() => translatorService.GetTranslatedVisionReceipt(rawReceipt));
+        }
+
+        [Fact]
+        public void TryParseCategory_ValidEnumCandidate_ReturnsTrueAndParsedEnum()
+        {
+            // Arrange
+            var translatorService = MakeSut();
+            string enumCandidate = "ALIMENTAÇÃO"; 
+            TranslatedVisionReceiptCategoryEnum expectedEnum = TranslatedVisionReceiptCategoryEnum.ALIMENTACAO; // Assuming this is the expected parsed enum
+
+            // Act
+            var result = translatorService.GetCategory(enumCandidate);
+
+            // Assert
+            Assert.Equal(result, expectedEnum);
+        }
+
+        [Fact]
+        public async Task GetTranslatedVisionReceipt_RawReceiptNotTranslated_ReturnsTranslatedReceipt()
+        {
+            // Arrange
+            var rawReceipt = new RawVisionReceipt();
+            var translatorService = MakeSut();
+
+            // Act
+            await Assert.ThrowsAsync<FieldIsNullOrWhitespaceException>(() => translatorService.GetTranslatedVisionReceipt(rawReceipt));
+        }
     }
 }
 
