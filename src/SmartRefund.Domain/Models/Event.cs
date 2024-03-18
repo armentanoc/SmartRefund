@@ -32,14 +32,4 @@ namespace SmartRefund.Domain.Models
         }
     }
 
-    //public record InternalReceiptCreated(uint internalReceiptId, DateTime creation, InternalReceiptStatusEnum status, string description = "Internal Receipt created with success");
-    //public record VisionExecutorFailed(DateTime eventdate, InternalReceiptStatusEnum status, string description = "Vision Executor process failed, trying again...");
-    //public record VisionExecutorUnsuccessful(DateTime eventdate, InternalReceiptStatusEnum status, string description = "Vision Executor process failed. A person in charge will process this receipt");
-    //public record VisionExecutorSuccessful(DateTime eventdate, InternalReceiptStatusEnum status, string description = "The file passed by the Vision Executor and a Raw Vision Receipt was created");
-    //public record FileFailedTranslation(DateTime eventdate, string status,string description = "The translation process failed, trying again...");
-    //public record FileTranslated(DateTime eventdate, string status, string description = "The translation process succed. Ready to be analized.");
-    //public record PaymentAccepted(DateTime eventdate, TranslatedVisionReceiptStatusEnum status, string description = "Receipt accepted and paid.");
-    //public record PaymentDenied(DateTime eventdate, TranslatedVisionReceiptStatusEnum status, string description = "Receipt denied.");
-
-
 }

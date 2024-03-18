@@ -18,5 +18,9 @@ namespace SmartRefund.Infra.Repositories
             return await _context.RawVisionReceipt.Where(r => r.IsTranslated == false).ToListAsync();
         }
 
+        public async Task<RawVisionReceipt> GetByUniqueHashAsync(string uniqueHash)
+        {
+            return await _context.RawVisionReceipt.FirstOrDefaultAsync(r => r.UniqueHash == uniqueHash);
+        }
     }
 }

@@ -5,13 +5,10 @@ using OpenAI_API.Chat;
 using OpenAI_API.Models;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.CustomExceptions;
-using SmartRefund.Domain.Enums;
 using SmartRefund.Domain.Models;
 using SmartRefund.Domain.Models.Enums;
 using SmartRefund.Infra.Interfaces;
-using SmartRefund.Infra.Repositories;
 using SmartRefund.ViewModels.Responses;
-using System.Diagnostics.Tracing;
 using System.Security.Authentication;
 using System.Text.RegularExpressions;
 
@@ -44,6 +41,11 @@ public class VisionExecutorService : IVisionExecutorService
 
         try
         {
+            var existingRawVisionReceipt = await _rawVisionReceiptRepository.GetByUniqueHashAsync(input.UniqueHash);
+
+            if (existingRawVisionReceipt != null)
+                return existingRawVisionReceipt;
+
             OpenAIAPI api = ConfigureApiKey();
             var rawImage = input.Image;
             var conversation = api.Chat.CreateConversation(_visionConfig.ChatRequestConfig);
@@ -88,6 +90,7 @@ public class VisionExecutorService : IVisionExecutorService
         response.Category = await GetResponseAsync(conversation, prompts.CategoryPrompt);
         response.Description = await GetResponseAsync(conversation, prompts.DescriptionPrompt);
 
+        _logger.LogWarning($"[OPEN AI CALLED] Vision API called successfully for InternalReceipt {input.Id}.");
         return response;
     }
 
@@ -109,7 +112,15 @@ public class VisionExecutorService : IVisionExecutorService
 
     public async Task<RawVisionReceipt> CreateRawVisionReceiptAsync(InternalReceipt receipt, RawVisionResponse response)
     {
-        var rawVisionReceipt = new RawVisionReceipt(receipt, isReceipt: response.IsReceipt, category: response.Category, total: response.Total, description: response.Description, uniqueHash: receipt.UniqueHash) ;
+        var existingRawVisionReceipt = await _rawVisionReceiptRepository.GetByUniqueHashAsync(receipt.UniqueHash);
+
+        if (existingRawVisionReceipt != null)
+        {
+            _logger.LogInformation($"Internal Receipt already interpreted by GPT Vision (Id: {existingRawVisionReceipt.Id})");
+            return existingRawVisionReceipt;
+        }
+
+        var rawVisionReceipt = new RawVisionReceipt(receipt, isReceipt: response.IsReceipt, category: response.Category, total: response.Total, description: response.Description, uniqueHash: receipt.UniqueHash);
         var addedRawVisionReceipt = await _rawVisionReceiptRepository.AddAsync(rawVisionReceipt);
         _logger.LogInformation($"Internal Receipt was interpreted by GPT Vision and added to repository (Id: {addedRawVisionReceipt.Id})");
         return addedRawVisionReceipt;

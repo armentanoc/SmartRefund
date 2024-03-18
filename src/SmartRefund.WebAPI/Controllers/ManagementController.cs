@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartRefund.Application.Interfaces;
-using SmartRefund.Application.Services;
-using SmartRefund.Domain.Enums;
-using SmartRefund.Domain.Models;
-using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Requests;
 using SmartRefund.ViewModels.Responses;
 using SmartRefund.WebAPI.Filters;

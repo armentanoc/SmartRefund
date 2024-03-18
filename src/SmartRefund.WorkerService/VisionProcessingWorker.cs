@@ -3,6 +3,7 @@ using SmartRefund.Domain.Enums;
 using SmartRefund.Domain.Models;
 using SmartRefund.Domain.Models.Enums;
 using SmartRefund.Infra.Interfaces;
+using SmartRefund.Infra.Repositories;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Authentication;
 
@@ -13,8 +14,9 @@ namespace SmartRefund.WorkerService
     {
         private readonly ILogger<VisionProcessingWorker> _logger;
         public IServiceProvider Services { get; }
-        public VisionProcessingWorker(IServiceProvider services,
-        ILogger<VisionProcessingWorker> logger)
+        private static readonly SemaphoreSlim semaphore = new SemaphoreSlim(1);
+
+        public VisionProcessingWorker(IServiceProvider services, ILogger<VisionProcessingWorker> logger)
         {
             Services = services;
             _logger = logger;
@@ -45,12 +47,12 @@ namespace SmartRefund.WorkerService
 
                 var eventSourceRepository = scope.ServiceProvider.GetRequiredService<IEventSourceRepository>();
 
-                await ProcessInternalReceiptsWithStatusAsync(internalReceiptRepository, visionExecutorService, eventSourceRepository, stoppingToken);
+                await ProcessInternalReceiptsWithStatusAsync(internalReceiptRepository, visionExecutorService, eventSourceRepository, rawVisionReceiptRepository, stoppingToken);
                 await TranslateRawVisionReceiptAsync(rawVisionReceiptRepository, visionTranslatorService, eventSourceRepository, stoppingToken);
             }
         }
 
-        private async Task ProcessInternalReceiptsWithStatusAsync(IInternalReceiptRepository internalReceiptRepository, IVisionExecutorService visionExecutorService, IEventSourceRepository eventSourceRepository, CancellationToken stoppingToken)
+        private async Task ProcessInternalReceiptsWithStatusAsync(IInternalReceiptRepository internalReceiptRepository, IVisionExecutorService visionExecutorService, IEventSourceRepository eventSourceRepository, IRawVisionReceiptRepository rawVisionReceiptRepository, CancellationToken stoppingToken)
         {
             var statusesToProcess = new List<InternalReceiptStatusEnum>
             {
@@ -69,18 +71,29 @@ namespace SmartRefund.WorkerService
                     break;
 
                 var eventSource = eventSources.FirstOrDefault(e => e.UniqueHash.Equals(receipt.UniqueHash));
+    
                 try
                 {
-                    var rawVisionReceipt = await visionExecutorService.ExecuteRequestAsync(receipt);
-                    eventSource.SetRawVisionReceipt(rawVisionReceipt);
+                    var existingRawVisionReceipt = await rawVisionReceiptRepository.GetByUniqueHashAsync(receipt.UniqueHash);
+                    if (existingRawVisionReceipt != null)
+                    {
+                        _logger.LogInformation($"[VISION EXECUTOR SUCCESS] InternalReceipt with ID: {receipt.Id} already processed by GPT Vision " +
+                            $"\n       RawVisionReceipt with ID: {existingRawVisionReceipt.Id} already exists " +
+                            $"\n       Details: {existingRawVisionReceipt}");
+                    }
+                    else
+                    {
+                        var rawVisionReceipt = await visionExecutorService.ExecuteRequestAsync(receipt);
+                        eventSource.SetRawVisionReceipt(rawVisionReceipt);
 
-                    var message = $"InternalReceipt with ID: {receipt.Id} processed with succes | RawVisionReceipt with ID: {rawVisionReceipt.Id} was created | Details: {rawVisionReceipt}";
-                    var successEvent = new Event(eventSource.UniqueHash, EventSourceStatusEnum.VisionExecutorSuccessful, DateTime.Now, message);
-                    await eventSourceRepository.AddEvent(eventSource, eventSource.UniqueHash, successEvent);
+                        var message = $"InternalReceipt with ID: {receipt.Id} processed with success | RawVisionReceipt with ID: {rawVisionReceipt.Id} was created | Details: {rawVisionReceipt}";
+                        var successEvent = new Event(eventSource.UniqueHash, EventSourceStatusEnum.VisionExecutorSuccessful, DateTime.Now, message);
+                        await eventSourceRepository.AddEvent(eventSource, eventSource.UniqueHash, successEvent);
 
-                    _logger.LogInformation($"[VISION EXECUTOR SUCCESS] InternalReceipt with ID: {receipt.Id} processed with succes " +
-                        $"\n       RawVisionReceipt with ID: {rawVisionReceipt.Id} was created " +
-                        $"\n       Details: {rawVisionReceipt}");
+                        _logger.LogInformation($"[VISION EXECUTOR SUCCESS] InternalReceipt with ID: {receipt.Id} processed with success " +
+                            $"\n       RawVisionReceipt with ID: {rawVisionReceipt.Id} was created " +
+                            $"\n       Details: {rawVisionReceipt}");
+                    }
                 }
                 catch (AuthenticationException authEx)
                 {
@@ -132,11 +145,11 @@ namespace SmartRefund.WorkerService
                     {
                         var updatedReceipt = await visionTranslatorService.GetTranslatedVisionReceipt(receipt);
                         eventSource.SetTranslatedVisionReceipt(updatedReceipt);
-                        var message = $"The translation process succed. Ready to be analized. | RawVisionReceipt with ID: {receipt.Id} translated with succes | TranslatedVisionReceipt with ID: {updatedReceipt.Id} was created | Details: {updatedReceipt}";
+                        var message = $"RawVisionReceipt with ID: {receipt.Id} processed with success | The translation process succeeded. Ready to be analized. | TranslatedVisionReceipt with ID: {updatedReceipt.Id} was created | Details: {updatedReceipt}";
                         var successEvent = new Event(eventSource.UniqueHash, EventSourceStatusEnum.FileTranslated, DateTime.Now, message);
                         await eventSourceRepository.AddEvent(eventSource, eventSource.UniqueHash, successEvent);
 
-                        _logger.LogInformation($"[TRANSLATION SUCCESS] The translation process succed. Ready to be analized." +
+                        _logger.LogInformation($"[TRANSLATION SUCCESS] The translation process succeeded. Ready to be analized." +
                             $"\n      RawVisionReceipt with ID: {receipt.Id} translated with succes" +
                             $"\n      TranslatedVisionReceipt with ID: {updatedReceipt.Id} was created" +
                             $"\n      Details: {updatedReceipt}");
