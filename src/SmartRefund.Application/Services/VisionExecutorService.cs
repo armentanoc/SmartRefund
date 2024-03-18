@@ -62,6 +62,18 @@ public class VisionExecutorService : IVisionExecutorService
             await _internalReceiptRepository.UpdateAsync(input);
             throw;
         }
+        catch (NonReceiptException nonReceiptEx)
+        {
+            input.SetStatus(InternalReceiptStatusEnum.Unsuccessful);
+            await _internalReceiptRepository.UpdateAsync(input);
+            throw;
+        }
+        catch (NonResolutionReadableException nonResolutionReadableEx)
+        {
+            input.SetStatus(InternalReceiptStatusEnum.Unsuccessful);
+            await _internalReceiptRepository.UpdateAsync(input);
+            throw;
+        }
         catch (Exception e)
         {
             input.SetStatus(input.Status switch
