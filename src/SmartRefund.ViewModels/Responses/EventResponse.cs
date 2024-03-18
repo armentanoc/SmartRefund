@@ -1,13 +1,10 @@
-﻿using SmartRefund.Domain.Enums;
+﻿
 using SmartRefund.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartRefund.ViewModels.Responses
 {
+    [ExcludeFromCodeCoverage]
     public class EventResponse
     {
         public String Status { get; private set; }
