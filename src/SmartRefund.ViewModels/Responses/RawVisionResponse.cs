@@ -5,6 +5,7 @@ namespace SmartRefund.ViewModels.Responses
 {
     public class RawVisionResponse
     {
+        public string UniqueHash { get; set; }
         public string IsReceipt { get; set; }
         public string Total { get; set; }
         public string Category { get; set; }
@@ -18,6 +19,7 @@ namespace SmartRefund.ViewModels.Responses
         {
             if(rawVisionReceipt is RawVisionReceipt)
             {
+                UniqueHash = rawVisionReceipt.UniqueHash;
                 IsReceipt = rawVisionReceipt.IsReceipt;
                 Total = rawVisionReceipt.Total;
                 Category = rawVisionReceipt.Category;
