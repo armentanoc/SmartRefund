@@ -65,6 +65,18 @@ namespace SmartRefund.Application.Services
                 await _internalReceiptRepository.UpdateAsync(input);
                 throw;
             }
+            catch (NonReceiptException)
+            {
+                input.SetStatus(InternalReceiptStatusEnum.Unsuccessful);
+                await _internalReceiptRepository.UpdateAsync(input);
+                throw;
+            }
+            catch (NonResolutionReadableException)
+            {
+                input.SetStatus(InternalReceiptStatusEnum.Unsuccessful);
+                await _internalReceiptRepository.UpdateAsync(input);
+                throw;
+            }
             catch (Exception)
             {
                 input.SetStatus(input.Status switch
