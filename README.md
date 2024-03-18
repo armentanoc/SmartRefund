@@ -101,6 +101,11 @@ Employee - Permite que submeta notas ficais para reembolso e verifique os status
   "password": "employee123"
 }
 
+{
+  "userName": "employee2",
+  "password": "employee123"
+}
+
 Finance - Possibilita visualizar todas as notas fiscais submetidas e alterar o status delas para PAGA ou RECUSADA.
 
 {
