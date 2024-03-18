@@ -3,9 +3,9 @@ namespace SmartRefund.ViewModels.Requests
 {
     public class FrontFilter
     {
-        public int[] OptionsStatusRefund { get; private set; }
-        public int[] OptionsStatusTranslate { get; private set; }
-        public int[] OptionsStatusGPT { get; private set; }
+        public int[] OptionsStatusRefund { get; set; }
+        public int[] OptionsStatusTranslate { get; set; }
+        public int[] OptionsStatusGPT { get; set; }
         public FrontFilter(int[] optionsStatusRefund, int[] optionsStatusTranslate, int[] optionsStatusGPT)
         {
             OptionsStatusRefund = optionsStatusRefund;

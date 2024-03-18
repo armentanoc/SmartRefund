@@ -13,7 +13,7 @@ namespace SmartRefund.ViewModels.Responses
         public uint EmployeeId { get; private set; }
         public DateTime CreationDate { get; private set; }
         public InternalReceiptStatusEnum Status { get; private set; }
-        public byte[] Image { get; private set; }
+        public string Image { get; private set; }
         public InternalReceiptResponse(InternalReceipt internalReceipt, bool isFrontEndpoint = false)
         {
             UniqueHash = internalReceipt.UniqueHash;
@@ -22,12 +22,12 @@ namespace SmartRefund.ViewModels.Responses
             Status = internalReceipt.Status;
             if(isFrontEndpoint)
             {
-                Image = internalReceipt.Image;
+                Image = Convert.ToBase64String(internalReceipt.Image);
             }
             else
             {
-                if (internalReceipt.Image != null) { Image = Encoding.ASCII.GetBytes("Saved Image"); }
-                else { Image = Encoding.ASCII.GetBytes("The file is missing"); };
+                if (internalReceipt.Image != null) { Image = "Saved Image"; }
+                else { Image = "The file is missing"; };
             }
         }
     }

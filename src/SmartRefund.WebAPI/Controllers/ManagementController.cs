@@ -39,8 +39,6 @@ namespace SmartRefund.WebAPI.Controllers
             return NotFound("Não encontrado");
         }
 
-   
-
         [HttpPatch]
         [Route("status")]
         [SwaggerOperation("Atualize o status da solicitação por UniqueHash.")]

@@ -3,6 +3,7 @@ using SmartRefund.CustomExceptions;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Context;
 using SmartRefund.Infra.Interfaces;
+using SmartRefund.ViewModels.Requests;
 
 namespace SmartRefund.Infra.Repositories
 {
@@ -18,9 +19,9 @@ namespace SmartRefund.Infra.Repositories
 
         public async Task<ReceiptEventSource> AddAsync(ReceiptEventSource entityToAdd)
         {
-                _context.Set<ReceiptEventSource>().Add(entityToAdd);
-                await _context.SaveChangesAsync();
-                return entityToAdd;
+            _context.Set<ReceiptEventSource>().Add(entityToAdd);
+            await _context.SaveChangesAsync();
+            return entityToAdd;
         }
 
         public async Task<ReceiptEventSource> AddEvent(ReceiptEventSource eventSource, string hashCode, Event evnt)
@@ -43,10 +44,13 @@ namespace SmartRefund.Infra.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<ReceiptEventSource>> GetAllByEmployeeIdAsync(uint userId)
+        public async Task<IEnumerable<ReceiptEventSource>> GetAllByEmployeeIdAsync(uint userId, FrontFilter frontFilter)
         {
             return await _context.ReceiptEventSource
-                .Where(receipt => receipt.InternalReceipt.EmployeeId == userId)
+                .Where(receipt => receipt.InternalReceipt.EmployeeId == userId
+                    && frontFilter.OptionsStatusGPT.ToList().Contains((int)receipt.InternalReceipt.Status)
+                    && (receipt.RawVisionReceipt == null || frontFilter.OptionsStatusTranslate.ToList().Select(value => value == 1).Contains(receipt.RawVisionReceipt.IsTranslated))
+                    && (receipt.TranslatedVisionReceipt == null || frontFilter.OptionsStatusRefund.ToList().Contains((int)receipt.TranslatedVisionReceipt.Status)))
                 .Include(receipt => receipt.Events)
                 .Include(receipt => receipt.InternalReceipt)
                 .Include(receipt => receipt.RawVisionReceipt)
@@ -66,13 +70,27 @@ namespace SmartRefund.Infra.Repositories
             return _context.ReceiptEventSource.Where(r => hashList.Contains(r.UniqueHash)).ToListAsync();
         }
 
+        public async Task<IEnumerable<ReceiptEventSource>> GetAllWithFrontFilterAsync(FrontFilter frontFilter)
+        {
+            return await _context.ReceiptEventSource
+                .Where(receipt =>
+                    frontFilter.OptionsStatusGPT.ToList().Contains((int)receipt.InternalReceipt.Status) 
+                    && (receipt.RawVisionReceipt == null || frontFilter.OptionsStatusTranslate.ToList().Select(value => value == 1).Contains(receipt.RawVisionReceipt.IsTranslated)) 
+                    && (receipt.TranslatedVisionReceipt == null || frontFilter.OptionsStatusRefund.ToList().Contains((int)receipt.TranslatedVisionReceipt.Status)))
+                .Include(receipt => receipt.Events)
+                .Include(receipt => receipt.InternalReceipt)
+                .Include(receipt => receipt.RawVisionReceipt)
+                .Include(receipt => receipt.TranslatedVisionReceipt)
+                .ToListAsync();
+        }
+
         public async Task<ReceiptEventSource> GetById(uint id)
         {
             var entityToReturn = await _context.Set<ReceiptEventSource>()
                 .Include(eventSource => eventSource.Events)
                 .FirstOrDefaultAsync(entity => entity.Id == id);
             if (entityToReturn == null) { throw new EntityNotFoundException(_specificEntity, id); }
-            else { return entityToReturn;  }
+            else { return entityToReturn; }
         }
 
         public async Task<ReceiptEventSource> GetByUniqueHashAsync(string hash)

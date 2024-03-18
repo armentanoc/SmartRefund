@@ -1,14 +1,13 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using Microsoft.IdentityModel.Tokens;
 using SmartRefund.Application.Interfaces;
-using SmartRefund.Domain.Models;
+using SmartRefund.Domain.Enums;
+using SmartRefund.Domain.Models.Enums;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Requests;
 using SmartRefund.ViewModels.Responses;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Text.Json.Nodes;
 
 namespace SmartRefund.WebAPI.Controllers
 {
@@ -23,7 +22,6 @@ namespace SmartRefund.WebAPI.Controllers
         public IVisionTranslatorService _translatorService;
         public IVisionExecutorService _visionExecutorService;
         public IEventSourceService _eventSourceService;
-        //public MyBackgroundWorker _backgroundWorker;
         public EventSourceController(IRawVisionReceiptRepository repository, ILogger<EventSourceController> logger, IVisionTranslatorService service, IInternalReceiptRepository internalReceiptRepository, IVisionExecutorService visionExecutorService, IEventSourceService eventSourceService)
         {
             _rawRepository = repository;
@@ -46,7 +44,7 @@ namespace SmartRefund.WebAPI.Controllers
 
             ReceiptEventSourceResponse eventSource;
 
-            if(userType.Equals("employee"))
+            if (userType.Equals("employee"))
             {
                 if (uint.TryParse(userId, out uint parsedUserId))
                 {
@@ -62,19 +60,21 @@ namespace SmartRefund.WebAPI.Controllers
             return Ok(eventSource);
         }
 
-        [HttpGet("front/")]
+        [HttpPost("front/")]
         [SwaggerOperation("Busque todos os eventos e as entidades vinculadas")]
         [ProducesResponseType(typeof(IEnumerable<ReceiptEventSourceResponse>), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult> GetAllToFrontUsingEventSource([FromServices] IHttpContextAccessor httpContextAccessor)
+        public async Task<ActionResult> GetAllToFrontUsingEventSource([FromBody] FrontFilter frontFilter, [FromServices] IHttpContextAccessor httpContextAccessor)
         {
             var userId = httpContextAccessor.HttpContext.User.FindFirst("userId").Value;
             var userType = httpContextAccessor.HttpContext.User.FindFirst("userType").Value;
 
-            if(uint.TryParse(userId, out uint parsedUserId))
+            frontFilter = InterpretFrontFilter(frontFilter);
+
+            if (uint.TryParse(userId, out uint parsedUserId))
             {
-                var eventSources = await _eventSourceService.GetAllEventSourceResponseAsync(true, parsedUserId, userType);
+                var eventSources = await _eventSourceService.GetAllEventSourceResponseAsync(true, parsedUserId, userType, frontFilter);
                 return Ok(eventSources);
             }
             return BadRequest(new { errorMessage = $"User ID inconsistente ({userId})." });
@@ -89,6 +89,17 @@ namespace SmartRefund.WebAPI.Controllers
         {
             var eventSource = await _eventSourceService.GetAuditReceiptEventSourceResponseAsync(hash);
             return Ok(eventSource);
+        }
+
+        private FrontFilter InterpretFrontFilter(FrontFilter frontFilter)
+        {
+            if (frontFilter.OptionsStatusRefund.IsNullOrEmpty() || frontFilter.OptionsStatusRefund.All(x => x == 0))
+                frontFilter.OptionsStatusRefund = (int[])Enum.GetValues(typeof(TranslatedVisionReceiptStatusEnum));
+            if (frontFilter.OptionsStatusTranslate.IsNullOrEmpty() || frontFilter.OptionsStatusTranslate.All(x => x == 0))
+                frontFilter.OptionsStatusTranslate = new int[] { 0, 1 };
+            if (frontFilter.OptionsStatusGPT.IsNullOrEmpty() || frontFilter.OptionsStatusGPT.All(x => x == 0))
+                frontFilter.OptionsStatusGPT = (int[])Enum.GetValues(typeof(InternalReceiptStatusEnum));
+            return frontFilter;
         }
     }
 }
