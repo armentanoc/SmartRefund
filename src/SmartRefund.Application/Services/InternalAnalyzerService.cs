@@ -103,9 +103,9 @@ namespace SmartRefund.Application.Services
             throw new InvalidOperationException("Nenhum objeto encontrado");
         }
 
-        public async Task<TranslatedReceiptResponse> UpdateStatus(string uniqueHash, string newStatus)
+        public async Task<TranslatedReceiptResponse> UpdateStatus(string uniqueHash, int newStatus)
         {
-            if (TryParseStatus(newStatus, out var result))
+            if (TryParseStatus(newStatus.ToString(), out var result))
             {
                 var translatedVisionReceipt = await _receiptRepository.GetByUniqueHashAsync(uniqueHash);
                 if (translatedVisionReceipt.Status == TranslatedVisionReceiptStatusEnum.SUBMETIDO)
@@ -117,7 +117,7 @@ namespace SmartRefund.Application.Services
                 }
                 throw new AlreadyUpdatedReceiptException(uniqueHash);
             }
-            throw new UnableToParseException(newStatus);
+            throw new UnableToParseException(newStatus.ToString());
         }
     }
  }
