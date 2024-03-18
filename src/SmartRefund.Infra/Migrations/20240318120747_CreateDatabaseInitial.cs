@@ -1,10 +1,12 @@
-﻿using System;
+﻿
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace SmartRefund.Infra.Migrations
 {
+    [ExcludeFromCodeCoverage]
     /// <inheritdoc />
     public partial class CreateDatabaseInitial : Migration
     {

@@ -2,12 +2,9 @@
 using SmartRefund.Application.Interfaces;
 using SmartRefund.WebAPI.Filters;
 using System.ComponentModel.DataAnnotations;
-using SmartRefund.ViewModels;
 using Swashbuckle.AspNetCore.Annotations;
 using SmartRefund.ViewModels.Responses;
-using SmartRefund.CustomExceptions;
 using System.Diagnostics.CodeAnalysis;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace SmartRefund.WebAPI.Controllers
 {
