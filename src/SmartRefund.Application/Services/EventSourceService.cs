@@ -4,6 +4,8 @@ using SmartRefund.ViewModels.Responses;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.CustomExceptions;
 using SmartRefund.ViewModels.Requests;
+using SmartRefund.Domain.Enums;
+using System.Linq;
 
 namespace SmartRefund.Application.Services
 {
@@ -18,13 +20,8 @@ namespace SmartRefund.Application.Services
 
         public async Task<IEnumerable<ReceiptEventSourceResponse>> GetAllEventSourceResponseAsync(bool isFrontEndpoint, uint userId, string userType, FrontFilter frontFilter)
         {
-            IEnumerable<ReceiptEventSource> eventSources;
-
-            if(userType.Equals("employee"))
-                eventSources = await _repository.GetAllByEmployeeIdAsync(userId, frontFilter);
-            else
-                eventSources = await _repository.GetAllWithFrontFilterAsync(frontFilter);
-
+            IEnumerable<ReceiptEventSource> eventSources = await _repository.GetAllWithFrontFilterAsync(frontFilter);
+            eventSources = ApplyAdditionalFilters(eventSources, frontFilter, userType, userId);
             var eventSourceResponses = new List<ReceiptEventSourceResponse>();
 
             foreach (var eventSource in eventSources)
@@ -32,6 +29,20 @@ namespace SmartRefund.Application.Services
                     eventSourceResponses.Add(new ReceiptEventSourceResponse(eventSource, isFrontEndpoint));
 
             return eventSourceResponses;
+        }
+
+        private IEnumerable<ReceiptEventSource> ApplyAdditionalFilters(IEnumerable<ReceiptEventSource> eventSources, FrontFilter frontFilter, string userType, uint userId)
+        {
+            if (userType.Equals("employee"))
+                eventSources = eventSources.Where(receipt => receipt.InternalReceipt.EmployeeId == userId);
+            if (frontFilter.OptionsStatusTranslate.Length != 2) //[0,1]
+                eventSources = eventSources.Where(receipt => receipt.RawVisionReceipt != null && frontFilter.OptionsStatusTranslate.ToList().Select(value => value == 1).Contains(receipt.RawVisionReceipt.IsTranslated));
+            if (frontFilter.OptionsStatusRefund.Length != Enum.GetValues(typeof(TranslatedVisionReceiptStatusEnum)).Length) //[0,1,2,3]
+            {
+                var refundStatusSet = new HashSet<int>(frontFilter.OptionsStatusRefund);
+                eventSources = eventSources.Where(receipt => receipt.TranslatedVisionReceipt != null && refundStatusSet.Contains((int)receipt.TranslatedVisionReceipt.Status));
+            }
+            return eventSources;
         }
 
         public async Task<ReceiptEventSourceResponse> GetReceiptEventSourceResponseAsync(string hash, bool isFrontEndpoint)
