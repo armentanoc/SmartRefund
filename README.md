@@ -1,11 +1,8 @@
 <!--CACHE, EVENT SOURCE, BACKGROUND SERVICE, PORTA ESPECÍFICA DA API, ESPECIFICAR TESTES-->
-[![author](https://img.shields.io/badge/author-lauradefaria-blue.svg)](https://github.com/lauradefaria)
-[![author](https://img.shields.io/badge/author-armentanoc-black.svg)](https://github.com/armentanoc)
-[![author](https://img.shields.io/badge/author-czambanini-purple.svg)](https://github.com/czambanini)
-[![author](https://img.shields.io/badge/author-paulaandrezza-pink.svg)](https://github.com/paulaandrezza)
-[![author](https://img.shields.io/badge/author-ignunes-green.svg)](https://github.com/ig-nunes)
-[![author](https://img.shields.io/badge/author-cristopherkovalski-red.svg)](https://github.com/cristopherkovalski)
 # Projeto SmartRefund 🤖💰
+<!-- ![Front](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white) -->
+![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
+![SQLite](https://img.shields.io/badge/sqlite-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)&nbsp;<br><br>
 
 <table>
     <tr>
@@ -18,103 +15,99 @@
 ## Endpoints da API 🚀
 A API oferece os seguintes endpoints:
 
-### Entry 🔗
+### Login
+```
+POST /[controller]: Realiza o login dos usuários no sistema. Manuseio autorizado por qualquer indivíduo.
+
+{
+  "userName": "userExample",
+  "password": "passwordExample123"
+}
 
 ```
-POST /employeeId
+
+<div align="center" display="flex">
+<img src="" height="500px">
+</div>
+
+
+### Entry 
+
+```
+POST /receipt: Realiza o upload de uma imagem que é potencial nota fiscal e dá início a todo o processamento em background. Manuseio autorizado apenas para um funcinário do tipo "employee".
+
 {
  "image": "exemplo.jpg"
 }
 
-Realiza o upload de uma imagem que é potencial nota fiscal e dá início a todo o processamento em background.
 ```
 
 <div align="center" display="flex">
 <img src="" height="500px">
 </div>
 
-### Management (icone)
+### Management 
 
 ```
-GET /receipts/submitted
+GET /receipts/submitted: Retorna todas as notas fiscais com status em SUBMETIDO, para que o financeiro possa visualizar. Manuseio autorizado por qualquer funcionário.
+```
+
+<div align="center" display="flex">
+<img src="" height="500px">
+</div>
+
+```
+PATCH /receipts/status: Altera o status da despesa para PAGA ou RECUSADA. Manuseio autorizado apenas para um funcinário do tipo "finance".
+```
+
+<div align="center" display="flex">
+<img src="" height="500px">
+</div>
+
+### EventSource
+
+```
+GET {hash}/front: Busca um evento e suas entidades vinculadas pelo UniqueHash.
+```
+
+<div align="center" display="flex">
+<img src="" height="500px">
+</div>
+
+```
+GET /front/: Busca todos os eventos e as entidades vinculadas. 
+```
+
+<div align="center" display="flex">
+<img src="" height="500px">
+</div>
+
+```
+GET {hash}/audit: Busca um evento pelo UniqueHash. 
+```
+
+<div align="center" display="flex">
+<img src="" height="500px">
+</div>
+
+## Authentication 🔗
+A API utiliza um filtro de Autorização para validar o login de funcionários. Os seguintes cargos estão disponíveis:
+
+```
+Employee - Permite que submeta notas ficais para reembolso e verifique os status das notas enviadas.
+
 {
- //
+  "userName": "employee1",
+  "password": "employee123"
 }
 
-Retorna todas as notas fiscais com status em SUBMETIDO, para que o financeiro possa visualizar.
-```
+Finance - Possibilita visualizar todas as notas fiscais submetidas e alterar o status delas para PAGA ou RECUSADA.
 
-<div align="center" display="flex">
-<img src="" height="500px">
-</div>
-
-```
-PATCH /update-status
 {
- //
+  "userName": "finance",
+  "password": "finance123"
 }
-
-Altera o status da despesa para PAGA ou RECUSADA.
 ```
-
-<div align="center" display="flex">
-<img src="" height="500px">
-</div>
-
-```
-GET /receipts
-{
- //
-}
-
-Retorna todas as notas fiscais existentes no sistema.
-```
-
-<div align="center" display="flex">
-<img src="" height="500px">
-</div>
-
-### Test (icone)
-
-```
-GET /get/{id}
-{
- //
-}
-
-Retorna a nota fiscal desejada pelo ID.
-```
-
-<div align="center" display="flex">
-<img src="" height="500px">
-</div>
-
-```
-GET /executeVision/{id}
-{
- //
-}
-
-Seleciona a possível nota fiscal pelo ID, depois realiza a verificação e execução pelo ChatGPT, retornando o resultado fornecido sem nenhuma alteração.
-```
-
-<div align="center" display="flex">
-<img src="" height="500px">
-</div>
-
-```
-GET /testaTraducao/{id}
-{
- //
-}
-
-Seleciona pelo ID uma nota fiscal já executada pela API do ChatGPT e reformula a resposta armazenada para o formato desejado da saída.
-```
-
-<div align="center" display="flex">
-<img src="" height="500px">
-</div>
-
 
 ## Estrutura do Projeto :building_construction:
 
@@ -188,6 +181,27 @@ Através do `Middlewares/LoggingMiddleware` é realizado o logging sempre no com
 <div align="center" display="flex">
 <img src="..." height="500px">
 </div>
+<br/>
+
+<div align="center" display="flex">
+    
+| Código | Descrição do erro |
+|---|---|
+| `200` | Requisição executada com sucesso (Success).|
+| `400` | Operação inválida (InvalidOperation).|
+| `400` | Status do internalReceipt incompatível com o ChatGPT.|
+| `400` | Nota fiscal com a identificação requisitada já foi atualizada.|
+| `400` | Não conseguiu converter o valor para o tipo requisitado.|
+| `404` | Registro pesquisado não encontrado (Not found).|
+| `409` | Entidade com as propriedades descritas já existe.|
+| `412` | Configuração da propriedade não pode ser nula, vazia ou inválida.|
+| `413` | Tamanho do arquivo inválido, possui mais que 20MB.|
+| `422` | Tipo do arquivo inválido, extensão diferente de .png/.jpg/.jpeg|
+| `422` | Resulução do arquivo inválida, sendo abaixo da PPI requisitada.|
+| `500` | Outros tipos de exceções.|
+
+</div>
+
 
 ## Configuração do Banco de Dados 🛢️
 
@@ -204,7 +218,7 @@ O projeto utiliza o SQLite como banco de dados, e as configurações podem ser e
 -->
 
 ## Execução do Projeto ▶️
-
+<!-- Baixar o arquivo para executar o front-->
 1. Clone e abra a solução no Visual Studio.
 2. Configure o projeto `SmartRefund.Infra` como o projeto de inicialização no `Package Manager Console`.
 3. Certifique-se de que as migrações do banco de dados foram realizadas pelo Entity Framework. Se não, execute os seguintes comandos:
@@ -225,66 +239,10 @@ http://localhost:xxxx/swagger/v1/swagger.json
 
 Aceitamos contribuições! Se encontrar um bug ou tiver uma solicitação de recurso, por favor, abra uma issue. 
 
+## Autores 📖
 
---------------------------
-
-# Nossas anotações
-
-## Git Co-Author command
-
-```
-git commit -m "refactor: working db context and dependency injection
+| [<img loading="lazy" src="https://github.com/lauradefaria/Extras/blob/main/Imagens/laura.jpg" width=115><br><sub>Laura de Faria</sub>](https://github.com/lauradefaria) |  [<img loading="lazy" src="https://github.com/lauradefaria/Extras/blob/main/Imagens/carolina.jpg" width=115><br><sub>Carolina Armentano</sub>](https://github.com/armentanoc) |  [<img loading="lazy" src="https://github.com/lauradefaria/Extras/blob/main/Imagens/camila.jpg" width=115><br><sub>Camila Zambini</sub>](https://github.com/czambanini) | [<img loading="lazy" src="https://github.com/lauradefaria/Extras/blob/main/Imagens/paula.jpg" width=115><br><sub>Paula Andrezza</sub>](https://github.com/paulaandrezza) | [<img loading="lazy" src="https://github.com/lauradefaria/Extras/blob/main/Imagens/igor.jpg" width=115><br><sub>Igor Nunes</sub>](https://github.com/ig-nunes) | [<img loading="lazy" src="https://github.com/lauradefaria/Extras/blob/main/Imagens/christopher.jpg" width=115><br><sub>Cristopher Saporiti</sub>](https://github.com/cristopherkovalski)
+| :---: | :---: | :---: | :---: | :---: | :---: |
 
 
 
-
-
-Co-authored-by: czambanini <ca.zambanini@gmail.com>
-Co-authored-by: lauradefaria <lauradfma@gmail.com>
-Co-authored-by: ig-nunes <inunes.us@gmail.com>
-Co-authored-by: paulaandrezza <paulaandrezza25@gmail.com>
-Co-authored-by: cristopherkovalski <cristopherkovalski@gmail.com>"
-```
-
-## ⚡ Desafio 1 - Inteligência Artificial
-- No cenário empresarial, uma das tarefas que mais causam contratempos é o processo de lançamento de notas fiscais e cupons para reembolso. Muitas pessoas encontram dificuldades em preencher de forma correta, resultando em uma série de problemas, tanto para os colaboradores quanto para a equipe financeira da empresa, consumindo um tempo valioso de todos.
-
-## 📋 Detalhe técnico
-- Para resolver esse desafio, gostaríamos de utilizar o processamento de imagem para preenchermos os dados da despesa a partir do comprovante.
-
-- Para extrairmos essas informações da despesa através de uma imagem, iremos utilizar a API de Imagem do ChatGPT-4 que será disponibilizada para vocês.
-
-## 🚀 Proposta de solução
-- Criar uma API de OCR para o lançamento de despesas através de uma imagem de comprovante.
-
-- Essa API deverá enviar a imagem para o ChatGPT-4 e realizar alguns prompts para extrair as informações necessárias para o preenchimento.
-
-- O primeiro passo seria validar o comprovante `prompt: essa imagem e algum comprovante de comprovante fiscal? responda com SIM ou NAO` Caso o comprovante seja inválido, devemos retornar a seguinte informação:
-
-```
-HTTP/1.1 400 Bad Request
-{
-  "message": "Comprovante Inválido"
-}
-```
-
-- Em seguida, poderíamos extrair as informações da despesa.
-  
-  - Categoria da despesa `prompt: que categoria de despesa é essa, entre: hospedagem, transporte, viagem, alimentação ou Outros`. (especificar RESPONDA COM HOSPEDAGEM ou TRANSPORTE ou VIAGEM ou ALIMENTACAO ou OUTROS)
-  - Valor total da despesa `prompt: qual o valor dessa despesa` (apenas números, exemplo)
-  - Descricao da despesa `prompt: descreva sobre a despesa` (texto corrido especificamente, der um comando mais específico pra ter menos texto desnecessário) 
-    
-- Após extrair todas as informações, devemos gravar em um banco de dados qualquer a despesa na seguinte estrutura de exemplo:
-
-```
-{
-  "Total": 99.00
-  "Categoria": "HOSPEDAGEM",
-  "Descricao": "Descricao do comprovante",
-  "Status": "SUBMETIDO"
-}
-```
-
-- Criar endpoint de consulta de despesas para que o Financeiro consiga visualizar todas as notas com status em SUBMETIDO.
-
-- Criar endpoint para que o financeiro consiga mudar o status da despesa para PAGA.
