@@ -11,14 +11,21 @@ namespace SmartRefund.ViewModels.Responses
         public DateTime CreationDate { get; private set; }
         public InternalReceiptStatusEnum Status { get; private set; }
         public string Image { get; private set; }
-        public InternalReceiptResponse(InternalReceipt internalReceipt)
+        public InternalReceiptResponse(InternalReceipt internalReceipt, bool isFrontEndpoint = false)
         {
             UniqueHash = internalReceipt.UniqueHash;
             EmployeeId = internalReceipt.EmployeeId;
             CreationDate = internalReceipt.CreationDate;
             Status = internalReceipt.Status;
-            if (internalReceipt.Image != null) { Image = "Saved Image"; }
+            if(isFrontEndpoint)
+            {
+                Image = Convert.ToBase64String(internalReceipt.Image);
+            }
+            else
+            {
+                if (internalReceipt.Image != null) { Image = "Saved Image"; }
                 else { Image = "The file is missing"; };
+            }
         }
     }
 }

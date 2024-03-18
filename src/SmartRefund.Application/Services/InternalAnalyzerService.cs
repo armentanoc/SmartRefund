@@ -26,7 +26,7 @@ namespace SmartRefund.Application.Services
         {
             try
             {
-                var cachedReceipts =  await _cacheService.GetCachedDataAsync<TranslatedReceiptResponse>(cacheKey);
+                var cachedReceipts = await _cacheService.GetCachedDataAsync<TranslatedReceiptResponse>(cacheKey);
                 if (cachedReceipts != null && cachedReceipts.Any())
                 {
                     return cachedReceipts;
@@ -71,16 +71,16 @@ namespace SmartRefund.Application.Services
             if (TryParseStatus(newStatus, out var result))
             {
                 var translatedVisionReceipt = await GetById(id);
-                    if (translatedVisionReceipt.Status == TranslatedVisionReceiptStatusEnum.SUBMETIDO)
-                    {
-                        translatedVisionReceipt.SetStatus(result);
-                        var updatedObject = await _receiptRepository.UpdateAsync(translatedVisionReceipt);
-                        return updatedObject;
-                    }
+                if (translatedVisionReceipt.Status == TranslatedVisionReceiptStatusEnum.SUBMETIDO)
+                {
+                    translatedVisionReceipt.SetStatus(result);
+                    var updatedObject = await _receiptRepository.UpdateAsync(translatedVisionReceipt);
+                    return updatedObject;
+                }
                 throw new AlreadyUpdatedReceiptException(id);
             }
-                throw new UnableToParseException(newStatus);
-            }
+            throw new UnableToParseException(newStatus);
+        }
 
         public bool TryParseStatus(string newStatus, out TranslatedVisionReceiptStatusEnum result)
         {
@@ -103,9 +103,9 @@ namespace SmartRefund.Application.Services
             throw new InvalidOperationException("Nenhum objeto encontrado");
         }
 
-        public async Task<TranslatedReceiptResponse> UpdateStatus(string uniqueHash, string newStatus)
+        public async Task<TranslatedReceiptResponse> UpdateStatus(string uniqueHash, int newStatus)
         {
-            if (TryParseStatus(newStatus, out var result))
+            if (TryParseStatus(newStatus.ToString(), out var result))
             {
                 var translatedVisionReceipt = await _receiptRepository.GetByUniqueHashAsync(uniqueHash);
                 if (translatedVisionReceipt.Status == TranslatedVisionReceiptStatusEnum.SUBMETIDO)
@@ -117,7 +117,7 @@ namespace SmartRefund.Application.Services
                 }
                 throw new AlreadyUpdatedReceiptException(uniqueHash);
             }
-            throw new UnableToParseException(newStatus);
+            throw new UnableToParseException(newStatus.ToString());
         }
     }
  }

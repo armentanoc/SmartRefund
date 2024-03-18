@@ -13,9 +13,9 @@ namespace SmartRefund.Application.Services
 {
     public class CacheService : ICacheService
     {
-          private readonly IMemoryCache _cache;
-          private readonly IConfiguration _configuration;
-           private readonly ILogger<CacheService> _logger;
+        private readonly IMemoryCache _cache;
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<CacheService> _logger;
         public CacheService(IMemoryCache cache, IConfiguration configuration, ILogger<CacheService> logger)
         {
             _cache = cache;
@@ -24,22 +24,22 @@ namespace SmartRefund.Application.Services
         }
         public async Task<IEnumerable<T>> GetCachedDataAsync<T>(string key)
         {
-                if (!_cache.TryGetValue<IEnumerable<T>>(key, out var cachedData))
-                {
-                    // Se os dados não estiverem em cache, retornamos nulo
-                    return Enumerable.Empty<T>();
+            if (!_cache.TryGetValue<IEnumerable<T>>(key, out var cachedData))
+            {
+                // Se os dados não estiverem em cache, retornamos nulo
+                return Enumerable.Empty<T>();
             }
 
-                return cachedData;
+            return cachedData;
         }
 
-       /* public async Task SetCachedDataAsync<T>(string key, IEnumerable<T> data)
-        {
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromMinutes(5));
+        /* public async Task SetCachedDataAsync<T>(string key, IEnumerable<T> data)
+         {
+                 var cacheEntryOptions = new MemoryCacheEntryOptions()
+                     .SetSlidingExpiration(TimeSpan.FromMinutes(5));
 
-                _cache.Set(key, data, cacheEntryOptions);
-        }*/
+                 _cache.Set(key, data, cacheEntryOptions);
+         }*/
 
         public async Task SetCachedDataAsync<T>(string key, IEnumerable<T> data)
         {

@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SmartRefund.Application.Handlers.Requests;
 using SixLabors.ImageSharp;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.CustomExceptions;
+using SmartRefund.Domain.Enums;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Responses;
@@ -15,15 +18,19 @@ namespace SmartRefund.Application.Services
     {
         private double _minPPI;
         private readonly IConfiguration _configuration;
+        private readonly IMediator _mediator;
         private IInternalReceiptRepository _repository;
         private ILogger<FileValidatorService> _logger;
+        private IEventSourceRepository _eventSourceRepository;
 
-        public FileValidatorService(IInternalReceiptRepository repository, ILogger<FileValidatorService> logger, IConfiguration configuration)
+        public FileValidatorService(IInternalReceiptRepository repository, ILogger<FileValidatorService> logger, IConfiguration configuration, IEventSourceRepository eventSourceRepository, IMediator mediator)
         {
             _repository = repository;
             _logger = logger;
             _configuration = configuration;
             GetPPIConfiguration();
+            _eventSourceRepository = eventSourceRepository;
+            _mediator = mediator;
         }
 
         public void GetPPIConfiguration()
@@ -51,14 +58,28 @@ namespace SmartRefund.Application.Services
                 }
 
                 var uniqueHash = await GenerateUniqueHash();
+
                 InternalReceipt receipt = new InternalReceipt(employeeId, imageBytes, uniqueHash);
-                InternalReceiptResponse response = new InternalReceiptResponse(receipt);
+                var addedReceipt = await _repository.AddAsync(receipt);
 
-                await _repository.AddAsync(receipt);
+                ReceiptEventSource eventSource = new ReceiptEventSource(uniqueHash, EventSourceStatusEnum.EventSourceInitialized, addedReceipt);
+                
+                var addedEventSource = await _eventSourceRepository.AddAsync(eventSource);
 
-                return response;
+                var newEvent = new Event(addedEventSource.UniqueHash, EventSourceStatusEnum.InternalReceiptCreated, addedReceipt.CreationDate, "Internal Receipt created with success");
+                await _eventSourceRepository.AddEvent(eventSource, addedEventSource.UniqueHash, newEvent);
+
+                if (addedReceipt is InternalReceipt)
+                {
+                    _ = Task.Run(async () =>
+                    {
+                        await _mediator.Send(new SaveDataCommandRequest(addedReceipt));
+                    });
+                }
+
+                _logger.LogInformation("[FILE VALIDATOR SERVICE] File validated and followup response with unique hash returned to user");
+                return new InternalReceiptResponse(receipt);
             }
-
             throw new InvalidOperationException("File validation failed");
         }
 
