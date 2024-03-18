@@ -1,25 +1,13 @@
-﻿using Castle.Core.Logging;
-using FluentAssertions;
+﻿
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NSubstitute;
-using SmartRefund.Application.Interfaces;
 using SmartRefund.Application.Services;
 using SmartRefund.CustomExceptions;
-using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
-using SmartRefund.ViewModels.Responses;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmartRefund.Tests.ApplicationTests
 {
@@ -44,7 +32,7 @@ namespace SmartRefund.Tests.ApplicationTests
         public void ValidateType_ValidImage_ReturnsTrue()
         {
             // Arrange
-            
+
             var sourceImgPath = @"../../../ApplicationTests/Assets/example.jpg";
             var sourceImgBytes = File.ReadAllBytes(sourceImgPath);
             var fileName = "example.jpg";
@@ -187,6 +175,20 @@ namespace SmartRefund.Tests.ApplicationTests
 
             // Act and Assert
             await Assert.ThrowsAsync<InvalidFileTypeException>(async () => await _fileValidatorService.Validate(inputFile, employeeId));
+        }
+
+        [Fact]
+        public void GetPPIConfiguration_ValidConfiguration_SetsMinPPI()
+        {
+            // Arrange
+            var configurationMock = new Mock<IConfiguration>();
+            configurationMock.Setup(x => x["OpenAIVisionConfig:MinResolutionInPPI"]).Returns("50"); 
+
+            // Act
+            _fileValidatorService.GetPPIConfiguration();
+
+            // Assert
+            Assert.Equal(50, _fileValidatorService._minPPI); 
         }
     }
 }
