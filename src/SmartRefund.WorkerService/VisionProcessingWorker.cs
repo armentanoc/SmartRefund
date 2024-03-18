@@ -74,11 +74,11 @@ namespace SmartRefund.WorkerService
                     var rawVisionReceipt = await visionExecutorService.ExecuteRequestAsync(receipt);
                     eventSource.SetRawVisionReceipt(rawVisionReceipt);
 
-                    var message = $"InternalReceipt with ID: {receipt.Id} processed with succes | RawVisionReceipt with ID: {rawVisionReceipt.Id} was created | Details: {rawVisionReceipt}";
+                    var message = $"InternalReceipt with ID: {receipt.Id} processed with success | RawVisionReceipt with ID: {rawVisionReceipt.Id} was created | Details: {rawVisionReceipt}";
                     var successEvent = new Event(eventSource.UniqueHash, EventSourceStatusEnum.VisionExecutorSuccessful, DateTime.Now, message);
                     await eventSourceRepository.AddEvent(eventSource, eventSource.UniqueHash, successEvent);
 
-                    _logger.LogInformation($"[VISION EXECUTOR SUCCESS] InternalReceipt with ID: {receipt.Id} processed with succes " +
+                    _logger.LogInformation($"[VISION EXECUTOR SUCCESS] InternalReceipt with ID: {receipt.Id} processed with success " +
                         $"\n       RawVisionReceipt with ID: {rawVisionReceipt.Id} was created " +
                         $"\n       Details: {rawVisionReceipt}");
                 }
@@ -132,11 +132,11 @@ namespace SmartRefund.WorkerService
                     {
                         var updatedReceipt = await visionTranslatorService.GetTranslatedVisionReceipt(receipt);
                         eventSource.SetTranslatedVisionReceipt(updatedReceipt);
-                        var message = $"The translation process succed. Ready to be analized. | RawVisionReceipt with ID: {receipt.Id} translated with succes | TranslatedVisionReceipt with ID: {updatedReceipt.Id} was created | Details: {updatedReceipt}";
+                        var message = $"RawVisionReceipt with ID: {receipt.Id} processed with success | The translation process succeeded. Ready to be analized. | TranslatedVisionReceipt with ID: {updatedReceipt.Id} was created | Details: {updatedReceipt}";
                         var successEvent = new Event(eventSource.UniqueHash, EventSourceStatusEnum.FileTranslated, DateTime.Now, message);
                         await eventSourceRepository.AddEvent(eventSource, eventSource.UniqueHash, successEvent);
 
-                        _logger.LogInformation($"[TRANSLATION SUCCESS] The translation process succed. Ready to be analized." +
+                        _logger.LogInformation($"[TRANSLATION SUCCESS] The translation process succeeded. Ready to be analized." +
                             $"\n      RawVisionReceipt with ID: {receipt.Id} translated with succes" +
                             $"\n      TranslatedVisionReceipt with ID: {updatedReceipt.Id} was created" +
                             $"\n      Details: {updatedReceipt}");
