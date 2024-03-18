@@ -74,10 +74,10 @@ namespace SmartRefund.Tests.ApplicationTests
 
 
         [Theory]
-        [InlineData("AAAAAA", "SUBMETIDO", TranslatedVisionReceiptStatusEnum.SUBMETIDO)]
-        [InlineData("AAAAAA", "PAGA", TranslatedVisionReceiptStatusEnum.PAGA)]
-        [InlineData("AAAAAA", "RECUSADA", TranslatedVisionReceiptStatusEnum.RECUSADA)]
-        public async Task UpdateStatus_Should_Update_TranslatedVisionReceipt_Status(string hash, string newStatus, TranslatedVisionReceiptStatusEnum expectedStatus)
+        [InlineData("AAAAAA", (int)TranslatedVisionReceiptStatusEnum.SUBMETIDO, TranslatedVisionReceiptStatusEnum.SUBMETIDO)]
+        [InlineData("AAAAAA", (int)TranslatedVisionReceiptStatusEnum.PAGA, TranslatedVisionReceiptStatusEnum.PAGA)]
+        [InlineData("AAAAAA", (int)TranslatedVisionReceiptStatusEnum.RECUSADA, TranslatedVisionReceiptStatusEnum.RECUSADA)]
+        public async Task UpdateStatus_Should_Update_TranslatedVisionReceipt_Status(string hash, int newStatus, TranslatedVisionReceiptStatusEnum expectedStatus)
         {
             // Arrange
             var internalReceipt = new InternalReceipt(employeeId: 1, image: [], hash);
