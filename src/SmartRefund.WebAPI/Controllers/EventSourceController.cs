@@ -7,6 +7,7 @@ using SmartRefund.Domain.Models.Enums;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Requests;
 using SmartRefund.ViewModels.Responses;
+using SmartRefund.WebAPI.Filters;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace SmartRefund.WebAPI.Controllers
@@ -37,6 +38,7 @@ namespace SmartRefund.WebAPI.Controllers
         [ProducesResponseType(typeof(ReceiptEventSourceResponse), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
+        [TypeFilter(typeof(CombinedAuthorizationFilter))]
         public async Task<ActionResult> GetToFrontUsingEventSource([FromRoute] string hash, [FromServices] IHttpContextAccessor httpContextAccessor)
         {
             var userId = httpContextAccessor.HttpContext.User.FindFirst("userId").Value;
@@ -60,12 +62,13 @@ namespace SmartRefund.WebAPI.Controllers
             return Ok(eventSource);
         }
 
-        [HttpPost("front/")]
+        [HttpGet("front/")]
         [SwaggerOperation("Busque todos os eventos e as entidades vinculadas")]
         [ProducesResponseType(typeof(IEnumerable<ReceiptEventSourceResponse>), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult> GetAllToFrontUsingEventSource([FromBody] FrontFilter frontFilter, [FromServices] IHttpContextAccessor httpContextAccessor)
+        [TypeFilter(typeof(CombinedAuthorizationFilter))]
+        public async Task<ActionResult> GetAllToFrontUsingEventSource([FromQuery] FrontFilter frontFilter, [FromServices] IHttpContextAccessor httpContextAccessor)
         {
             var userId = httpContextAccessor.HttpContext.User.FindFirst("userId").Value;
             var userType = httpContextAccessor.HttpContext.User.FindFirst("userType").Value;
@@ -85,12 +88,14 @@ namespace SmartRefund.WebAPI.Controllers
         [ProducesResponseType(typeof(ReceiptEventSourceResponse), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
+        [TypeFilter(typeof(AuthorizationFilterFinance))]
         public async Task<ActionResult> GetEventSource([FromRoute] string hash)
         {
             var eventSource = await _eventSourceService.GetAuditReceiptEventSourceResponseAsync(hash);
             return Ok(eventSource);
         }
 
+        [TypeFilter(typeof(CombinedAuthorizationFilter))]
         private FrontFilter InterpretFrontFilter(FrontFilter frontFilter)
         {
             if (frontFilter.OptionsStatusRefund.IsNullOrEmpty() || frontFilter.OptionsStatusRefund.All(x => x == 0))

@@ -12,5 +12,11 @@ namespace SmartRefund.ViewModels.Requests
             OptionsStatusTranslate = optionsStatusTranslate;
             OptionsStatusGPT = optionsStatusGPT;
         }
+        public FrontFilter()
+        {
+            OptionsStatusRefund = new int[0];
+            OptionsStatusTranslate = new int[0];
+            OptionsStatusGPT = new int[0];
+        }
     }
 }
