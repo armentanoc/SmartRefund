@@ -83,7 +83,7 @@ namespace SmartRefund.Application.Services
             throw new InvalidOperationException("File validation failed");
         }
 
-        private async Task<string> GenerateUniqueHash()
+        public async Task<string> GenerateUniqueHash()
         {
             var receipts = await _repository.GetAllAsync();
             InternalReceipt? lastReceipt = receipts.LastOrDefault();

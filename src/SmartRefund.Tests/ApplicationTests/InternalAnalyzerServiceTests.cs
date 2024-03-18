@@ -6,6 +6,7 @@ using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using SmartRefund.Application.Interfaces;
 using SmartRefund.Application.Services;
+using SmartRefund.CustomExceptions;
 using SmartRefund.Domain.Enums;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
@@ -115,6 +116,7 @@ namespace SmartRefund.Tests.ApplicationTests
         }
 
 
+
         [Theory]
         [InlineData("SUBMETIDO", TranslatedVisionReceiptStatusEnum.SUBMETIDO)]
         [InlineData("PAGA", TranslatedVisionReceiptStatusEnum.PAGA)]
@@ -206,5 +208,62 @@ namespace SmartRefund.Tests.ApplicationTests
             result.Should().NotBeNull();
             result.Should().BeEquivalentTo(expectedReceipts);
         }
+
+        [Fact]
+        public async Task UpdateStatus_Should_Throw_InvalidStatusException_For_Invalid_Status()
+        {
+            // Arrange
+            var service = new InternalAnalyzerService(null, null, null);
+            uint id = 1;
+            string invalidStatus = "INVALID_STATUS";
+
+            // Act and Assert
+            await Assert.ThrowsAsync<UnableToParseException>(() => service.UpdateStatus(id, invalidStatus));
+        }
+
+        [Fact]
+        public async Task UpdateStatus_Should_Throw_AlreadyUpdatedReceiptException_When_Status_Is_Not_Submetido()
+        {
+            // Arrange
+            var repository = Substitute.For<ITranslatedVisionReceiptRepository>();
+            var logger = Substitute.For<ILogger<InternalAnalyzerService>>();
+            var cache = Substitute.For<ICacheService>();
+            var service = new InternalAnalyzerService(repository, logger, cache);
+            uint id = 1;
+            string newStatus = "PAGA";
+
+            var translatedVisionReceipt = new TranslatedVisionReceipt();
+            translatedVisionReceipt.SetStatus(TranslatedVisionReceiptStatusEnum.PAGA);
+
+            repository.GetByIdAsync(id).Returns(translatedVisionReceipt);
+
+            // Act and Assert
+            await Assert.ThrowsAsync<AlreadyUpdatedReceiptException>(() => service.UpdateStatus(id, newStatus));
+        }
+
+        [Fact]
+        public async Task UpdateStatus_Should_Call_Repository_UpdateAsync_With_Correct_Object()
+        {
+            // Arrange
+            var repository = Substitute.For<ITranslatedVisionReceiptRepository>();
+            var logger = Substitute.For<ILogger<InternalAnalyzerService>>();
+            var cache = Substitute.For<ICacheService>();
+            var service = new InternalAnalyzerService(repository, logger, cache);
+            uint id = 1;
+            string newStatus = "PAGA";
+
+            var translatedVisionReceipt = new TranslatedVisionReceipt();
+            translatedVisionReceipt.SetStatus(TranslatedVisionReceiptStatusEnum.SUBMETIDO);
+
+            repository.GetByIdAsync(id).Returns(translatedVisionReceipt);
+
+            // Act
+            await service.UpdateStatus(id, newStatus);
+
+            // Assert
+            await repository.Received().UpdateAsync(Arg.Is<TranslatedVisionReceipt>(r => r.Status == TranslatedVisionReceiptStatusEnum.PAGA));
+        }
+
+
     }
 }

@@ -28,16 +28,18 @@ namespace SmartRefund.Tests.ApplicationTests
         private FileValidatorService _fileValidatorService;
         private IInternalReceiptRepository _mockReceiptRepository;
         private IEventSourceRepository _mockEventSourceRepository;
+        private IMediator _mediator;
+        private ILogger<FileValidatorService> _logger;
 
         public FileValidatorServiceTests()
         {
             _mockReceiptRepository = Substitute.For<IInternalReceiptRepository>();
             var eventSourceRepository = Substitute.For<IEventSourceRepository>();
-            var loggerMock = Substitute.For<ILogger<FileValidatorService>>();
+            _logger = Substitute.For<ILogger<FileValidatorService>>();
             var configurationMock = Substitute.For<IConfiguration>();
-            var mediatorMock = Substitute.For<IMediator>();
+            _mediator = Substitute.For<IMediator>();
             configurationMock["OpenAIVisionConfig:MinResolutionInPPI"].Returns("50"); // Mocking configuration value
-            _fileValidatorService = new FileValidatorService(_mockReceiptRepository, loggerMock, configurationMock, eventSourceRepository, mediatorMock);
+            _fileValidatorService = new FileValidatorService(_mockReceiptRepository, _logger, configurationMock, eventSourceRepository, _mediator);
         }
 
         [Fact]
@@ -188,5 +190,41 @@ namespace SmartRefund.Tests.ApplicationTests
             // Act and Assert
             await Assert.ThrowsAsync<InvalidFileTypeException>(async () => await _fileValidatorService.Validate(inputFile, employeeId));
         }
+
+        [Fact]
+        public void ValidateResolution_ValidImage_ReturnsTrue()
+        {
+            // Arrange
+            var sourceImgPath = @"../../../ApplicationTests/Assets/example.jpg";
+            var sourceImgBytes = File.ReadAllBytes(sourceImgPath);
+            var memoryStream = new MemoryStream(sourceImgBytes);
+
+            // Act
+            var result = _fileValidatorService.ValidateResolution(memoryStream);
+
+            // Assert
+            Assert.True(result);
+
+            // Dispose
+            memoryStream.Dispose();
+        }
+
+        [Fact]
+        public async Task GenerateUniqueHash_ValidRepository_ReturnsHash()
+        {
+            // Arrange
+            var receipts = new List<InternalReceipt>()
+            {
+                new InternalReceipt(1, new byte[0], "AAAAAA"),
+            };
+            _mockReceiptRepository.GetAllAsync().Returns(receipts);
+
+            // Act
+            var result = await _fileValidatorService.GenerateUniqueHash();
+
+            // Assert
+            Assert.Equal("AAAAAA", result);
+        }
+
     }
 }
