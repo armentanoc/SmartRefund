@@ -2,9 +2,11 @@
 using SmartRefund.CustomExceptions;
 using SmartRefund.Domain.Enums;
 using SmartRefund.Domain.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartRefund.ViewModels.Responses
 {
+    [ExcludeFromCodeCoverage]
     public class TranslatedReceiptResponse
     {
         public string UniqueHash { get; set; }

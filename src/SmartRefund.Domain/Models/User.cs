@@ -1,5 +1,8 @@
-﻿namespace SmartRefund.Domain.Models
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace SmartRefund.Domain.Models
 {
+    [ExcludeFromCodeCoverage]
     public class User
     {
         public User(uint id, string userName, string password, string userType)

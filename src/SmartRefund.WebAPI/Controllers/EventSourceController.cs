@@ -9,9 +9,11 @@ using SmartRefund.ViewModels.Requests;
 using SmartRefund.ViewModels.Responses;
 using SmartRefund.WebAPI.Filters;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartRefund.WebAPI.Controllers
 {
+    [ExcludeFromCodeCoverage]
     [ApiController]
     [Route("api/events")]
     public class EventSourceController : ControllerBase

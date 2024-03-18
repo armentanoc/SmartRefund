@@ -16,7 +16,7 @@ namespace SmartRefund.Application.Services
 {
     public class FileValidatorService : IFileValidatorService
     {
-        private double _minPPI;
+        public double _minPPI;
         private readonly IConfiguration _configuration;
         private readonly IMediator _mediator;
         private IInternalReceiptRepository _repository;

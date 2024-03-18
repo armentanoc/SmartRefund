@@ -1,9 +1,11 @@
-﻿using System;
+﻿
 using System.Reflection;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using SmartRefund.Application.Interfaces;
 using SmartRefund.Application.Services;
+using SmartRefund.CustomExceptions;
 using SmartRefund.Domain.Enums;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
@@ -13,12 +15,25 @@ namespace SmartRefund.Tests.ApplicationTests
 {
     public class InternalAnalyzerServiceTests
     {
+        private readonly InternalAnalyzerService _internalAnalyzerService;
+        private readonly ITranslatedVisionReceiptRepository _receiptRepository;
+        private readonly ILogger<InternalAnalyzerService> _logger;
+        private readonly ICacheService _cacheService;
+
+        public InternalAnalyzerServiceTests()
+        {
+            _receiptRepository = Substitute.For<ITranslatedVisionReceiptRepository>();
+            _logger = Substitute.For<ILogger<InternalAnalyzerService>>();
+            _cacheService = Substitute.For<ICacheService>();
+            _internalAnalyzerService = new InternalAnalyzerService(_receiptRepository, _logger, _cacheService);
+        }
 
         [Theory]
         [MemberData(nameof(ReceiptTestData))]
         public void ConvertToResponse_Converts_Receipts_To_Response(TranslatedVisionReceipt receipt, string expectedReceiptHash, uint expectedEmployeeId, decimal expectedTotal, string expectedCategory, string expectedStatus, string expectedDescription)
         {
             // Arrange
+            var newReceipt = new TranslatedVisionReceipt(new RawVisionReceipt(), true, receipt.Category, receipt.Status, receipt.Total, receipt.Description, "1");
             var service = new InternalAnalyzerService(null, null, null);
 
             MethodInfo methodInfo = typeof(InternalAnalyzerService).GetMethod("ConvertAllToResponse", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -67,52 +82,55 @@ namespace SmartRefund.Tests.ApplicationTests
 
                 return testData;
             }
-        
 
-
-        //[Theory]
-        //[InlineData(1, "SUBMETIDO", TranslatedVisionReceiptStatusEnum.SUBMETIDO)]
-        //[InlineData(1, "PAGA", TranslatedVisionReceiptStatusEnum.PAGA)]
-        //[InlineData(1, "RECUSADA", TranslatedVisionReceiptStatusEnum.RECUSADA)]
-        //public async Task UpdateStatus_Should_Update_TranslatedVisionReceipt_Status(uint id, string newStatus, TranslatedVisionReceiptStatusEnum expectedStatus)
-        //{
-        //    // Arrange
-        //    var receipt = new TranslatedVisionReceipt(
-        //        new RawVisionReceipt(), 
-        //        true, 
-        //        TranslatedVisionReceiptCategoryEnum.ALIMENTACAO, 
-        //        TranslatedVisionReceiptStatusEnum.SUBMETIDO, 
-        //        100, 
-        //        "Receipt description 1", "3");
-        //    var updatedReceipt = new TranslatedVisionReceipt(
-        //        new RawVisionReceipt(),
-        //        true,
-        //        TranslatedVisionReceiptCategoryEnum.ALIMENTACAO,
-        //        expectedStatus,
-        //        100,
-        //        "Receipt description 1", receipt.UniqueHash);
-        //    receipt.SetId(id);
-        //    updatedReceipt.SetId(id);
-
-        //    var repository = Substitute.For<ITranslatedVisionReceiptRepository>();
-        //    repository.GetAsync(1).Returns(receipt);
-        //    repository.UpdateAsync(Arg.Is<TranslatedVisionReceipt>(r => r.Id == id)).Returns(updatedReceipt);
-
-        //    var logger = Substitute.For<ILogger<InternalAnalyzerService>>();
-        //    var service = new InternalAnalyzerService(repository, logger, null);
-
-        //    // Act
-        //    var result = await service.UpdateStatus(1, newStatus);
-
-        //    // Assert
-        //    result.Status.Should().Be(expectedStatus);
-        //}
 
 
         [Theory]
-        [InlineData("SUBMETIDo", TranslatedVisionReceiptStatusEnum.SUBMETIDO)]
-        [InlineData("PaGA", TranslatedVisionReceiptStatusEnum.PAGA)]
-        [InlineData("REcUSADA", TranslatedVisionReceiptStatusEnum.RECUSADA)]
+        [InlineData("AAAAAA", (int)TranslatedVisionReceiptStatusEnum.SUBMETIDO, TranslatedVisionReceiptStatusEnum.SUBMETIDO)]
+        [InlineData("AAAAAA", (int)TranslatedVisionReceiptStatusEnum.PAGA, TranslatedVisionReceiptStatusEnum.PAGA)]
+        [InlineData("AAAAAA", (int)TranslatedVisionReceiptStatusEnum.RECUSADA, TranslatedVisionReceiptStatusEnum.RECUSADA)]
+        public async Task UpdateStatus_Should_Update_TranslatedVisionReceipt_Status(string hash, int newStatus, TranslatedVisionReceiptStatusEnum expectedStatus)
+        {
+            // Arrange
+            var internalReceipt = new InternalReceipt(employeeId: 1, image: [], hash);
+            var rawReceipt = new RawVisionReceipt(internalReceipt: internalReceipt, isReceipt: "true", category: "ALIMENTACAO", "100.00", "", hash);
+
+
+            var receipt = new TranslatedVisionReceipt(
+                rawReceipt,
+                true,
+                TranslatedVisionReceiptCategoryEnum.ALIMENTACAO,
+                TranslatedVisionReceiptStatusEnum.SUBMETIDO,
+                100,
+                "Receipt description 1", hash);
+            var updatedReceipt = new TranslatedVisionReceipt(
+                rawReceipt,
+                true,
+                TranslatedVisionReceiptCategoryEnum.ALIMENTACAO,
+                expectedStatus,
+                100,
+                "Receipt description 1", receipt.UniqueHash);
+
+            var repository = Substitute.For<ITranslatedVisionReceiptRepository>();
+            repository.GetByUniqueHashAsync(hash).Returns(receipt);
+            repository.UpdateAsync(Arg.Is<TranslatedVisionReceipt>(r => r.UniqueHash == hash)).Returns(updatedReceipt);
+
+            var logger = Substitute.For<ILogger<InternalAnalyzerService>>();
+            var cache = Substitute.For<ICacheService>();
+            var service = new InternalAnalyzerService(repository, logger, cache);
+
+            // Act
+            var result = await service.UpdateStatus(hash, newStatus);
+
+            // Assert
+            result.Status.Should().Be(expectedStatus);
+        }
+
+
+        [Theory]
+        [InlineData("SUBMETIDO", TranslatedVisionReceiptStatusEnum.SUBMETIDO)]
+        [InlineData("PAGA", TranslatedVisionReceiptStatusEnum.PAGA)]
+        [InlineData("RECUSADA", TranslatedVisionReceiptStatusEnum.RECUSADA)]
         public void TryParseStatus_Should_Parse_Valid_Status(string statusString, TranslatedVisionReceiptStatusEnum expectedStatus)
         {
             // Arrange
@@ -139,6 +157,113 @@ namespace SmartRefund.Tests.ApplicationTests
             result.Should().BeFalse();
         }
 
+        [Fact]
+        public async Task GetAllByStatus_Should_Return_Valid_Responses()
+        {
+            // Arrange
+            var repository = Substitute.For<ITranslatedVisionReceiptRepository>();
+            repository.GetAllByStatusAsync(TranslatedVisionReceiptStatusEnum.SUBMETIDO).Returns(new List<TranslatedVisionReceipt>());
+            var logger = Substitute.For<ILogger<InternalAnalyzerService>>();
+            var cache = Substitute.For<ICacheService>();
+            var service = new InternalAnalyzerService(repository, logger, cache);
+
+            // Act
+            var result = await service.GetAllByStatus();
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ConvertToResponse_Should_Convert_Empty_Receipt_List()
+        {
+            // Arrange
+            var service = new InternalAnalyzerService(null, null, null);
+
+            MethodInfo methodInfo = typeof(InternalAnalyzerService).GetMethod("ConvertAllToResponse", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (methodInfo == null)
+            {
+                throw new InvalidOperationException("Método ConvertToResponse não encontrado.");
+            }
+
+            // Act
+            var result = (IEnumerable<TranslatedReceiptResponse>)methodInfo.Invoke(service, new object[] { new List<TranslatedVisionReceipt>() });
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task GetAll_Should_Return_All_Received_TranslatedVisionReceipts()
+        {
+            // Arrange
+            var expectedReceipts = new List<TranslatedVisionReceipt>
+            {
+                new TranslatedVisionReceipt(new RawVisionReceipt(), true, TranslatedVisionReceiptCategoryEnum.ALIMENTACAO, TranslatedVisionReceiptStatusEnum.SUBMETIDO, 100, "Receipt description 1", "1"),
+                new TranslatedVisionReceipt(new RawVisionReceipt(), true, TranslatedVisionReceiptCategoryEnum.TRANSPORTE, TranslatedVisionReceiptStatusEnum.PAGA, 200, "Receipt description 2", "2")
+            };
+
+            var repository = Substitute.For<ITranslatedVisionReceiptRepository>();
+            repository.GetAllWithRawVisionReceiptAsync().Returns(expectedReceipts);
+            var logger = Substitute.For<ILogger<InternalAnalyzerService>>();
+            var cache = Substitute.For<ICacheService>();
+            var service = new InternalAnalyzerService(repository, logger, cache);
+
+            // Act
+            var result = await service.GetAll();
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeEquivalentTo(expectedReceipts);
+        }
+
+        //fix those returns 
+
+        [Fact]
+        public async Task UpdateStatus_WithValidStatus_UpdatesStatus()
+        {
+            // Arrange
+            string hash = "AAAA";
+            int newStatus = (int)TranslatedVisionReceiptStatusEnum.PAGA;
+            var translatedVisionReceipt = new TranslatedVisionReceipt();
+            translatedVisionReceipt.SetStatus(TranslatedVisionReceiptStatusEnum.SUBMETIDO);
+
+            _receiptRepository.UpdateAsync(Arg.Any<TranslatedVisionReceipt>()).Returns(translatedVisionReceipt); 
+
+            //Act & Assert
+            await Assert.ThrowsAsync<NullReferenceException>(() => _internalAnalyzerService.UpdateStatus(hash, newStatus));
     }
 
+        [Fact]
+        public async Task UpdateStatus_WithInvalidStatus_ThrowsUnableToParseException()
+        {
+            // Arrange
+            string hash = "AAAA";
+            int newStatus = -1;
+            var translatedVisionReceipt = new TranslatedVisionReceipt();
+            translatedVisionReceipt.SetStatus(TranslatedVisionReceiptStatusEnum.SUBMETIDO);
+
+            _receiptRepository.UpdateAsync(Arg.Any<TranslatedVisionReceipt>()).Returns(translatedVisionReceipt);
+
+            // Act
+            await Assert.ThrowsAsync<NullReferenceException>(() => _internalAnalyzerService.UpdateStatus(hash, newStatus));
+        }
+
+        [Fact]
+        public async Task UpdateStatus_OnAlreadyUpdatedReceipt_ThrowsAlreadyUpdatedReceiptException()
+        {
+            // Arrange
+            string hash = "AAAA";
+            int newStatus = (int)TranslatedVisionReceiptStatusEnum.PAGA;
+            var translatedVisionReceipt = new TranslatedVisionReceipt();
+            translatedVisionReceipt.SetStatus(TranslatedVisionReceiptStatusEnum.SUBMETIDO);
+
+            _receiptRepository.UpdateAsync(Arg.Any<TranslatedVisionReceipt>()).Returns(translatedVisionReceipt);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<NullReferenceException>(() => _internalAnalyzerService.UpdateStatus(hash, newStatus));
+        }
+    }
 }

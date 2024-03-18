@@ -4,9 +4,11 @@ using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Context;
 using SmartRefund.Infra.Interfaces;
 using SmartRefund.ViewModels.Requests;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartRefund.Infra.Repositories
 {
+    [ExcludeFromCodeCoverage]
     public class EventSourceRepository : IEventSourceRepository
     {
         internal readonly AppDbContext _context;

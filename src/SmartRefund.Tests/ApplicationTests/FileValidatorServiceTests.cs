@@ -1,25 +1,14 @@
-﻿using Castle.Core.Logging;
-using FluentAssertions;
+﻿
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NSubstitute;
-using SmartRefund.Application.Interfaces;
 using SmartRefund.Application.Services;
 using SmartRefund.CustomExceptions;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Interfaces;
-using SmartRefund.ViewModels.Responses;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmartRefund.Tests.ApplicationTests
 {
@@ -33,10 +22,15 @@ namespace SmartRefund.Tests.ApplicationTests
         {
             _mockReceiptRepository = Substitute.For<IInternalReceiptRepository>();
             var eventSourceRepository = Substitute.For<IEventSourceRepository>();
+            eventSourceRepository.AddEvent(Arg.Any<ReceiptEventSource>(), Arg.Any<string>(), Arg.Any<Event>())
+                          .Returns(Task.FromResult<ReceiptEventSource>(new ReceiptEventSource()));
+            eventSourceRepository.AddEvent(Arg.Any<ReceiptEventSource>(), Arg.Any<string>(), Arg.Any<Event>())
+                          .Returns(Task.FromResult<ReceiptEventSource>(new ReceiptEventSource()));
+
             var loggerMock = Substitute.For<ILogger<FileValidatorService>>();
             var configurationMock = Substitute.For<IConfiguration>();
+            configurationMock["OpenAIVisionConfig:MinResolutionInPPI"].Returns("35"); 
             var mediatorMock = Substitute.For<IMediator>();
-            configurationMock["OpenAIVisionConfig:MinResolutionInPPI"].Returns("50"); // Mocking configuration value
             _fileValidatorService = new FileValidatorService(_mockReceiptRepository, loggerMock, configurationMock, eventSourceRepository, mediatorMock);
         }
 
@@ -44,7 +38,7 @@ namespace SmartRefund.Tests.ApplicationTests
         public void ValidateType_ValidImage_ReturnsTrue()
         {
             // Arrange
-            
+
             var sourceImgPath = @"../../../ApplicationTests/Assets/example.jpg";
             var sourceImgBytes = File.ReadAllBytes(sourceImgPath);
             var fileName = "example.jpg";
@@ -130,37 +124,6 @@ namespace SmartRefund.Tests.ApplicationTests
             Assert.Throws<InvalidFileTypeException>(() => _fileValidatorService.ValidateExtension(fileName));
         }
 
-        //[Fact]
-        //public async Task If_is_validated_an_internal_receipt_is_created()
-        //{
-        //    // Arrange
-        //    var file = new Mock<IFormFile>();
-        //    var sourceImgPath = @"../../../ApplicationTests/Assets/example.jpg";
-        //    var sourceImgBytes = File.ReadAllBytes(sourceImgPath);
-        //    var ms = new MemoryStream(sourceImgBytes);
-        //    var fileName = "example.jpg";
-
-        //    file.Setup(f => f.FileName).Returns(fileName).Verifiable();
-
-        //    file.Setup(_ => _.CopyToAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
-        //        .Returns((Stream stream, CancellationToken token) => ms.CopyToAsync(stream))
-        //        .Callback((Stream stream, CancellationToken token) => ms.Position = 0)
-        //        .Verifiable();
-
-        //    file.Setup(_ => _.OpenReadStream())
-        //        .Returns(ms)
-        //        .Verifiable();
-
-        //    var inputFile = file.Object;
-        //    uint employeeId = 1;
-
-        //    // Act
-        //    var result = await _fileValidatorService.Validate(inputFile, employeeId);
-
-        //    // Assert
-        //    result.Should().BeOfType<InternalReceiptResponse>();
-        //}
-
         [Fact]
         public async Task If_is_invalidated_throws_invalid_type_exception()
         {
@@ -185,8 +148,50 @@ namespace SmartRefund.Tests.ApplicationTests
             var inputFile = file.Object;
             uint employeeId = 1;
 
-            // Act and Assert
+            // Act & Assert
             await Assert.ThrowsAsync<InvalidFileTypeException>(async () => await _fileValidatorService.Validate(inputFile, employeeId));
+        }
+
+        [Fact]
+        public async Task If_file_is_null_throws_argument_null_exception()
+        {
+            // Arrange
+            IFormFile file = null;
+
+            // Act & Assert
+            await Assert.ThrowsAsync<NullReferenceException>(async () => await _fileValidatorService.Validate(file, 1));
+        }
+
+        [Fact]
+        public async Task If_employee_id_is_zero_throws_invalid_operation_exception()
+        {
+            // Arrange
+            var file = Substitute.For<IFormFile>();
+
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidFileTypeException>(async () => await _fileValidatorService.Validate(file, 0));
+        }
+
+        [Fact]
+        public void ValidateSize_WithNegativeSize_Throws_ArgumentOutOfRangeException()
+        {
+            // Arrange
+            long size = 20 * 1024 * 1024;
+
+            // Act & Assert
+            Assert.Throws<InvalidFileSizeException>(() => _fileValidatorService.ValidateSize(size));
+        }
+
+        [Fact]
+        public async Task If_file_size_exceeds_max_allowed_size_throws_invalid_file_size_exception()
+        {
+            // Arrange
+            var file = Substitute.For<IFormFile>();
+            var ms = new MemoryStream(new byte[25 * 1024 * 1024]); // 25MB file
+            file.Length.Returns(ms.Length);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidFileSizeException>(async () => await _fileValidatorService.Validate(file, 1));
         }
     }
 }

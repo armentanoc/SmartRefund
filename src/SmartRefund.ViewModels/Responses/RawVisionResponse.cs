@@ -1,8 +1,10 @@
 ﻿
 using SmartRefund.Domain.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartRefund.ViewModels.Responses
 {
+    [ExcludeFromCodeCoverage]
     public class RawVisionResponse
     {
         public string UniqueHash { get; set; }

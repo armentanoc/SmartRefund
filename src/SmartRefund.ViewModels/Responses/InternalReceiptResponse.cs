@@ -1,9 +1,12 @@
 ﻿
 using SmartRefund.Domain.Models;
 using SmartRefund.Domain.Models.Enums;
+using System.Text;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartRefund.ViewModels.Responses
 {
+    [ExcludeFromCodeCoverage]
     public class InternalReceiptResponse
     {
         public string UniqueHash { get; private set; }

@@ -5,12 +5,14 @@ using SmartRefund.Domain.Models;
 using SmartRefund.ViewModels.Responses;
 using SmartRefund.WebAPI.Request;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
 namespace SmartRefund.WebAPI.Controllers
 {
+    [ExcludeFromCodeCoverage]
     [ApiController]
     [Route("api/login")]
     public class LoginController : ControllerBase

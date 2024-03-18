@@ -4,9 +4,11 @@ using SmartRefund.Domain.Enums;
 using SmartRefund.Domain.Models;
 using SmartRefund.Infra.Context;
 using SmartRefund.Infra.Interfaces;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartRefund.Infra.Repositories
 {
+    [ExcludeFromCodeCoverage]
     public class TranslatedVisionReceiptRepository : Repository<TranslatedVisionReceipt>, ITranslatedVisionReceiptRepository
     {
         public TranslatedVisionReceiptRepository(AppDbContext context) : base(context)

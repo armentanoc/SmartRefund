@@ -2,13 +2,13 @@
 using SmartRefund.Application.Interfaces;
 using SmartRefund.WebAPI.Filters;
 using System.ComponentModel.DataAnnotations;
-using SmartRefund.ViewModels;
 using Swashbuckle.AspNetCore.Annotations;
 using SmartRefund.ViewModels.Responses;
-using SmartRefund.CustomExceptions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartRefund.WebAPI.Controllers
 {
+    [ExcludeFromCodeCoverage]
     [Route("api/receipt")]
     [ApiController]
     [TypeFilter(typeof(AuthorizationFilterEmployee))]

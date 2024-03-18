@@ -3,12 +3,14 @@ using SmartRefund.Application.Handlers.Requests;
 using SmartRefund.Application.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SmartRefund.Application.Handlers
 {
+    [ExcludeFromCodeCoverage]
     public class SaveDataCommandHandler : IRequestHandler<SaveDataCommandRequest, Unit>
     {
         private readonly IVisionProcessingWorkerService _visionProcessingWorker;

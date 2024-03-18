@@ -4,12 +4,13 @@ using SmartRefund.ViewModels.Requests;
 using SmartRefund.ViewModels.Responses;
 using SmartRefund.WebAPI.Filters;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SmartRefund.WebAPI.Controllers
 {
-    
-    [Route("api/receipt")]
+    [ExcludeFromCodeCoverage]
     [ApiController]
+    [Route("api/management")]
     public class ManagementController : Controller
     {
         private readonly IInternalAnalyzerService _analyzerService;

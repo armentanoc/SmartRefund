@@ -366,7 +366,10 @@ FodyWeavers.xsd
 *.db-shm
 *.db-wal
 
-# Front-end gitignore
+# Report Generator
+src/output/
+
+Front-end gitignore
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
