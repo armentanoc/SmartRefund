@@ -217,5 +217,33 @@ namespace SmartRefund.Tests.Application.Services
             Assert.True(result);
             Assert.Equal(rawVisionReceipt, receiptEventSource.RawVisionReceipt);
         }
+
+        [Fact]
+        public void SetTranslatedVisionReceipt_ReturnsFalse_WhenParameterIsNull()
+        {
+            // Arrange
+            var receiptEventSource = new ReceiptEventSource();
+
+            // Act
+            var result = receiptEventSource.SetTranslatedVisionReceipt(null);
+
+            // Assert
+            Assert.False(result);
+            Assert.Null(receiptEventSource.TranslatedVisionReceipt);
+        }
+
+        [Fact]
+        public void SetRawVisionReceipt_ReturnsFalse_WhenParameterIsNull()
+        {
+            // Arrange
+            var receiptEventSource = new ReceiptEventSource();
+
+            // Act
+            var result = receiptEventSource.SetRawVisionReceipt(null);
+
+            // Assert
+            Assert.False(result);
+            Assert.Null(receiptEventSource.RawVisionReceipt);
+        }
     }
 }

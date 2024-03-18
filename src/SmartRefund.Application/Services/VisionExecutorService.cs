@@ -56,13 +56,13 @@ public class VisionExecutorService : IVisionExecutorService
 
             return addedRawVisionReceipt;
         }
-        catch (AuthenticationException authEx)
+        catch (AuthenticationException)
         {
             input.SetStatus(InternalReceiptStatusEnum.VisionAuthenticationFailed);
             await _internalReceiptRepository.UpdateAsync(input);
             throw;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             input.SetStatus(input.Status switch
             {
