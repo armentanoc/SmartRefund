@@ -11,9 +11,13 @@ namespace SmartRefund.Infra.Context
         public DbSet<TranslatedVisionReceipt> TranslatedVisionReceipt { get; set; }
         public DbSet<RawVisionReceipt> RawVisionReceipt { get; set; }
         public DbSet<InternalReceipt> InternalReceipt { get; set; }
+        public DbSet<Event> Events { get; set; }
+        public DbSet<ReceiptEventSource> ReceiptEventSource { get; set; }
+        
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
 
         }
+
     }
 }

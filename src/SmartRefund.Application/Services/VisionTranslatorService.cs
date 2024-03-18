@@ -35,8 +35,9 @@ namespace SmartRefund.Application.Services
                     category: GetCategory(rawVisionReceipt.Category),
                     status: TranslatedVisionReceiptStatusEnum.SUBMETIDO,
                     total: GetTotal(rawVisionReceipt.Total),
-                    description: GetDescription(rawVisionReceipt.Description)
-                    , "1");
+                    description: GetDescription(rawVisionReceipt.Description),
+                    uniqueHash: rawVisionReceipt.UniqueHash
+                    );
 
             var addedReceipt = await _translatorRepository.AddAsync(translatedVisionReceipt);
             rawVisionReceipt.SetIsTranslated(true);

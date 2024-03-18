@@ -1,9 +1,13 @@
-﻿namespace SmartRefund.Application.Interfaces
+﻿using OpenAI_API.Chat;
+
+namespace SmartRefund.Application.Interfaces
 {
     public interface IVisionExecutorServiceConfiguration
     {
         string OpenAIVisionApiEnvVar { get; }
         OpenAIVisionPrompts OpenAIVisionPrompts { get; }
+        ChatRequest ChatRequestConfig { get; }
+
     }
 
     public class OpenAIVisionPrompts

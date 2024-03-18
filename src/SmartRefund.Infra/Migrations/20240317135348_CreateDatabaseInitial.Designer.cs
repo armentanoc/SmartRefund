@@ -11,13 +11,47 @@ using SmartRefund.Infra.Context;
 namespace SmartRefund.Infra.Migrations
 {
     [DbContext(typeof(AppDbContext))]
+<<<<<<<< HEAD:src/SmartRefund.Infra/Migrations/20240315205514_CreateDatabaseInitial.Designer.cs
     [Migration("20240315205514_CreateDatabaseInitial")]
     partial class CreateDatabaseInitial { 
+========
+    [Migration("20240317135348_CreateDatabaseInitial")]
+    partial class CreateDatabaseInitial
+    {
+>>>>>>>> ee66b419a05cde0ba95c94fda7ebc61c523ad7bb:src/SmartRefund.Infra/Migrations/20240317135348_CreateDatabaseInitial.Designer.cs
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.2");
+
+            modelBuilder.Entity("SmartRefund.Domain.Models.Event", b =>
+                {
+                    b.Property<uint>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("EventDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("HashCode")
+                        .HasColumnType("TEXT");
+
+                    b.Property<uint?>("ReceiptEventSourceId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceiptEventSourceId");
+
+                    b.ToTable("Events");
+                });
 
             modelBuilder.Entity("SmartRefund.Domain.Models.InternalReceipt", b =>
                 {
@@ -86,6 +120,39 @@ namespace SmartRefund.Infra.Migrations
                     b.ToTable("RawVisionReceipt");
                 });
 
+            modelBuilder.Entity("SmartRefund.Domain.Models.ReceiptEventSource", b =>
+                {
+                    b.Property<uint>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CurrentStatus")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<uint>("InternalReceiptId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<uint?>("RawVisionReceiptId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<uint?>("TranslatedVisionReceiptId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UniqueHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InternalReceiptId");
+
+                    b.HasIndex("RawVisionReceiptId");
+
+                    b.HasIndex("TranslatedVisionReceiptId");
+
+                    b.ToTable("ReceiptEventSource");
+                });
+
             modelBuilder.Entity("SmartRefund.Domain.Models.TranslatedVisionReceipt", b =>
                 {
                     b.Property<uint>("Id")
@@ -122,6 +189,13 @@ namespace SmartRefund.Infra.Migrations
                     b.ToTable("TranslatedVisionReceipt");
                 });
 
+            modelBuilder.Entity("SmartRefund.Domain.Models.Event", b =>
+                {
+                    b.HasOne("SmartRefund.Domain.Models.ReceiptEventSource", null)
+                        .WithMany("Events")
+                        .HasForeignKey("ReceiptEventSourceId");
+                });
+
             modelBuilder.Entity("SmartRefund.Domain.Models.RawVisionReceipt", b =>
                 {
                     b.HasOne("SmartRefund.Domain.Models.InternalReceipt", "InternalReceipt")
@@ -133,6 +207,29 @@ namespace SmartRefund.Infra.Migrations
                     b.Navigation("InternalReceipt");
                 });
 
+            modelBuilder.Entity("SmartRefund.Domain.Models.ReceiptEventSource", b =>
+                {
+                    b.HasOne("SmartRefund.Domain.Models.InternalReceipt", "InternalReceipt")
+                        .WithMany()
+                        .HasForeignKey("InternalReceiptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SmartRefund.Domain.Models.RawVisionReceipt", "RawVisionReceipt")
+                        .WithMany()
+                        .HasForeignKey("RawVisionReceiptId");
+
+                    b.HasOne("SmartRefund.Domain.Models.TranslatedVisionReceipt", "TranslatedVisionReceipt")
+                        .WithMany()
+                        .HasForeignKey("TranslatedVisionReceiptId");
+
+                    b.Navigation("InternalReceipt");
+
+                    b.Navigation("RawVisionReceipt");
+
+                    b.Navigation("TranslatedVisionReceipt");
+                });
+
             modelBuilder.Entity("SmartRefund.Domain.Models.TranslatedVisionReceipt", b =>
                 {
                     b.HasOne("SmartRefund.Domain.Models.RawVisionReceipt", "RawVisionReceipt")
@@ -142,6 +239,11 @@ namespace SmartRefund.Infra.Migrations
                         .IsRequired();
 
                     b.Navigation("RawVisionReceipt");
+                });
+
+            modelBuilder.Entity("SmartRefund.Domain.Models.ReceiptEventSource", b =>
+                {
+                    b.Navigation("Events");
                 });
 #pragma warning restore 612, 618
         }

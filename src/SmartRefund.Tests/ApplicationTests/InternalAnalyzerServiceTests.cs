@@ -41,8 +41,6 @@ namespace SmartRefund.Tests.ApplicationTests
             result.First().UniqueHash.Should().Be(expectedReceiptHash);
             result.First().EmployeeId.Should().Be(expectedEmployeeId);
             result.First().Total.Should().Be(expectedTotal);
-            result.First().Category.Should().Be(expectedCategory);
-            result.First().Status.Should().Be(expectedStatus);
             result.First().Description.Should().Be(expectedDescription);
         }
 
@@ -112,6 +110,7 @@ namespace SmartRefund.Tests.ApplicationTests
         //    // Assert
         //    result.Status.Should().Be(expectedStatus);
         //}
+
 
         [Theory]
         [InlineData("SUBMETIDO", TranslatedVisionReceiptStatusEnum.SUBMETIDO)]

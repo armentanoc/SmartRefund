@@ -26,7 +26,7 @@ namespace SmartRefund.Application.Services
         {
             try
             {
-                var cachedReceipts =  await _cacheService.GetCachedDataAsync<TranslatedReceiptResponse>(cacheKey);
+                var cachedReceipts = await _cacheService.GetCachedDataAsync<TranslatedReceiptResponse>(cacheKey);
                 if (cachedReceipts != null && cachedReceipts.Any())
                 {
                     return cachedReceipts;
@@ -71,15 +71,14 @@ namespace SmartRefund.Application.Services
             if (TryParseStatus(newStatus, out var result))
             {
                 var translatedVisionReceipt = await GetById(id);
-                    if (translatedVisionReceipt.Status == TranslatedVisionReceiptStatusEnum.SUBMETIDO)
-                    {
-                        translatedVisionReceipt.SetStatus(result);
-                        var updatedObject = await _receiptRepository.UpdateAsync(translatedVisionReceipt);
-                        return updatedObject;
-                    }
+                if (translatedVisionReceipt.Status == TranslatedVisionReceiptStatusEnum.SUBMETIDO)
+                {
+                    translatedVisionReceipt.SetStatus(result);
+                    var updatedObject = await _receiptRepository.UpdateAsync(translatedVisionReceipt);
+                    return updatedObject;
+                }
                 throw new AlreadyUpdatedReceiptException(id);
             }
-
             throw new UnableToParseException(newStatus);
         }
 

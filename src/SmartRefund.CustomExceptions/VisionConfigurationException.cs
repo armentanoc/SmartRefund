@@ -9,10 +9,9 @@ namespace SmartRefund.CustomExceptions
     {
         private string? Property { get; init; }
         public VisionConfigurationException(string propertyName)
-            : base($"Configuration of prompt {propertyName} cannot be null or whitespace")
+            : base($"Configuration of property {propertyName} can't be null, whitespace or invalid.")
         {
             Property = propertyName;
         }
-
     }
 }
