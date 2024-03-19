@@ -1,13 +1,10 @@
 <!--EVENT SOURCE CORRETO?, PORTA ESPECÍFICA DA API?, ESPECIFICAR TESTES-->
 # Projeto SmartRefund 🤖💰
 <!-- https://kapasia-dev-ed.my.site.com/Badges4Me/s/    https://simpleicons.org/?q=mui -->
-![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
-![SQLite](https://img.shields.io/badge/sqlite-%2300f.svg?style=for-the-badge&logo=sqlite&logoColor=white)
-
+<a href='https://swagger.io/' target="_blank"><img alt='Swagger' src='https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white'/></a>
 <a href='https://mui.com/' target="_blank"><img alt='MUI' src='https://img.shields.io/badge/MUI-100000?style=for-the-badge&logo=MUI&logoColor=white&labelColor=007FFF&color=007FFF'/></a>
+<a href='https://www.sqlite.org/' target="_blank"><img alt='SQLite' src='https://img.shields.io/badge/sqlite-%2300f.svg?style=for-the-badge&logo=sqlite&logoColor=white'/></a>
 <br><br>
-
-
 
 <table>
     <tr>
