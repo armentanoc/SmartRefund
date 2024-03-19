@@ -210,7 +210,8 @@ Através do `Middlewares/LoggingMiddleware` é realizado o logging sempre no com
 ## Especificação de testes 📋
 
 ### Teste de carga
-Foram realizados testes de carga para verificar o desempenho da aplicação, utilizando um escopo que varia de 5 a 30 usuários virtuais simultâneos.
+
+Foram realizados testes de carga para verificar o desempenho da aplicação, utilizando um escopo que varia de 5 a 30 usuários virtuais simultâneos no endpoint GET: api/management/submitted.
 
 ![Teste de Carga](https://drive.google.com/uc?id=1yXhp445NGhlrA8Gz71cs9UxGUXzv8fzT) <br/><br/>
 **Data Received / Data Sent:** Durante o teste, o servidor recebeu um total de 1.0 MB de dados a uma taxa média de 9.2 kB/s. Além disso, foram enviados 144 kB de dados a uma taxa média de 1.3 kB/s.<br/>
@@ -223,6 +224,21 @@ Foram realizados testes de carga para verificar o desempenho da aplicação, uti
 **HTTP Request Waiting:** Indica o tempo médio que o k6 esperou entre o envio da requisição e o recebimento da primeira resposta do servidor. O tempo médio foi de 2.27 ms, com 95% das solicitações sendo atendidas em menos de 5.66 ms.<br/>
 **HTTP Requests:** Durante o teste, foram feitas 1421 solicitações HTTP, com uma taxa média de 12.89 solicitações por segundo.<br/>
 **Iteration Duration:** Cada iteração do teste (um ciclo completo de todas as solicitações) teve uma duração média de 1.01 segundos, com 95% das iterações durando menos de 1.01 segundos.
+
+Também foram realizados testes de carga simultâneos no endpoint POST: api/receipt e GET: api/management/submitted com um escopo variavel de 1 a 10 usuários.
+
+![Teste de Carga](https://drive.google.com/uc?id=1RomCgs-azt_GtEQeYZYdHNiBgb26ZPgb)<br/><br/>
+**Data Received / Data Sent**: Durante o teste, o servidor recebeu um total de 123 kB de dados a uma taxa média de 5.3 kB/s. Além disso, foram enviados 5.5 MB de dados a uma taxa média de 236 kB/s.<br/>
+**HTTP Request Blocked**: O tempo médio que uma solicitação HTTP ficou bloqueada antes de ser enviada foi de 159.13 µs, com 95% das solicitações sendo bloqueadas em menos de 724.66 µs.<br/>
+**HTTP Request Connecting**: O tempo médio necessário para estabelecer a conexão TCP foi de 67.16 µs, com 95% das conexões sendo estabelecidas em menos de 605.4 µs.<br/>
+**HTTP Request Duration**: A duração média de uma solicitação HTTP, desde o início até o recebimento da resposta, foi de 846.94 ms. A maioria das solicitações (95%) foi concluída em menos de 3.5 segundos.<br/>
+**HTTP Request Failed**: Durante o teste, nenhuma solicitação falhou, o que é um ótimo sinal. Todas as 114 solicitações foram concluídas com sucesso.<br/>
+**HTTP Request Receiving**: O tempo médio que o K6 esperou pela resposta do servidor foi de 761.2 µs, com 95% das respostas sendo recebidas em menos de 4.87 ms.<br/>
+**HTTP Request Sending**: O tempo médio gasto para enviar a solicitação ao servidor foi de 643.29 µs, com 95% das solicitações sendo enviadas em menos de 1 ms.<br/>
+**HTTP Request Waiting**: O tempo médio que o K6 esperou entre o envio da solicitação e o recebimento da primeira resposta do servidor foi de 845.54 ms, com 95% das solicitações sendo atendidas em menos de 3.48 segundos.<br/>
+**HTTP Requests**: Durante o teste, foram feitas 114 solicitações HTTP, com uma taxa média de 4.88 solicitações por segundo.<br/>
+**Iteration Duration**: Cada iteração do teste (um ciclo completo de todas as solicitações) teve uma duração média de 2.7 segundos.<br/>
+**Iterations**: Durante o teste, ocorreram 57 iterações, com uma taxa média de 2.44 iterações por segundo.<br/>
 
 ### Teste de Stress
 
@@ -257,7 +273,6 @@ Foram realizados testes de imersão, o teste durou 1 hora e 16 minutos, utilizan
 **HTTP Request Waiting:** O tempo médio que o k6 esperou entre o envio da solicitação e o recebimento da primeira resposta do servidor foi de 1.61 ms, com 95% das solicitações sendo atendidas em menos de 9.28 ms.<br/>
 **HTTP Requests:** Durante o teste, foram feitas 33908 solicitações HTTP, com uma taxa média de 7.44 solicitações por segundo.<br/>
 **Iteration Duration:** Cada iteração do teste (um ciclo completo de todas as solicitações) teve uma duração média de 1 segundo.<br/>
-**Iterations:** Durante o teste, ocorreram 33908 iterações, com uma taxa média de 7.44 iterações por segundo.<br/>
 
 Este teste de imersão mostra como o servidor se comporta sob uma carga sustentada por um longo período. Todos os indicadores estão dentro dos limites desejados, sem falhas e com tempos de resposta aceitáveis. Isso sugere que o servidor é capaz de lidar com a carga esperada e permanecer estável ao longo do tempo.
 
