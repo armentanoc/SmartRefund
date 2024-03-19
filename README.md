@@ -1,9 +1,15 @@
 <!--EVENT SOURCE CORRETO?, PORTA ESPECÍFICA DA API?, ESPECIFICAR TESTES-->
 # Projeto SmartRefund 🤖💰
 <!-- https://kapasia-dev-ed.my.site.com/Badges4Me/s/    https://simpleicons.org/?q=mui -->
-<a href='https://swagger.io/' target="_blank"><img alt='Swagger' src='https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white'/></a>
-<a href='https://mui.com/' target="_blank"><img alt='MUI' src='https://img.shields.io/badge/MUI-100000?style=for-the-badge&logo=MUI&logoColor=white&labelColor=007FFF&color=007FFF'/></a>
+<a href='https://dotnet.microsoft.com/pt-br/apps/aspnet' target="_blank"><img alt='.net' src='https://img.shields.io/badge/ASP.NET-100000?style=for-the-badge&logo=.net&logoColor=white&labelColor=512BD4&color=512BD4'/></a>
+<a href='https://platform.openai.com/docs/guides/vision' target="_blank"><img alt='OpenAI' src='https://img.shields.io/badge/OpenAI-100000?style=for-the-badge&logo=OpenAI&logoColor=white&labelColor=412991&color=412991'/></a>
+<a href='https://k6.io/' target="_blank"><img alt='K6' src='https://img.shields.io/badge/K6-100000?style=for-the-badge&logo=K6&logoColor=white&labelColor=7D64FF&color=7D64FF'/></a>
+<a href='https://visualstudio.microsoft.com/pt-br/' target="_blank"><img alt='Visual Studio' src='https://img.shields.io/badge/Visual_Studio-100000?style=for-the-badge&logo=Visual Studio&logoColor=white&labelColor=5C2D91&color=5C2D91'/></a>
 <a href='https://www.sqlite.org/' target="_blank"><img alt='SQLite' src='https://img.shields.io/badge/sqlite-%2300f.svg?style=for-the-badge&logo=sqlite&logoColor=white'/></a>
+<a href='https://swagger.io/' target="_blank"><img alt='Swagger' src='https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white'/></a>
+<a href='https://code.visualstudio.com/' target="_blank"><img alt='visual studio code' src='https://img.shields.io/badge/vscode-100000?style=for-the-badge&logo=visual studio code&logoColor=white&labelColor=007ACC&color=007ACC'/></a>
+<a href='https://nextjs.org/' target="_blank"><img alt='next.js' src='https://img.shields.io/badge/next.js-100000?style=for-the-badge&logo=next.js&logoColor=white&labelColor=000000&color=000000'/></a>
+<a href='https://mui.com/' target="_blank"><img alt='MUI' src='https://img.shields.io/badge/MUI-100000?style=for-the-badge&logo=MUI&logoColor=white&labelColor=007FFF&color=007FFF'/></a>
 <br><br>
 
 <table>
