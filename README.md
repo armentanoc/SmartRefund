@@ -19,6 +19,11 @@
     </tr>
 </table>
 
+---
+
+<div align="center" display="flex">
+<img src="https://github.com/armentanoc/SmartRefund/assets/88147887/dd619b2e-2653-4c66-84ff-aa670c031143">
+</div>
 
 ## Endpoints da API 🚀
 A API oferece os seguintes endpoints:
@@ -34,11 +39,6 @@ POST /[controller]: Realiza o login dos usuários no sistema. Manuseio autorizad
 
 ```
 
-<div align="center" display="flex">
-<img src="" height="500px">
-</div>
-
-
 ### Entry 
 
 ```
@@ -50,53 +50,26 @@ POST /receipt: Realiza o upload de uma imagem que é potencial nota fiscal e dá
 
 ```
 
-<div align="center" display="flex">
-<img src="" height="500px">
-</div>
-
 ### Management 
 
 ```
 GET /receipts/submitted: Retorna todas as notas fiscais com status em SUBMETIDO, para que o financeiro possa visualizar. Manuseio autorizado por qualquer funcionário.
 ```
-
-<div align="center" display="flex">
-<img src="" height="500px">
-</div>
-
 ```
 PATCH /receipts/status: Altera o status da despesa para PAGA ou RECUSADA. Manuseio autorizado apenas para um funcinário do tipo "finance".
 ```
-
-<div align="center" display="flex">
-<img src="" height="500px">
-</div>
 
 ### EventSource
 
 ```
 GET {hash}/front: Busca um evento e suas entidades vinculadas pelo UniqueHash.
 ```
-
-<div align="center" display="flex">
-<img src="" height="500px">
-</div>
-
 ```
 GET /front/: Busca todos os eventos e as entidades vinculadas. 
 ```
-
-<div align="center" display="flex">
-<img src="" height="500px">
-</div>
-
 ```
 GET {hash}/audit: Busca um evento pelo UniqueHash. 
 ```
-
-<div align="center" display="flex">
-<img src="" height="500px">
-</div>
 
 ## Autenticação 🔗
 A API utiliza um filtro de Autorização para validar o login de funcionários. Os seguintes cargos estão disponíveis:
@@ -181,11 +154,6 @@ As configurações do serviço que chama o GPT Vision para passar a imagem posta
 ## Middleware Customizado de Logging 🗞️ e Filtro Customizado de Exceção 🐛
 
 Através do `Middlewares/LoggingMiddleware` é realizado o logging sempre no começo e no final de uma requisição, com detalhes sobre o status e eventuais erros de forma personalizada, que são capturados no Filtro Customizado de Exceção Global (`Filters/ExceptionFilter.cs`).
-
-<div align="center" display="flex">
-<img src="..." height="500px">
-</div>
-<br/>
 
 <div align="center" display="flex">
     
@@ -277,6 +245,10 @@ Este teste de imersão mostra como o servidor se comporta sob uma carga sustenta
 
 ### Teste de cobertura
 
+<div align="center" display="flex">
+<img src="https://github.com/armentanoc/SmartRefund/assets/88147887/5961af65-e178-4d37-918c-52de9828e425">
+</div>
+
 ```
 dotnet test --collect:"XPlat Code Coverage"
 
@@ -309,7 +281,7 @@ Add-Migration CreateDatabaseInitial
 Update-Database
 ```
 4. Execute o projeto na sua máquina.
-5. Abra o link da interface para [login](https://smart-refund-front.vercel.app/login).
+5. Abra o link da interface front end para realizar [login](https://smart-refund-front.vercel.app/login) e acessar as funcionalidades do sistema para `employee` e `finance`.
 
 ## Documentação da API 📚
 A API está documentada usando Swagger. Após a execução do projeto, acesse a documentação em:
