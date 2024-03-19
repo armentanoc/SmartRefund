@@ -212,6 +212,7 @@ namespace SmartRefund.Tests.ApplicationTests
             memoryStream.Dispose();
         }
 
+
         [Fact]
         public async Task GenerateUniqueHash_ValidRepository_ReturnsHash()
         {
