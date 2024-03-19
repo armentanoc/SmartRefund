@@ -1,0 +1,40 @@
+@tailwind utilities;
+
+.refund-layout-grid-container {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  grid-template-rows: 64px 1fr;
+  grid-template-areas:
+    "header"
+    "main";
+}
+
+.login-grid-container {
+  display: grid;
+  width: 100%;
+  height: 100vh;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  place-items: center;
+}
+
+.refund-grid-container {
+  grid-area: main;
+  display: grid;
+  width: 100%;
+  grid-template-columns: 1fr;
+  grid-template-areas: "mainSection";
+  gap: 32px;
+}
+
+@media (min-width: 768px) {
+  .login-grid-container {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .refund-grid-container {
+    grid-template-columns: 280px 1fr;
+    grid-template-areas: "aside mainSection";
+  }
+}
