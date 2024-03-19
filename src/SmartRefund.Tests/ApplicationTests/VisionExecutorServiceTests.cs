@@ -265,5 +265,95 @@ namespace SmartRefund.Application.Services.Tests
             // Assert
             Assert.Equal(expected, result);
         }
+
+        [Fact]
+        public async Task ExecuteRequestAsync_AuthenticationException_UpdatesStatusAndThrows()
+        {
+            // Arrange
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    { "OpenAIVisionConfig:EnvVariable", "MockedApiKey" } // Mocked environment variable
+                })
+                .Build();
+
+            var mockedConfig = new Mock<IVisionExecutorServiceConfiguration>();
+            mockedConfig.Setup(c => c.OpenAIVisionApiEnvVar).Returns("OpenAIVisionConfig:EnvVariable");
+            mockedConfig.Setup(c => c.OpenAIVisionPrompts).Returns(new OpenAIVisionPrompts());
+
+            var internalReceipt = new InternalReceipt(1, new byte[0], "AAAAAA");
+            internalReceipt.SetStatus(InternalReceiptStatusEnum.Unprocessed);
+
+            var repositoryMock = new Mock<IInternalReceiptRepository>();
+            repositoryMock.Setup(repo => repo.UpdateAsync(internalReceipt)).ReturnsAsync(internalReceipt);
+
+            var rawVisionReceiptRepositoryMock = new Mock<IRawVisionReceiptRepository>();
+            rawVisionReceiptRepositoryMock.Setup(repo => repo.AddAsync(It.IsAny<RawVisionReceipt>())).ReturnsAsync(new RawVisionReceipt());
+
+            var visionExecutorService = new VisionExecutorService(repositoryMock.Object, rawVisionReceiptRepositoryMock.Object, Mock.Of<ILogger<VisionExecutorService>>(), configuration, mockedConfig.Object);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<AuthenticationException>(() => visionExecutorService.ExecuteRequestAsync(internalReceipt));
+
+            // Assert
+            repositoryMock.Verify(repo => repo.UpdateAsync(internalReceipt), Times.Once);
+        }
+
+        [Fact]
+        public async Task ExecuteRequestAsync_return_rawvisionreceipt_if_existingrawvivionsreceipt_is_not_null()
+        {
+            // Arrange
+            var repository = Substitute.For<IInternalReceiptRepository>();
+            var rawVisionReceiptRepository = Substitute.For<IRawVisionReceiptRepository>();
+            var logger = Substitute.For<ILogger<VisionExecutorService>>();
+            var config = Substitute.For<IConfiguration>();
+            var visionConfigSub = Substitute.For<IVisionExecutorServiceConfiguration>();
+
+            var service = new VisionExecutorService(repository, rawVisionReceiptRepository, logger, config, visionConfigSub);
+
+            var internalVisionReceipt = new InternalReceipt(1, [], "uniqueHash");
+            var rawVisionReceipt = new RawVisionReceipt();
+
+            rawVisionReceiptRepository.GetByUniqueHashAsync(internalVisionReceipt.UniqueHash).Returns(rawVisionReceipt);
+
+
+            // Act
+            var result = await service.ExecuteRequestAsync(internalVisionReceipt);
+            
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<RawVisionReceipt>(result);
+            
+        }
+
+
+        [Fact]
+        public async Task CreateRawVisionReceiptAsync_return_rawvisionreceipt_if_existingrawvivionsreceipt_is_not_null()
+        {
+            // Arrange
+            var repository = Substitute.For<IInternalReceiptRepository>();
+            var rawVisionReceiptRepository = Substitute.For<IRawVisionReceiptRepository>();
+            var logger = Substitute.For<ILogger<VisionExecutorService>>();
+            var config = Substitute.For<IConfiguration>();
+            var visionConfigSub = Substitute.For<IVisionExecutorServiceConfiguration>();
+
+            var service = new VisionExecutorService(repository, rawVisionReceiptRepository, logger, config, visionConfigSub);
+
+            var internalVisionReceipt = new InternalReceipt(1, [], "uniqueHash");
+            var rawVisionReceipt = new RawVisionReceipt();
+            var rawVisionResponse = new RawVisionResponse();
+
+            rawVisionReceiptRepository.GetByUniqueHashAsync(internalVisionReceipt.UniqueHash).Returns(rawVisionReceipt);
+
+
+            // Act
+            var result = await service.CreateRawVisionReceiptAsync(internalVisionReceipt, rawVisionResponse);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<RawVisionReceipt>(result);
+
+        }
+
     }
 }

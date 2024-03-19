@@ -115,7 +115,7 @@ namespace SmartRefund.Tests.Application.Services
         }
 
         [Fact]
-        public void ChatRequestConfig_Throws_Exception_When_Configuration_Is_Not_Valid()
+        public void ChatRequestConfig_Throws_Exception_When_Configuration_Is_Missing()
         {
             // Arrange
             var configuration = Substitute.For<IConfiguration>();
@@ -125,6 +125,54 @@ namespace SmartRefund.Tests.Application.Services
 
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() => _ = service.ChatRequestConfig);
+        }
+
+        [Fact]
+        public void ChatRequestConfig_Throws_InvalidOperationException_When_Temperature_Is_Not_Set()
+        {
+            // Arrange
+            var configuration = Substitute.For<IConfiguration>();
+            configuration["OpenAIVisionConfig:ChatRequestConfig:Model"].Returns("GPT4_Vision");
+            configuration["OpenAIVisionConfig:ChatRequestConfig:ResponseFormat"].Returns("JSON");
+            configuration["OpenAIVisionConfig:ChatRequestConfig:MaxTokens"].Returns("100");
+            // Temperature is missing
+            var service = new VisionExecutorServiceConfiguration(configuration);
+
+            // Act & Assert
+            Assert.Throws<InvalidOperationException>(() => _ = service.ChatRequestConfig);
+        }
+
+        [Fact]
+        public void ChatRequestConfig_Throws_UnableToParseException_When_Temperature_Is_Invalid()
+        {
+            // Arrange
+            var configuration = Substitute.For<IConfiguration>();
+            configuration["OpenAIVisionConfig:ChatRequestConfig:Model"].Returns("GPT4_Vision");
+            configuration["OpenAIVisionConfig:ChatRequestConfig:ResponseFormat"].Returns("JSON");
+            configuration["OpenAIVisionConfig:ChatRequestConfig:MaxTokens"].Returns("100");
+            configuration["OpenAIVisionConfig:ChatRequestConfig:Temperature"].Returns("INVALID_STATUS");
+            // ResponseFormat, MaxTokens, and Temperature are missing
+            var service = new VisionExecutorServiceConfiguration(configuration);
+
+            // Act & Assert
+            Assert.Throws<UnableToParseException>(() => _ = service.ChatRequestConfig);
+        }
+
+
+        [Fact]
+        public void ChatRequestConfig_Throws_UnableToParseException_When_MaxTokens_Is_Invalid()
+        {
+            // Arrange
+            var configuration = Substitute.For<IConfiguration>();
+            configuration["OpenAIVisionConfig:ChatRequestConfig:Model"].Returns("GPT4_Vision");
+            configuration["OpenAIVisionConfig:ChatRequestConfig:ResponseFormat"].Returns("JSON");
+            configuration["OpenAIVisionConfig:ChatRequestConfig:MaxTokens"].Returns("INVALID_STATUS");
+            configuration["OpenAIVisionConfig:ChatRequestConfig:Temperature"].Returns("1");
+            // ResponseFormat, MaxTokens, and Temperature are missing
+            var service = new VisionExecutorServiceConfiguration(configuration);
+
+            // Act & Assert
+            Assert.Throws<UnableToParseException>(() => _ = service.ChatRequestConfig);
         }
 
     }

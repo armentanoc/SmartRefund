@@ -193,5 +193,42 @@ namespace SmartRefund.Tests.ApplicationTests
             // Act & Assert
             await Assert.ThrowsAsync<InvalidFileSizeException>(async () => await _fileValidatorService.Validate(file, 1));
         }
+
+        [Fact]
+        public void ValidateResolution_ValidImage_ReturnsTrue()
+        {
+            // Arrange
+            var sourceImgPath = @"../../../ApplicationTests/Assets/example.jpg";
+            var sourceImgBytes = File.ReadAllBytes(sourceImgPath);
+            var memoryStream = new MemoryStream(sourceImgBytes);
+
+            // Act
+            var result = _fileValidatorService.ValidateResolution(memoryStream);
+
+            // Assert
+            Assert.True(result);
+
+            // Dispose
+            memoryStream.Dispose();
+        }
+
+
+        [Fact]
+        public async Task GenerateUniqueHash_ValidRepository_ReturnsHash()
+        {
+            // Arrange
+            var receipts = new List<InternalReceipt>()
+            {
+                new InternalReceipt(1, new byte[0], "AAAAAA"),
+            };
+            _mockReceiptRepository.GetAllAsync().Returns(receipts);
+
+            // Act
+            var result = await _fileValidatorService.GenerateUniqueHash();
+
+            // Assert
+            Assert.Equal("AAAAAA", result);
+        }
+
     }
 }
