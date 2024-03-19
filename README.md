@@ -62,13 +62,22 @@ PATCH /receipts/status: Altera o status da despesa para PAGA ou RECUSADA. Manuse
 ### EventSource
 
 ```
-GET {hash}/front: Busca um evento e suas entidades vinculadas pelo UniqueHash.
+GET /{hash}/front: Busca um evento e suas entidades vinculadas pelo UniqueHash.  Manuseio autorizado por qualquer funcionário.
 ```
 ```
-GET /front/: Busca todos os eventos e as entidades vinculadas. 
+GET /front/: Busca todos os eventos e as entidades vinculadas.  Manuseio autorizado por qualquer funcionário.
 ```
 ```
-GET {hash}/audit: Busca um evento pelo UniqueHash. 
+GET /{hash}/audit: Busca um evento pelo UniqueHash. Manuseio autorizado apenas para um funcinário do tipo "finance".
+```
+
+### Testes
+
+```
+GET /management/submitted: Realização do teste de carga, para verificar o desempenho da aplicação. Utilizou-se um escopo que varia de 5 a 30 usuários virtuais simultâneos.
+```
+```
+POST: /receipt e GET: /management/submitted: Realização do teste de carga simultâneos com um escopo variavel de 1 a 10 usuários.
 ```
 
 ## Autenticação 🔗
@@ -96,6 +105,11 @@ Finance - Possibilita visualizar todas as notas fiscais submetidas e alterar o s
 ```
 
 ## Estrutura do Projeto :building_construction:
+
+### 🎨 `SmartRefund-Front` 
+Essa pasta contém toda a parte visual do projeto.
+
+---
 
 A pasta `/src` contém a solução `SmartRefund` e os projetos que compõem a aplicação.
 
@@ -128,19 +142,26 @@ Projeto que contém os testes unitários em xUnity da lógica de negócio da apl
 As configurações do serviço que chama o GPT Vision para passar a imagem postada por um funcionário e extrair os dados são totalmente customizáveis: a API key é passada através de uma variável de ambiente com o nome especificado em `EnvVariable` e os `Prompts` de `System` e diversos prompts de `User` também são customizáveis, sendo traduzidos também através de um serviço de configuração, de maneira a facilitar a manutenibilidade e escalabilidade.
 
 ```
-  "OpenAIVisionConfig": {
+"OpenAIVisionConfig": {
   "EnvVariable": "OPENAI_KEY_DIVERSEDEV",
+  "MinResolutionInPPI" : "35",
   "Prompts": {
     "System": "Você é um especialista em ler notas fiscais e extrair informações importantes.",
     "User": {
       "Image": "Você deve considerar essa imagem de nota fiscal para responder às próximas perguntas.",
       "IsReceipt": "Essa imagem é algum comprovante fiscal? Responda com SIM ou NAO.",
+      "IsResolutionReadable": "A resolução deste comprovante fiscal é clara e legível? Responda com SIM ou NAO.",
       "Total": "Qual o valor total dessa despesa? Escreva o valor apenas com números.",
       "Category": "Que categoria de despesa é essa? Responda entre: HOSPEDAGEM OU TRANSPORTE OU VIAGEM OU ALIMENTACAO OU OUTROS.",
-      "Description": "Descreva essa nota fiscal em texto corrido com detalhes como, se houver, Produto, Quantidade, Nome da Empresa, CNPJ e Data e Horário da Emissão da Nota."
+      "Description": "Descreva essa nota fiscal em texto corrido de forma sucinta com, se houver, Produto, Quantidade, Nome da Empresa, CNPJ e Data e Horário da Emissão da Nota, utilizando no máximo 250 caracteres."
     }
+  },
+  "ChatRequestConfig": {
+    "Model": "gpt-4-vision-preview",
+    "ResponseFormat": "text",
+    "MaxTokens": 250,
+    "Temperature": 0.5
   }
-},
 ```
 ## Autenticação na OpenAI com Variável de Ambiente🔒
 
@@ -177,7 +198,7 @@ Através do `Middlewares/LoggingMiddleware` é realizado o logging sempre no com
 ## Especificação de testes 📋
 
 ### Teste de carga
-Foram realizados testes de carga para verificar o desempenho da aplicação, utilizando um escopo que varia de 5 a 30 usuários virtuais simultâneos no endpoint GET: api/management/submitted.
+Foram realizados testes de carga para verificar o desempenho da aplicação, utilizando um escopo que varia de 5 a 30 usuários virtuais simultâneos.
 
 ![Teste de Carga](https://drive.google.com/uc?id=1yXhp445NGhlrA8Gz71cs9UxGUXzv8fzT) <br/><br/>
 **Data Received / Data Sent:** Durante o teste, o servidor recebeu um total de 1.0 MB de dados a uma taxa média de 9.2 kB/s. Além disso, foram enviados 144 kB de dados a uma taxa média de 1.3 kB/s.<br/>
@@ -191,7 +212,7 @@ Foram realizados testes de carga para verificar o desempenho da aplicação, uti
 **HTTP Requests:** Durante o teste, foram feitas 1421 solicitações HTTP, com uma taxa média de 12.89 solicitações por segundo.<br/>
 **Iteration Duration:** Cada iteração do teste (um ciclo completo de todas as solicitações) teve uma duração média de 1.01 segundos, com 95% das iterações durando menos de 1.01 segundos.
 
-Também foram realizados testes de carga simultâneos no endpoint POST: api/receipt e GET: api/management/submitted com um escopo variavel de 1 a 10 usuários.
+Também foram realizados testes de carga simultâneos com um escopo variavel de 1 a 10 usuários.
 
 ![Teste de Carga](https://drive.google.com/uc?id=1RomCgs-azt_GtEQeYZYdHNiBgb26ZPgb)<br/><br/>
 **Data Received / Data Sent**: Durante o teste, o servidor recebeu um total de 123 kB de dados a uma taxa média de 5.3 kB/s. Além disso, foram enviados 5.5 MB de dados a uma taxa média de 236 kB/s.<br/>
@@ -273,6 +294,8 @@ O projeto utiliza o SQLite como banco de dados, e as configurações podem ser e
 
 ## Execução do Projeto ▶️
 
+Caso deseje visualizar a demonstração do funcionamento do projeto, acesse o link [AQUI](https://drive.google.com/file/d/1EvSUPEfpepdHrgaVa-R7j9OLEJqdUw8p/view).<br/>
+
 1. Clone e abra a solução no Visual Studio.
 2. Configure o projeto `SmartRefund.Infra` como o projeto de inicialização no `Package Manager Console`.
 3. Certifique-se de que as migrações do banco de dados foram realizadas pelo Entity Framework. Se não, execute os seguintes comandos:
@@ -282,6 +305,8 @@ Update-Database
 ```
 4. Execute o projeto na sua máquina.
 5. Abra o link da interface front end para realizar [login](https://smart-refund-front.vercel.app/login) e acessar as funcionalidades do sistema para `employee` e `finance`.
+
+
 
 ## Documentação da API 📚
 A API está documentada usando Swagger. Após a execução do projeto, acesse a documentação em:
@@ -298,6 +323,3 @@ Aceitamos contribuições! Se encontrar um bug ou tiver uma solicitação de rec
 
 | [<img loading="lazy" src="https://avatars.githubusercontent.com/u/45434515?v=4" width=115><br><sub>Laura de Faria</sub>](https://github.com/lauradefaria) |  [<img loading="lazy" src="https://avatars.githubusercontent.com/u/88147887?v=4" width=115><br><sub>Carolina Armentano</sub>](https://github.com/armentanoc) |  [<img loading="lazy" src="https://avatars.githubusercontent.com/u/86637184?v=4" width=115><br><sub>Camila Zambanini</sub>](https://github.com/czambanini) | [<img loading="lazy" src="https://avatars.githubusercontent.com/u/43113952?v=4" width=115><br><sub>Paula Andrezza</sub>](https://github.com/paulaandrezza) | [<img loading="lazy" src="https://media.licdn.com/dms/image/D4D03AQGyr4V2G4gknw/profile-displayphoto-shrink_800_800/0/1689877572457?e=1716422400&v=beta&t=fN2rsgC-aSo34Z4h5M_uN9haV4wa2TjiRr_NeoeJAQk" width=115><br><sub>Igor Nunes</sub>](https://github.com/ig-nunes) | [<img loading="lazy" src="https://media.licdn.com/dms/image/D4D03AQH9rElEp2asJw/profile-displayphoto-shrink_200_200/0/1701280943786?e=1716422400&v=beta&t=DnI11cS4VWRLg9MO8j_OQrbZlJ5_tJlQ3wFoRs0VPmg" width=115><br><sub>Cristopher Saporiti</sub>](https://github.com/cristopherkovalski)
 | :---: | :---: | :---: | :---: | :---: | :---: |
-
-
-
