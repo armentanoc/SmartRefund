@@ -61,11 +61,11 @@ export const MainSection = ({
     <>
       <Box
         component="section"
-        className="flex h-full flex-col gap-4 overflow-x-hidden bg-slate-50 p-4 md:p-6"
+        className="flex h-full flex-col justify-start gap-4 overflow-x-hidden bg-slate-50 p-4 md:p-6"
         bgcolor="primary"
         style={{ gridArea: "mainSection" }}
       >
-        <div className="sticky flex flex-1 items-center justify-end gap-4">
+        <div className="sticky flex items-center justify-end gap-4">
           <div
             className="flex cursor-pointer items-center justify-center"
             onClick={() => window.location.reload()}
