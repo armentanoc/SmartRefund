@@ -1,8 +1,13 @@
-<!--CACHE, EVENT SOURCE, BACKGROUND SERVICE, PORTA ESPECÍFICA DA API, ESPECIFICAR TESTES-->
+<!--EVENT SOURCE CORRETO?, PORTA ESPECÍFICA DA API?, ESPECIFICAR TESTES-->
 # Projeto SmartRefund 🤖💰
-<!-- ![Front](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white) -->
+<!-- https://kapasia-dev-ed.my.site.com/Badges4Me/s/    https://simpleicons.org/?q=mui -->
 ![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
-![SQLite](https://img.shields.io/badge/sqlite-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)&nbsp;<br><br>
+![SQLite](https://img.shields.io/badge/sqlite-%2300f.svg?style=for-the-badge&logo=sqlite&logoColor=white)
+
+<a href='https://mui.com/' target="_blank"><img alt='MUI' src='https://img.shields.io/badge/MUI-100000?style=for-the-badge&logo=MUI&logoColor=white&labelColor=007FFF&color=007FFF'/></a>
+<br><br>
+
+
 
 <table>
     <tr>
@@ -141,15 +146,6 @@ Projeto que contém as exceções customizadas lançadas pela aplicação.
 ### 🧪 `SmartRefund.Tests` 
 Projeto que contém os testes unitários em xUnity da lógica de negócio da aplicação.
 
-<!--dotnet tool install -g dotnet-reportgenerator-globaltool
-dotnet tool install dotnet-stryker-->
-```
-dotnet test --collect:"XPlat Code Coverage"
-
-reportgenerator "-reports:.\**\coverage.cobertura.xml" -reporttypes:Html -targetdir:output
-
-dotnet-stryker
-```
 
 ## Configurações da Aplicação Personalizadas 📁
 
@@ -202,7 +198,7 @@ Através do `Middlewares/LoggingMiddleware` é realizado o logging sempre no com
 | `412` | Configuração da propriedade não pode ser nula, vazia ou inválida.|
 | `413` | Tamanho do arquivo inválido, possui mais que 20MB.|
 | `422` | Tipo do arquivo inválido, extensão diferente de .png/.jpg/.jpeg|
-| `422` | Resulução do arquivo inválida, sendo abaixo da PPI requisitada.|
+| `422` | Resolução do arquivo inválida, sendo abaixo da PPI requisitada.|
 | `500` | Outros tipos de exceções.|
 
 </div>
@@ -210,7 +206,6 @@ Através do `Middlewares/LoggingMiddleware` é realizado o logging sempre no com
 ## Especificação de testes 📋
 
 ### Teste de carga
-
 Foram realizados testes de carga para verificar o desempenho da aplicação, utilizando um escopo que varia de 5 a 30 usuários virtuais simultâneos no endpoint GET: api/management/submitted.
 
 ![Teste de Carga](https://drive.google.com/uc?id=1yXhp445NGhlrA8Gz71cs9UxGUXzv8fzT) <br/><br/>
@@ -239,6 +234,7 @@ Também foram realizados testes de carga simultâneos no endpoint POST: api/rece
 **HTTP Requests**: Durante o teste, foram feitas 114 solicitações HTTP, com uma taxa média de 4.88 solicitações por segundo.<br/>
 **Iteration Duration**: Cada iteração do teste (um ciclo completo de todas as solicitações) teve uma duração média de 2.7 segundos.<br/>
 **Iterations**: Durante o teste, ocorreram 57 iterações, com uma taxa média de 2.44 iterações por segundo.<br/>
+
 
 ### Teste de Stress
 
@@ -316,7 +312,7 @@ Update-Database
 A API está documentada usando Swagger. Após a execução do projeto, acesse a documentação em:
 
 ```
-http://localhost:xxxx/swagger/v1/swagger.json
+http://localhost:5500/swagger/v1/swagger.json
 ```
 
 ## Contribuições 🛠️
