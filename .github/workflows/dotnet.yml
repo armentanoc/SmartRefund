@@ -27,10 +27,13 @@ jobs:
       run: dotnet build --no-restore
       working-directory: ./src
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test SmartRefund/SmartRefund.Tests/TestResults/coverage.info 
       working-directory: ./src
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v4.0.1
+        /p:CollectCoverage=true 
+        /p:CoverletOutput=TestResults/ 
+        /p:CoverletOutputFormat=lcov
+    - name: Publish coverage report to coveralls.io   
+      uses: coverallsapp/github-action@master   
       with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        slug: armentanoc/SmartRefund
+        github-token: ${{ secrets.CODECOV_TOKEN }} 
+        path-to-lcov: SmartRefund/SmartRefund.Tests/TestResults/coverage.info 
